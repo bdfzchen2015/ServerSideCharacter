@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ServerSideCharacter
+﻿namespace ServerSideCharacter
 {
-    public enum SSCMessageType
-    {
-        SyncPlayerHealth,
-        SyncPlayerMana,
-    }
+	public enum SSCMessageType
+	{
+		SyncPlayerHealth,
+		SyncPlayerMana,
+	}
 }
