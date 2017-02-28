@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Players>
+  <Player>
+    <name>DXTsT</name>
+    <hash>b2e0</hash>
+    <password>12345</password>
+    <lifeMax>100</lifeMax>
+    <statlife>100</statlife>
+    <manaMax>20</manaMax>
+    <statmana>20</statmana>
+  </Player>
+</Players>
