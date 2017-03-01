@@ -48,20 +48,20 @@ namespace ServerSideCharacter
 				{
 					return true;
 				}
-                //如果数据中没有玩家的信息
-                if (!xmlData.Data.ContainsKey(Main.player[playerNumber].name))
-                {
-                    try
-                    {
-                        //创建新的玩家数据
-                        ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber].name);
-                        xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                    }
-                }
+				//如果数据中没有玩家的信息
+				if (!xmlData.Data.ContainsKey(Main.player[playerNumber].name))
+				{
+					try
+					{
+						//创建新的玩家数据
+						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber].name);
+						xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);
+					}
+				}
 				if (Netplay.Clients[playerNumber].State == 3)
 				{
 					Netplay.Clients[playerNumber].State = 10;
@@ -253,12 +253,12 @@ namespace ServerSideCharacter
 				if (!Directory.Exists("SSC"))
 				{
 					Directory.CreateDirectory("SSC");
-                    string save = Path.Combine("SSC", "datas.xml");
-                    XMLWriter writer = new XMLWriter(save);
-                    writer.Create();
-                    ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
-                    writer.Write(newPlayer);
-                    Console.WriteLine("Saved data: " + save);
+					string save = Path.Combine("SSC", "datas.xml");
+					XMLWriter writer = new XMLWriter(save);
+					writer.Create();
+					ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
+					writer.Write(newPlayer);
+					Console.WriteLine("Saved data: " + save);
 				}
 				else
 				{

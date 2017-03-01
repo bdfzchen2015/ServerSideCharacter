@@ -6,8 +6,8 @@ namespace ServerSideCharacter
 	public class ServerPlayer
 	{
 
-        //TODO: Write this in XML Doc
-        public bool HasPassword { get; set; }
+		//TODO: Write this in XML Doc
+		public bool HasPassword { get; set; }
 
 		public string Name { get; set; }
 
@@ -65,18 +65,18 @@ namespace ServerSideCharacter
 			return Convert.ToString(res, 16);
 		}
 
-        public static ServerPlayer CreateNewPlayer(string name)
-        {
-            ServerPlayer player = new ServerPlayer();
-            player.Name = name;
-            player.Hash = GenHashCode(name);
-            player.HasPassword = false;
-            player.Password = "";
-            player.LifeMax = 100;
-            player.StatLife = 100;
-            player.ManaMax = 20;
-            player.StatMana = 20;
-            return player;
-        }
+		public static ServerPlayer CreateNewPlayer(string name)
+		{
+			ServerPlayer player = new ServerPlayer();
+			player.Name = name;
+			player.Hash = GenHashCode(name);
+			player.HasPassword = false;
+			player.Password = "";
+			player.LifeMax = 100;
+			player.StatLife = 100;
+			player.ManaMax = 20;
+			player.StatMana = 20;
+			return player;
+		}
 	}
 }

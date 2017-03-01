@@ -33,11 +33,11 @@ namespace ServerSideCharacter
 				ServerPlayer player = new ServerPlayer();
 				var info = pData.ChildNodes;
 				int i = 0;
-                player.Name = pData.GetAttribute("name");
-                player.Hash = pData.GetAttribute("hash");
-                player.HasPassword = Convert.ToBoolean(ReadNext(info, ref i));
-                player.Password = ReadNext(info, ref i);
-                player.LifeMax = Convert.ToInt32(ReadNext(info, ref i));
+				player.Name = pData.GetAttribute("name");
+				player.Hash = pData.GetAttribute("hash");
+				player.HasPassword = Convert.ToBoolean(ReadNext(info, ref i));
+				player.Password = ReadNext(info, ref i);
+				player.LifeMax = Convert.ToInt32(ReadNext(info, ref i));
 				player.StatLife = Convert.ToInt32(ReadNext(info, ref i));
 				player.ManaMax = Convert.ToInt32(ReadNext(info, ref i));
 				player.StatMana = Convert.ToInt32(ReadNext(info, ref i));
