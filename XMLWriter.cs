@@ -24,6 +24,11 @@ namespace ServerSideCharacter
 		public XMLWriter(string path)
 		{
 			FilePath = path;
+			XmlDocument xmlDoc = new XmlDocument();
+			xmlDoc.Load(path);
+			XMLDoc = xmlDoc;
+			XmlNode root = xmlDoc.SelectSingleNode("Players");
+			PlayerRoot = root;
 		}
 
 		public void Create()
@@ -38,6 +43,96 @@ namespace ServerSideCharacter
 			PlayerRoot = root;
 		}
 
+		private XmlNode WriteNext(XmlNodeList list, ref int i, string toWrite)
+		{
+			var node = list.Item(i);
+			list.Item(i++).InnerText = toWrite;
+			return node;
+		}
+
+		public void SavePlayer(ServerPlayer player)
+		{
+			XmlElement targetNode = null;
+			foreach(var node in PlayerRoot.ChildNodes)
+			{
+				XmlElement element = node as XmlElement;
+				if (element.GetAttribute("name").Equals(player.Name))
+				{
+					targetNode = element;
+					break;
+				}
+			}
+			if (targetNode == null)
+			{
+				Console.WriteLine("Creating new Account");
+				Write(player);
+			}
+			else
+			{
+				var list = targetNode.ChildNodes;
+				int j = 0;
+				WriteNext(list, ref j, player.HasPassword.ToString());
+				WriteNext(list, ref j, player.Password);
+				WriteNext(list, ref j, player.LifeMax.ToString());
+				WriteNext(list, ref j, player.StatLife.ToString());
+				WriteNext(list, ref j, player.ManaMax.ToString());
+				WriteNext(list, ref j, player.StatMana.ToString());
+				for (int i = 0; i < player.inventroy.Length; i++)
+				{
+					//TODO: Mod Item check
+
+					var node1 = (XmlElement)WriteNext(list, ref j, player.inventroy[i].type.ToString());
+					node1.SetAttribute("prefix", player.inventroy[i].prefix.ToString());
+					node1.SetAttribute("stack", player.inventroy[i].stack.ToString());
+
+					//TODO: Additional mod item info
+				}
+				for (int i = 0; i < player.armor.Length; i++)
+				{
+					//TODO: Mod Item check
+					var node1 = (XmlElement)WriteNext(list, ref j, player.armor[i].type.ToString());
+					node1.SetAttribute("prefix", player.armor[i].prefix.ToString());
+				}
+				for (int i = 0; i < player.dye.Length; i++)
+				{
+					WriteNext(list, ref j, player.dye[i].type.ToString());
+				}
+				for (int i = 0; i < player.miscEquips.Length; i++)
+				{
+					WriteNext(list, ref j, player.miscEquips[i].type.ToString());
+				}
+				for (int i = 0; i < player.miscDye.Length; i++)
+				{
+					WriteNext(list, ref j, player.miscDye[i].type.ToString());
+				}
+				for (int i = 0; i < player.bank.item.Length; i++)
+				{
+					var node1 = (XmlElement)WriteNext(list, ref j, player.bank.item[i].type.ToString());
+					node1.SetAttribute("prefix", player.bank.item[i].prefix.ToString());
+					node1.SetAttribute("stack", player.bank.item[i].stack.ToString());
+				}
+				for (int i = 0; i < player.bank2.item.Length; i++)
+				{
+					var node1 = (XmlElement)WriteNext(list, ref j, player.bank2.item[i].type.ToString());
+					node1.SetAttribute("prefix", player.bank2.item[i].prefix.ToString());
+					node1.SetAttribute("stack", player.bank2.item[i].stack.ToString());
+				}
+				for (int i = 0; i < player.bank3.item.Length; i++)
+				{
+					var node1 = (XmlElement)WriteNext(list, ref j, player.bank3.item[i].type.ToString());
+					node1.SetAttribute("prefix", player.bank2.item[i].prefix.ToString());
+					node1.SetAttribute("stack", player.bank2.item[i].stack.ToString());
+				}
+				using (XmlTextWriter xtw = new XmlTextWriter(FilePath, Encoding.UTF8))
+				{
+					xtw.Formatting = Formatting.Indented;
+					XMLDoc.Save(xtw);
+				}
+			}
+			Console.WriteLine("XML Saved!");
+		}
+
+
 		public void Write(ServerPlayer player)
 		{
 
@@ -51,7 +146,7 @@ namespace ServerSideCharacter
 			NodeHelper.CreateNode(XMLDoc, playerNode, "statlife", player.StatLife.ToString());
 			NodeHelper.CreateNode(XMLDoc, playerNode, "manaMax", player.ManaMax.ToString());
 			NodeHelper.CreateNode(XMLDoc, playerNode, "statmana", player.StatMana.ToString());
-			for (int i = 0; i < 59; i++)
+			for (int i = 0; i < player.inventroy.Length; i++)
 			{
 				//TODO: Mod Item check
 
@@ -62,22 +157,22 @@ namespace ServerSideCharacter
 
 				//TODO: Additional mod item info
 			}
-			for (int i = 0; i < 20; i++)
+			for (int i = 0; i < player.armor.Length; i++)
 			{
 				//TODO: Mod Item check
 				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "armor_" + i, 
 					player.armor[i].type.ToString());
 				node1.SetAttribute("prefix", player.armor[i].prefix.ToString());
 			}
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < player.dye.Length; i++)
 			{
 				NodeHelper.CreateNode(XMLDoc, playerNode, "dye_" + i, player.dye[i].type.ToString());
 			}
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < player.miscEquips.Length; i++)
 			{
 				NodeHelper.CreateNode(XMLDoc, playerNode, "miscEquip_" + i, player.miscEquips[i].type.ToString());
 			}
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < player.miscDye.Length; i++)
 			{
 				NodeHelper.CreateNode(XMLDoc, playerNode, "miscDye_" + i, player.miscDye[i].type.ToString());
 			}
@@ -104,7 +199,7 @@ namespace ServerSideCharacter
 
 			using (XmlTextWriter xtw = new XmlTextWriter(FilePath, Encoding.UTF8))
 			{
-				xtw.Formatting = Formatting.None;
+				xtw.Formatting = Formatting.Indented;
 				XMLDoc.Save(xtw);
 			}
 		}

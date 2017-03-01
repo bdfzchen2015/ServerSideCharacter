@@ -8,6 +8,7 @@ using Terraria.IO;
 using Terraria.Localization;
 using ServerSideCharacter.XMLHelper;
 using System.Text;
+using System.Threading;
 
 namespace ServerSideCharacter
 {
@@ -16,6 +17,10 @@ namespace ServerSideCharacter
 		public static ServerSideCharacter instance;
 
 		public static XMLData xmlData;
+
+		public static XMLWriter MainWriter;
+
+		public static Thread CheckDisconnect;
 
 		public ServerSideCharacter()
 		{
@@ -119,10 +124,6 @@ namespace ServerSideCharacter
 				player.miscEquips.CopyTo(Main.player[plr].miscEquips, 0);
 				player.miscDye.CopyTo(Main.player[plr].miscDyes, 0);
 				Main.player[plr].trashItem = new Item();
-				foreach (var i in Main.player[plr].armor)
-				{
-					Console.Write(i.type + " ");
-				}
 				for (int i = 0; i < 59; i++)
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].inventory[i].name, plr, i, Main.player[plr].inventory[i].prefix, 0f, 0, 0, 0);
@@ -152,7 +153,6 @@ namespace ServerSideCharacter
 					if (Main.dedServ)
 					{
 						Console.WriteLine(Main.player[plr].name + " joined the Game. Welcome!");
-
 					}
 					return;
 				}
@@ -268,6 +268,16 @@ namespace ServerSideCharacter
 				Console.WriteLine("Data loaded!");
 
 			}
+			else
+			{
+				
+			}
+		}
+
+		private void Netplay_OnDisconnect()
+		{
+			NetSync.SendRequestSave(Main.myPlayer);
+			Main.NewText("Saving");
 		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI)
@@ -340,6 +350,22 @@ namespace ServerSideCharacter
 						player.bank3.item[k].stack = stack;
 					}
 				}
+			}
+			else if(msgType == SSCMessageType.RequestSaveData)
+			{
+				int plr = reader.ReadByte();
+				Player p = Main.player[plr];
+				ServerPlayer player = xmlData.Data[p.name];
+				player.CopyFrom(Main.player[plr]);
+				try
+				{
+					MainWriter.SavePlayer(player);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+				Console.WriteLine("Saved " + player.Name);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 ﻿using System;
 using Terraria;
+using Terraria.ID;
 
 namespace ServerSideCharacter
 {
@@ -76,6 +77,22 @@ namespace ServerSideCharacter
 			}
 		}
 
+		public void CopyFrom(Player player)
+		{
+			this.LifeMax = player.statLifeMax;
+			this.StatLife = player.statLife;
+			this.StatMana = player.statMana;
+			this.ManaMax = player.statManaMax;
+			player.inventory.CopyTo(this.inventroy, 0);
+			player.armor.CopyTo(this.armor, 0);
+			player.dye.CopyTo(this.dye, 0);
+			player.miscEquips.CopyTo(this.miscEquips, 0);
+			player.miscDyes.CopyTo(this.miscDye, 0);
+			this.bank = (Chest)player.bank.Clone();
+			this.bank2 = (Chest)player.bank2.Clone();
+			this.bank3 = (Chest)player.bank3.Clone();
+		}
+
 		public static string GenHashCode(string name)
 		{
 			long hash = name.GetHashCode();
@@ -87,6 +104,7 @@ namespace ServerSideCharacter
 		public static ServerPlayer CreateNewPlayer(string name)
 		{
 			ServerPlayer player = new ServerPlayer();
+			player.inventroy[0].SetDefaults(ItemID.TerraBlade);
 			player.Name = name;
 			player.Hash = GenHashCode(name);
 			player.HasPassword = false;

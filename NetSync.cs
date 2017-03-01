@@ -76,5 +76,14 @@ namespace ServerSideCharacter
 			}
 			p.Send(to, from);
 		}
+
+		public static void SendRequestSave(int plr)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RequestSaveData);
+			p.Write((byte)plr);
+			p.Send();
+		}
 	}
 }

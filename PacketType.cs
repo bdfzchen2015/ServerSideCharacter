@@ -5,5 +5,6 @@
 		SyncPlayerHealth,
 		SyncPlayerMana,
 		SyncPlayerBank,
+		RequestSaveData
 	}
 }
