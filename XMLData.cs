@@ -4,11 +4,11 @@ using System.Xml;
 
 namespace ServerSideCharacter
 {
-	public class PlayerDatas
+	public class XMLData
 	{
 		public Dictionary<string, ServerPlayer> Data = new Dictionary<string, ServerPlayer>();
 
-		public PlayerDatas()
+		public XMLData()
 		{
 
 		}
@@ -18,7 +18,7 @@ namespace ServerSideCharacter
 			return info.Item(i++).InnerText;
 		}
 
-		public PlayerDatas(string path)
+		public XMLData(string path)
 		{
 			XmlReaderSettings settings = new XmlReaderSettings();
 			settings.IgnoreComments = true;                         //忽略文档里面的注释
@@ -33,10 +33,11 @@ namespace ServerSideCharacter
 				ServerPlayer player = new ServerPlayer();
 				var info = pData.ChildNodes;
 				int i = 0;
-				player.Name = ReadNext(info, ref i);
-				player.Password = ReadNext(info, ref i);
-				player.Hash = ReadNext(info, ref i);
-				player.LifeMax = Convert.ToInt32(ReadNext(info, ref i));
+                player.Name = pData.GetAttribute("name");
+                player.Hash = pData.GetAttribute("hash");
+                player.HasPassword = Convert.ToBoolean(ReadNext(info, ref i));
+                player.Password = ReadNext(info, ref i);
+                player.LifeMax = Convert.ToInt32(ReadNext(info, ref i));
 				player.StatLife = Convert.ToInt32(ReadNext(info, ref i));
 				player.ManaMax = Convert.ToInt32(ReadNext(info, ref i));
 				player.StatMana = Convert.ToInt32(ReadNext(info, ref i));

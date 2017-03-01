@@ -65,13 +65,11 @@
     <Compile Include="MPlayer.cs" />
     <Compile Include="NetSync.cs" />
     <Compile Include="PacketType.cs" />
-    <Compile Include="PlayerDatas.cs" />
+    <Compile Include="XMLData.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />
     <Compile Include="XMLHelper\NodeHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <Compile Include="XMLWriter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

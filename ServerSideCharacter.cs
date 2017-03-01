@@ -15,7 +15,7 @@ namespace ServerSideCharacter
 	{
 		public static ServerSideCharacter instance;
 
-		public static PlayerDatas xmlData;
+		public static XMLData xmlData;
 
 		public ServerSideCharacter()
 		{
@@ -48,6 +48,20 @@ namespace ServerSideCharacter
 				{
 					return true;
 				}
+                //如果数据中没有玩家的信息
+                if (!xmlData.Data.ContainsKey(Main.player[playerNumber].name))
+                {
+                    try
+                    {
+                        //创建新的玩家数据
+                        ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber].name);
+                        xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
 				if (Netplay.Clients[playerNumber].State == 3)
 				{
 					Netplay.Clients[playerNumber].State = 10;
@@ -239,56 +253,16 @@ namespace ServerSideCharacter
 				if (!Directory.Exists("SSC"))
 				{
 					Directory.CreateDirectory("SSC");
-					XmlDocument xmlDoc = new XmlDocument();
-					XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
-					xmlDoc.AppendChild(node);
-					//创建根节点    
-					XmlNode root = xmlDoc.CreateElement("Players");
-					xmlDoc.AppendChild(root);
-					XmlNode playerNode = xmlDoc.CreateNode(XmlNodeType.Element, "Player", null);
-					NodeHelper.CreateNode(xmlDoc, playerNode, "name", "DXTsT");
-					NodeHelper.CreateNode(xmlDoc, playerNode, "hash", ServerPlayer.GenHashCode("DXTsT"));
-					NodeHelper.CreateNode(xmlDoc, playerNode, "password", "12345");
-					NodeHelper.CreateNode(xmlDoc, playerNode, "lifeMax", "100");
-					NodeHelper.CreateNode(xmlDoc, playerNode, "statlife", "100");
-					NodeHelper.CreateNode(xmlDoc, playerNode, "manaMax", "20");
-					NodeHelper.CreateNode(xmlDoc, playerNode, "statmana", "20");
-					for (int i = 0; i < 59; i++)
-					{
-						var node1 = (XmlElement)NodeHelper.CreateNode(xmlDoc, playerNode, "slot_" + i, "0");
-						node1.SetAttribute("prefix", "0");
-						node1.SetAttribute("stack", "0");
-					}
-					for (int i = 59; i < 79; i++)
-					{
-						var node1 = (XmlElement)NodeHelper.CreateNode(xmlDoc, playerNode, "slot_" + i, "0");
-						node1.SetAttribute("prefix", "0");
-					}
-					for (int i = 79; i < 89; i++)
-					{
-						NodeHelper.CreateNode(xmlDoc, playerNode, "slot_" + i, "0");
-					}
-					for (int i = 89; i < 94; i++)
-					{
-						NodeHelper.CreateNode(xmlDoc, playerNode, "slot_" + i, "0");
-					}
-					for (int i = 94; i < 99; i++)
-					{
-						NodeHelper.CreateNode(xmlDoc, playerNode, "slot_" + i, "0");
-					}
-					root.AppendChild(playerNode);
-					string save = Path.Combine("SSC", "datas.xml");
-
-					using (XmlTextWriter xtw = new XmlTextWriter(save, Encoding.UTF8))
-					{
-						xtw.Formatting = Formatting.None;
-						xmlDoc.Save(xtw);
-					}
-					Console.WriteLine("Saved data: " + save);
+                    string save = Path.Combine("SSC", "datas.xml");
+                    XMLWriter writer = new XMLWriter(save);
+                    writer.Create();
+                    ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
+                    writer.Write(newPlayer);
+                    Console.WriteLine("Saved data: " + save);
 				}
 				else
 				{
-					xmlData = new PlayerDatas("SSC/datas.xml");
+					xmlData = new XMLData("SSC/datas.xml");
 				}
 				Console.WriteLine("Data loaded!");
 

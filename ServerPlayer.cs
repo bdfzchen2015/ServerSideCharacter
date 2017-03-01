@@ -5,6 +5,10 @@ namespace ServerSideCharacter
 {
 	public class ServerPlayer
 	{
+
+        //TODO: Write this in XML Doc
+        public bool HasPassword { get; set; }
+
 		public string Name { get; set; }
 
 		public string Password { get; set; }
@@ -56,9 +60,23 @@ namespace ServerSideCharacter
 		public static string GenHashCode(string name)
 		{
 			long hash = name.GetHashCode();
-			hash = DateTime.Now.Millisecond + hash * 2333;
+			hash += DateTime.Now.ToLongTimeString().GetHashCode() * 233;
 			short res = (short)(hash % 65536);
 			return Convert.ToString(res, 16);
 		}
+
+        public static ServerPlayer CreateNewPlayer(string name)
+        {
+            ServerPlayer player = new ServerPlayer();
+            player.Name = name;
+            player.Hash = GenHashCode(name);
+            player.HasPassword = false;
+            player.Password = "";
+            player.LifeMax = 100;
+            player.StatLife = 100;
+            player.ManaMax = 20;
+            player.StatMana = 20;
+            return player;
+        }
 	}
 }
