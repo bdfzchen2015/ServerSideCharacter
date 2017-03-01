@@ -53,26 +53,51 @@ namespace ServerSideCharacter
 			NodeHelper.CreateNode(XMLDoc, playerNode, "statmana", player.StatMana.ToString());
 			for (int i = 0; i < 59; i++)
 			{
-				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, "0");
-				node1.SetAttribute("prefix", "0");
-				node1.SetAttribute("stack", "0");
+				//TODO: Mod Item check
+
+				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, 
+					player.inventroy[i].type.ToString());
+				node1.SetAttribute("prefix", player.inventroy[i].prefix.ToString());
+				node1.SetAttribute("stack", player.inventroy[i].stack.ToString());
+
+				//TODO: Additional mod item info
 			}
-			for (int i = 59; i < 79; i++)
+			for (int i = 0; i < 20; i++)
 			{
-				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, "0");
-				node1.SetAttribute("prefix", "0");
+				//TODO: Mod Item check
+				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "armor_" + i, 
+					player.armor[i].type.ToString());
+				node1.SetAttribute("prefix", player.armor[i].prefix.ToString());
 			}
-			for (int i = 79; i < 89; i++)
+			for (int i = 0; i < 10; i++)
 			{
-				NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, "0");
+				NodeHelper.CreateNode(XMLDoc, playerNode, "dye_" + i, player.dye[i].type.ToString());
 			}
-			for (int i = 89; i < 94; i++)
+			for (int i = 0; i < 5; i++)
 			{
-				NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, "0");
+				NodeHelper.CreateNode(XMLDoc, playerNode, "miscEquip_" + i, player.miscEquips[i].type.ToString());
 			}
-			for (int i = 94; i < 99; i++)
+			for (int i = 0; i < 5; i++)
 			{
-				NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, "0");
+				NodeHelper.CreateNode(XMLDoc, playerNode, "miscDye_" + i, player.miscDye[i].type.ToString());
+			}
+			for(int i = 0; i < player.bank.item.Length; i++)
+			{
+				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "bank_" + i, player.bank.item[i].type.ToString());
+				node1.SetAttribute("prefix", player.bank.item[i].prefix.ToString());
+				node1.SetAttribute("stack", player.bank.item[i].stack.ToString());
+			}
+			for (int i = 0; i < player.bank2.item.Length; i++)
+			{
+				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "bank2_" + i, player.bank2.item[i].type.ToString());
+				node1.SetAttribute("prefix", player.bank2.item[i].prefix.ToString());
+				node1.SetAttribute("stack", player.bank2.item[i].stack.ToString());
+			}
+			for (int i = 0; i < player.bank3.item.Length; i++)
+			{
+				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "bank3_" + i, player.bank3.item[i].type.ToString());
+				node1.SetAttribute("prefix", player.bank2.item[i].prefix.ToString());
+				node1.SetAttribute("stack", player.bank2.item[i].stack.ToString());
 			}
 			PlayerRoot.AppendChild(playerNode);
 

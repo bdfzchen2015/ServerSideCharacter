@@ -41,52 +41,84 @@ namespace ServerSideCharacter
 				player.StatLife = Convert.ToInt32(ReadNext(info, ref i));
 				player.ManaMax = Convert.ToInt32(ReadNext(info, ref i));
 				player.StatMana = Convert.ToInt32(ReadNext(info, ref i));
-				for (int id = 0; id < 59; id++)
+				for (int id = 0; id < player.inventroy.Length; id++)
 				{
 					int type = Convert.ToInt32(ReadNext(info, ref i));
 					if (type != 0)
 					{
 						player.inventroy[id].SetDefaults(type);
-						player.inventroy[id].prefix =
-							Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix"));
+						player.inventroy[id].Prefix(Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix")));
 						player.inventroy[id].stack =
 							Convert.ToInt32((list.Item(i) as XmlElement).GetAttribute("stack"));
 					}
 				}
-				for (int id = 59; id < 79; id++)
+				for (int id = 0; id < player.armor.Length; id++)
 				{
 					int type = Convert.ToInt32(ReadNext(info, ref i));
 					if (type != 0)
 					{
-						player.armor[id - 59].SetDefaults(type);
-						player.inventroy[id].prefix =
-							Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix"));
+						player.armor[id].SetDefaults(type);
+						player.armor[id].Prefix(Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix")));
 					}
 				}
-				for (int id = 79; id < 89; id++)
+				for (int id = 0; id < player.dye.Length; id++)
 				{
 					int type = Convert.ToInt32(ReadNext(info, ref i));
 					if (type != 0)
 					{
-						player.dye[id - 79].SetDefaults(type);
+						player.dye[id].SetDefaults(type);
 					}
 				}
-				for (int id = 89; id < 94; id++)
+				for (int id = 0; id < player.miscEquips.Length; id++)
 				{
 					int type = Convert.ToInt32(ReadNext(info, ref i));
 					if (type != 0)
 					{
-						player.miscEquips[id - 89].SetDefaults(type);
+						player.miscEquips[id].SetDefaults(type);
 					}
 				}
-				for (int id = 94; id < 99; id++)
+				for (int id = 0; id < player.miscDye.Length; id++)
 				{
 					int type = Convert.ToInt32(ReadNext(info, ref i));
 					if (type != 0)
 					{
-						player.miscDye[id - 94].SetDefaults(type);
+						player.miscDye[id].SetDefaults(type);
 					}
 				}
+				for (int id = 0; id < player.bank.item.Length; id++)
+				{
+					int type = Convert.ToInt32(ReadNext(info, ref i));
+					if (type != 0)
+					{
+						player.bank.item[id].SetDefaults(type);
+						player.bank.item[id].Prefix(Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix")));
+						player.bank.item[id].stack =
+							Convert.ToInt32((list.Item(i) as XmlElement).GetAttribute("stack"));
+					}
+				}
+				for (int id = 0; id < player.bank2.item.Length; id++)
+				{
+					int type = Convert.ToInt32(ReadNext(info, ref i));
+					if (type != 0)
+					{
+						player.bank2.item[id].SetDefaults(type);
+						player.bank2.item[id].Prefix(Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix")));
+						player.bank2.item[id].stack =
+							Convert.ToInt32((list.Item(i) as XmlElement).GetAttribute("stack"));
+					}
+				}
+				for (int id = 0; id < player.bank3.item.Length; id++)
+				{
+					int type = Convert.ToInt32(ReadNext(info, ref i));
+					if (type != 0)
+					{
+						player.bank3.item[id].SetDefaults(type);
+						player.bank3.item[id].Prefix(Convert.ToByte((list.Item(i) as XmlElement).GetAttribute("prefix")));
+						player.bank3.item[id].stack =
+							Convert.ToInt32((list.Item(i) as XmlElement).GetAttribute("stack"));
+					}
+				}
+
 				Data.Add(player.Name, player);
 			}
 			reader.Close();

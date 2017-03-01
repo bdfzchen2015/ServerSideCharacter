@@ -143,6 +143,7 @@ namespace ServerSideCharacter
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
 				}
+				NetSync.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
@@ -300,6 +301,45 @@ namespace ServerSideCharacter
 				int statManaMax = reader.ReadInt32();
 				Main.player[id].statMana = statMana;
 				Main.player[id].statManaMax = statManaMax;
+			}
+			else if(msgType == SSCMessageType.SyncPlayerBank)
+			{
+				int id = reader.ReadByte();
+				if (id == Main.myPlayer && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
+				{
+					return;
+				}
+				Player player = Main.player[id];
+				lock (player)
+				{
+					for (int k = 0; k < player.bank.item.Length; k++)
+					{
+						int type = reader.ReadInt32();
+						int prefix = reader.ReadInt16();
+						int stack = reader.ReadInt16();
+						player.bank.item[k].SetDefaults(type);
+						player.bank.item[k].Prefix(prefix);
+						player.bank.item[k].stack = stack;
+					}
+					for (int k = 0; k < player.bank2.item.Length; k++)
+					{
+						int type = reader.ReadInt32();
+						int prefix = reader.ReadInt16();
+						int stack = reader.ReadInt16();
+						player.bank2.item[k].SetDefaults(type);
+						player.bank2.item[k].Prefix(prefix);
+						player.bank2.item[k].stack = stack;
+					}
+					for (int k = 0; k < player.bank3.item.Length; k++)
+					{
+						int type = reader.ReadInt32();
+						int prefix = reader.ReadInt16();
+						int stack = reader.ReadInt16();
+						player.bank3.item[k].SetDefaults(type);
+						player.bank3.item[k].Prefix(prefix);
+						player.bank3.item[k].stack = stack;
+					}
+				}
 			}
 		}
 	}

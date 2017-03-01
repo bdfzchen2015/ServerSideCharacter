@@ -4,5 +4,6 @@
 	{
 		SyncPlayerHealth,
 		SyncPlayerMana,
+		SyncPlayerBank,
 	}
 }

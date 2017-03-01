@@ -33,6 +33,13 @@ namespace ServerSideCharacter
 
 		public Item[] miscDye = new Item[5];
 
+		public Chest bank = new Chest(true);
+
+		public Chest bank2 = new Chest(true);
+
+		public Chest bank3 = new Chest(true);
+
+
 		public ServerPlayer()
 		{
 			for (int i = 0; i < inventroy.Length; i++)
@@ -54,6 +61,18 @@ namespace ServerSideCharacter
 			for (int i = 0; i < miscDye.Length; i++)
 			{
 				miscDye[i] = new Item();
+			}
+			for (int i = 0; i < bank.item.Length; i++)
+			{
+				bank.item[i] = new Item();
+			}
+			for (int i = 0; i < bank2.item.Length; i++)
+			{
+				bank2.item[i] = new Item();
+			}
+			for (int i = 0; i < bank3.item.Length; i++)
+			{
+				bank3.item[i] = new Item();
 			}
 		}
 
