@@ -58,13 +58,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Buffs\Locked.png" />
     <Content Include="build.txt" />
     <Content Include="description.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Buffs\Locked.cs" />
     <Compile Include="MPlayer.cs" />
+    <Compile Include="MWorld.cs" />
     <Compile Include="NetSync.cs" />
     <Compile Include="PacketType.cs" />
+    <Compile Include="SaveInfo.cs" />
     <Compile Include="XMLData.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />

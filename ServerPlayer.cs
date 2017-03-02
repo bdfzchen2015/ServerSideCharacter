@@ -10,6 +10,8 @@ namespace ServerSideCharacter
 		//TODO: Write this in XML Doc
 		public bool HasPassword { get; set; }
 
+		public bool IsLogin { get; set; }
+
 		public string Name { get; set; }
 
 		public string Password { get; set; }
@@ -40,8 +42,9 @@ namespace ServerSideCharacter
 
 		public Chest bank3 = new Chest(true);
 
+		public Player prototypePlayer { get; set; }
 
-		public ServerPlayer()
+		private void SetupPlayer()
 		{
 			for (int i = 0; i < inventroy.Length; i++)
 			{
@@ -75,6 +78,17 @@ namespace ServerSideCharacter
 			{
 				bank3.item[i] = new Item();
 			}
+
+		}
+		public ServerPlayer()
+		{
+			SetupPlayer();
+		}
+
+		public ServerPlayer(Player player)
+		{
+			SetupPlayer();
+			prototypePlayer = player;
 		}
 
 		public void CopyFrom(Player player)
@@ -93,6 +107,19 @@ namespace ServerSideCharacter
 			this.bank3 = (Chest)player.bank3.Clone();
 		}
 
+
+		public void ApplyLockBuffs()
+		{
+			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), 180, false);
+			prototypePlayer.AddBuff(BuffID.Frozen, 180, false);
+			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
+				"", prototypePlayer.whoAmI,
+				ServerSideCharacter.instance.BuffType("Locked"), 180, 0f, 0, 0, 0);
+			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
+				"", prototypePlayer.whoAmI,
+				BuffID.Frozen, 180, 0f, 0, 0, 0);
+		}
+
 		public static string GenHashCode(string name)
 		{
 			long hash = name.GetHashCode();
@@ -101,12 +128,12 @@ namespace ServerSideCharacter
 			return Convert.ToString(res, 16);
 		}
 
-		public static ServerPlayer CreateNewPlayer(string name)
+		public static ServerPlayer CreateNewPlayer(Player p)
 		{
-			ServerPlayer player = new ServerPlayer();
+			ServerPlayer player = new ServerPlayer(p);
 			player.inventroy[0].SetDefaults(ItemID.TerraBlade);
-			player.Name = name;
-			player.Hash = GenHashCode(name);
+			player.Name = p.name;
+			player.Hash = GenHashCode(p.name);
 			player.HasPassword = false;
 			player.Password = "";
 			player.LifeMax = 100;

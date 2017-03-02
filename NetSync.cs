@@ -85,5 +85,25 @@ namespace ServerSideCharacter
 			p.Write((byte)plr);
 			p.Send();
 		}
+
+		public static void SendSetPassword(int plr, string password)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RequestRegister);
+			p.Write((byte)plr);
+			p.Write(password);
+			p.Send();
+		}
+
+		public static void SendLoginPassword(int plr, string password)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.SendLoginPassword);
+			p.Write((byte)plr);
+			p.Write(password);
+			p.Send();
+		}
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -21,6 +22,10 @@ namespace ServerSideCharacter
 		public static XMLWriter MainWriter;
 
 		public static Thread CheckDisconnect;
+
+		public static string Version = "V1.0b";
+
+		private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
 
 		public ServerSideCharacter()
 		{
@@ -59,7 +64,7 @@ namespace ServerSideCharacter
 					try
 					{
 						//创建新的玩家数据
-						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber].name);
+						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber]);
 						xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
 					}
 					catch (Exception ex)
@@ -124,6 +129,11 @@ namespace ServerSideCharacter
 				player.miscEquips.CopyTo(Main.player[plr].miscEquips, 0);
 				player.miscDye.CopyTo(Main.player[plr].miscDyes, 0);
 				Main.player[plr].trashItem = new Item();
+				player.prototypePlayer = Main.player[plr];
+
+				//增加限制性debuff
+				player.ApplyLockBuffs();
+
 				for (int i = 0; i < 59; i++)
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].inventory[i].name, plr, i, Main.player[plr].inventory[i].prefix, 0f, 0, 0, 0);
@@ -146,6 +156,7 @@ namespace ServerSideCharacter
 				}
 				NetSync.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
+				PlayerActiveTable[plr] = new SaveInfo() { Name = Main.player[plr].name, Active = true };
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = true;
@@ -251,26 +262,45 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				Main.ServerSideCharacter = true;
-				if (!Directory.Exists("SSC"))
-				{
-					Directory.CreateDirectory("SSC");
-					string save = Path.Combine("SSC", "datas.xml");
-					XMLWriter writer = new XMLWriter(save);
-					writer.Create();
-					ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
-					writer.Write(newPlayer);
-					Console.WriteLine("Saved data: " + save);
-				}
-				else
-				{
-					xmlData = new XMLData("SSC/datas.xml");
-				}
+				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + Version + "]");
+				//if (!Directory.Exists("SSC"))
+				//{
+				//	Directory.CreateDirectory("SSC");
+				//	string save = Path.Combine("SSC", "datas.xml");
+				//	XMLWriter writer = new XMLWriter(save);
+				//	writer.Create();
+				//	ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
+				//	writer.Write(newPlayer);
+				//	MainWriter = writer;
+				//	Console.WriteLine("Saved data: " + save);
+				//}
+				xmlData = new XMLData("SSC/datas.xml");
 				Console.WriteLine("Data loaded!");
+				CheckDisconnect = new Thread(() =>
+				{
+					while (!Netplay.disconnect)
+					{
 
-			}
-			else
-			{
-				
+						Thread.Sleep(100);
+					}
+					lock (ServerSideCharacter.xmlData.Data)
+					{
+						foreach (var player in ServerSideCharacter.xmlData.Data)
+						{
+							try
+							{
+								ServerSideCharacter.MainWriter.SavePlayer(player.Value);
+							}
+							catch (Exception ex)
+							{
+								Console.WriteLine(ex);
+							}
+							Console.WriteLine("\nOn Server Close: Saved " + player.Key);
+						}
+					}
+
+				});
+				CheckDisconnect.Start();
 			}
 		}
 
@@ -312,7 +342,7 @@ namespace ServerSideCharacter
 				Main.player[id].statMana = statMana;
 				Main.player[id].statManaMax = statManaMax;
 			}
-			else if(msgType == SSCMessageType.SyncPlayerBank)
+			else if (msgType == SSCMessageType.SyncPlayerBank)
 			{
 				int id = reader.ReadByte();
 				if (id == Main.myPlayer && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
@@ -351,7 +381,7 @@ namespace ServerSideCharacter
 					}
 				}
 			}
-			else if(msgType == SSCMessageType.RequestSaveData)
+			else if (msgType == SSCMessageType.RequestSaveData)
 			{
 				int plr = reader.ReadByte();
 				Player p = Main.player[plr];
@@ -366,6 +396,117 @@ namespace ServerSideCharacter
 					Console.WriteLine(ex);
 				}
 				Console.WriteLine("Saved " + player.Name);
+			}
+			else if (msgType == SSCMessageType.RequestRegister)
+			{
+				int plr = reader.ReadByte();
+				string password = reader.ReadString();
+				Player p = Main.player[plr];
+				ServerPlayer player = xmlData.Data[p.name];
+				if (player.HasPassword)
+				{
+					NetMessage.SendData(MessageID.ChatText, plr, -1, "You cannot register twice!",
+						255, 255, 0, 0);
+					return;
+
+				}
+				else
+				{
+					player.HasPassword = true;
+					player.Password = password;
+					NetMessage.SendData(MessageID.ChatText, plr, -1,
+						string.Format("You have successfully set your password as {0}. Remember it!", password),
+						255, 50, 255, 50);
+				}
+			}
+			else if (msgType == SSCMessageType.SendLoginPassword)
+			{
+				int plr = reader.ReadByte();
+				string password = reader.ReadString();
+				Player p = Main.player[plr];
+				ServerPlayer player = xmlData.Data[p.name];
+				
+				if (!player.HasPassword)
+				{
+					NetMessage.SendData(MessageID.ChatText, plr, -1, "You should first register an account use /register <password> !",
+						255, 255, 0, 0);
+					return;
+
+				}
+				else
+				{
+					bool isPasswordCorrrect = password.Equals(player.Password);
+					if (isPasswordCorrrect)
+					{
+						player.IsLogin = true;
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+							string.Format("You have successfully logged in as {0}", player.Name),
+							255, 50, 255, 50);
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+							"Please wait for a few seconds and then you can move",
+							255, 255, 255, 0);
+					}
+					else
+					{
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+							"Wrong password! Please try again!",
+							255, 255, 20, 0);
+					}
+				}
+			}
+			else
+			{
+				Console.WriteLine("Unexpected message type!");
+			}
+		}
+
+
+		public override void ChatInput(string text, ref bool broadcast)
+		{
+			if (text[0] == '/')
+			{
+				text = text.Substring(1);
+				int index = text.IndexOf(' ');
+				string command;
+				string[] args;
+				if (index < 0)
+				{
+					command = text;
+					args = new string[0];
+				}
+				else
+				{
+					command = text.Substring(0, index);
+					args = text.Substring(index + 1).Split(' ');
+				}
+				broadcast = false;
+				if (command == "save")
+				{
+					NetSync.SendRequestSave(Main.myPlayer);
+					Main.NewText("Saving");
+				}
+				if (command == "register")
+				{
+					try
+					{
+						NetSync.SendSetPassword(Main.myPlayer, args[0]);
+					}
+					catch
+					{
+						Main.NewText("Invalid Sytanx! Usage: /register <your password>", 255, 255, 0);
+					}
+				}
+				if(command == "login")
+				{
+					try
+					{
+						NetSync.SendLoginPassword(Main.myPlayer, args[0]);
+					}
+					catch
+					{
+						Main.NewText("Invalid Sytanx! Usage: /login <your password>", 255, 255, 0);
+					}
+				}
 			}
 		}
 	}

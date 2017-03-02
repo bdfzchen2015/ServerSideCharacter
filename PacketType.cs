@@ -5,6 +5,8 @@
 		SyncPlayerHealth,
 		SyncPlayerMana,
 		SyncPlayerBank,
-		RequestSaveData
+		RequestSaveData,
+		RequestRegister,
+		SendLoginPassword
 	}
 }

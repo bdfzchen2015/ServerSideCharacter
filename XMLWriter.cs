@@ -24,11 +24,16 @@ namespace ServerSideCharacter
 		public XMLWriter(string path)
 		{
 			FilePath = path;
-			XmlDocument xmlDoc = new XmlDocument();
-			xmlDoc.Load(path);
-			XMLDoc = xmlDoc;
-			XmlNode root = xmlDoc.SelectSingleNode("Players");
-			PlayerRoot = root;
+			if (!File.Exists(path))
+			{
+				Create();
+			}
+			else
+			{
+				XMLDoc = new XmlDocument();
+				XMLDoc.Load(path);
+				PlayerRoot = XMLDoc.SelectSingleNode("Players");
+			}
 		}
 
 		public void Create()
