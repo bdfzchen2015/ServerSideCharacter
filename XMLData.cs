@@ -123,8 +123,8 @@ namespace ServerSideCharacter
 					}
 
 					Data.Add(player.Name, player);
-					ServerSideCharacter.MainWriter = new XMLWriter(path);
 				}
+				ServerSideCharacter.MainWriter = new XMLWriter(path);
 				reader.Close();
 			}
 			else

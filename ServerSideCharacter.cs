@@ -10,6 +10,8 @@ using Terraria.Localization;
 using ServerSideCharacter.XMLHelper;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
+using ServerSideCharacter.ServerCommand;
 
 namespace ServerSideCharacter
 {
@@ -24,6 +26,8 @@ namespace ServerSideCharacter
 		public static Thread CheckDisconnect;
 
 		public static string Version = "V1.0b";
+
+		public static List<Command> Commands = new List<Command>();
 
 		private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
 
@@ -65,6 +69,7 @@ namespace ServerSideCharacter
 					{
 						//创建新的玩家数据
 						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber]);
+						serverPlayer.prototypePlayer = Main.player[playerNumber];
 						xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
 					}
 					catch (Exception ex)
@@ -276,6 +281,7 @@ namespace ServerSideCharacter
 				//}
 				xmlData = new XMLData("SSC/datas.xml");
 				Console.WriteLine("Data loaded!");
+
 				CheckDisconnect = new Thread(() =>
 				{
 					while (!Netplay.disconnect)
@@ -301,6 +307,10 @@ namespace ServerSideCharacter
 
 				});
 				CheckDisconnect.Start();
+			}
+			else
+			{
+				CommandDelegate.SetUpCommands(Commands);
 			}
 		}
 
@@ -465,48 +475,62 @@ namespace ServerSideCharacter
 		{
 			if (text[0] == '/')
 			{
-				text = text.Substring(1);
-				int index = text.IndexOf(' ');
-				string command;
-				string[] args;
-				if (index < 0)
+				if (Main.netMode != 0)
 				{
-					command = text;
-					args = new string[0];
-				}
-				else
-				{
-					command = text.Substring(0, index);
-					args = text.Substring(index + 1).Split(' ');
-				}
-				broadcast = false;
-				if (command == "save")
-				{
-					NetSync.SendRequestSave(Main.myPlayer);
-					Main.NewText("Saving");
-				}
-				if (command == "register")
-				{
-					try
+					text = text.Substring(1);
+					int index = text.IndexOf(' ');
+					string command;
+					string[] args;
+					if (index < 0)
 					{
-						NetSync.SendSetPassword(Main.myPlayer, args[0]);
+						command = text;
+						args = new string[0];
 					}
-					catch
+					else
 					{
-						Main.NewText("Invalid Sytanx! Usage: /register <your password>", 255, 255, 0);
+						command = text.Substring(0, index);
+						args = text.Substring(index + 1).Split(' ');
+					}
+					broadcast = false;
+					int cmdIndex = Commands.FindIndex(cmd => cmd.Name == command);
+					Main.NewText(cmdIndex.ToString());
+					foreach (var cmd in Commands)
+					{
+						Main.NewText(cmd.Name);
+					}
+					if (cmdIndex != -1)
+					{
+						Command cmd = Commands[cmdIndex];
+						cmd.CommandAction(args);
 					}
 				}
-				if(command == "login")
-				{
-					try
-					{
-						NetSync.SendLoginPassword(Main.myPlayer, args[0]);
-					}
-					catch
-					{
-						Main.NewText("Invalid Sytanx! Usage: /login <your password>", 255, 255, 0);
-					}
-				}
+				//if (command == "save")
+				//{
+				//	NetSync.SendRequestSave(Main.myPlayer);
+				//	Main.NewText("Saving");
+				//}
+				//if (command == "register")
+				//{
+				//	try
+				//	{
+				//		NetSync.SendSetPassword(Main.myPlayer, args[0]);
+				//	}
+				//	catch
+				//	{
+				//		Main.NewText("Invalid Sytanx! Usage: /register <your password>", 255, 255, 0);
+				//	}
+				//}
+				//if(command == "login")
+				//{
+				//	try
+				//	{
+				//		NetSync.SendLoginPassword(Main.myPlayer, args[0]);
+				//	}
+				//	catch
+				//	{
+				//		Main.NewText("Invalid Sytanx! Usage: /login <your password>", 255, 255, 0);
+				//	}
+				//}
 			}
 		}
 	}

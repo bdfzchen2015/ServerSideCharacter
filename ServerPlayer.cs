@@ -135,6 +135,7 @@ namespace ServerSideCharacter
 			player.Name = p.name;
 			player.Hash = GenHashCode(p.name);
 			player.HasPassword = false;
+			player.IsLogin = false;
 			player.Password = "";
 			player.LifeMax = 100;
 			player.StatLife = 100;
