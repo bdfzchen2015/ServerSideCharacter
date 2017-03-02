@@ -1,5 +1,7 @@
+#define DEBUGMODE
 using System;
-using System.Collections.Concurrent;
+
+using System.Windows.Forms;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -11,6 +13,7 @@ using ServerSideCharacter.XMLHelper;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using ServerSideCharacter.ServerCommand;
 
 namespace ServerSideCharacter
@@ -261,24 +264,23 @@ namespace ServerSideCharacter
 			}
 		}
 
-		public override void Load()
+		public override void PostSetupContent()
 		{
-			instance = this;
 			if (Main.dedServ)
 			{
-				Main.ServerSideCharacter = true;
-				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + Version + "]");
-				//if (!Directory.Exists("SSC"))
-				//{
-				//	Directory.CreateDirectory("SSC");
-				//	string save = Path.Combine("SSC", "datas.xml");
-				//	XMLWriter writer = new XMLWriter(save);
-				//	writer.Create();
-				//	ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer("DXTsT");
-				//	writer.Write(newPlayer);
-				//	MainWriter = writer;
-				//	Console.WriteLine("Saved data: " + save);
-				//}
+				if (!Directory.Exists("SSC"))
+				{
+					Directory.CreateDirectory("SSC");
+					string save = Path.Combine("SSC", "datas.xml");
+					XMLWriter writer = new XMLWriter(save);
+					writer.Create();
+					Player tmp = new Player();
+					tmp.name = "DXTsT";
+					ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer(tmp);
+					writer.Write(newPlayer);
+					MainWriter = writer;
+					Console.WriteLine("Saved data: " + save);
+				}
 				xmlData = new XMLData("SSC/datas.xml");
 				Console.WriteLine("Data loaded!");
 
@@ -301,12 +303,24 @@ namespace ServerSideCharacter
 							{
 								Console.WriteLine(ex);
 							}
-							Console.WriteLine("\nOn Server Close: Saved " + player.Key);
-						}
+#if DEBUGMODE
+						Console.WriteLine("\nOn Server Close: Saved " + player.Key);
+#endif
+					}
 					}
 
 				});
 				CheckDisconnect.Start();
+			}
+		}
+
+		public override void Load()
+		{
+			instance = this;
+			if (Main.dedServ)
+			{
+				Main.ServerSideCharacter = true;
+				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + Version + "]");
 			}
 			else
 			{
@@ -405,7 +419,10 @@ namespace ServerSideCharacter
 				{
 					Console.WriteLine(ex);
 				}
+				
+#if DEBUGMODE
 				Console.WriteLine("Saved " + player.Name);
+#endif
 			}
 			else if (msgType == SSCMessageType.RequestRegister)
 			{

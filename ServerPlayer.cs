@@ -131,7 +131,7 @@ namespace ServerSideCharacter
 		public static ServerPlayer CreateNewPlayer(Player p)
 		{
 			ServerPlayer player = new ServerPlayer(p);
-			player.inventroy[0].SetDefaults(ItemID.TerraBlade);
+			player.inventroy[0].SetDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
 			player.Name = p.name;
 			player.Hash = GenHashCode(p.name);
 			player.HasPassword = false;

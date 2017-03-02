@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Terraria;
 
 namespace ServerSideCharacter
 {
@@ -85,8 +86,16 @@ namespace ServerSideCharacter
 				for (int i = 0; i < player.inventroy.Length; i++)
 				{
 					//TODO: Mod Item check
-
-					var node1 = (XmlElement)WriteNext(list, ref j, player.inventroy[i].type.ToString());
+					Item item = player.inventroy[i];
+					XmlElement node1;
+					if (item.type < Main.maxItemTypes)
+					{
+						node1 = (XmlElement)WriteNext(list, ref j, item.type.ToString()); 
+					}
+					else
+					{
+						node1 = (XmlElement)WriteNext(list, ref j, "$" + item.modItem.GetType().FullName);
+					}
 					node1.SetAttribute("prefix", player.inventroy[i].prefix.ToString());
 					node1.SetAttribute("stack", player.inventroy[i].stack.ToString());
 
@@ -154,9 +163,18 @@ namespace ServerSideCharacter
 			for (int i = 0; i < player.inventroy.Length; i++)
 			{
 				//TODO: Mod Item check
-
-				var node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i, 
-					player.inventroy[i].type.ToString());
+				Item item = player.inventroy[i];
+				XmlElement node1;
+				if (item.type < Main.maxItemTypes)
+				{
+					node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i,
+						item.type.ToString());
+				}
+				else
+				{
+					node1 = (XmlElement)NodeHelper.CreateNode(XMLDoc, playerNode, "slot_" + i,
+						"$" + item.modItem.GetType().FullName);
+				}
 				node1.SetAttribute("prefix", player.inventroy[i].prefix.ToString());
 				node1.SetAttribute("stack", player.inventroy[i].stack.ToString());
 

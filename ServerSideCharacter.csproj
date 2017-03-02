@@ -51,6 +51,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="TerrariaMod">
@@ -61,9 +62,11 @@
     <Content Include="Buffs\Locked.png" />
     <Content Include="build.txt" />
     <Content Include="description.txt" />
+    <Content Include="Items\TestItem.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Items\TestItem.cs" />
     <Compile Include="ServerCommand\Command.cs" />
     <Compile Include="MPlayer.cs" />
     <Compile Include="MWorld.cs" />

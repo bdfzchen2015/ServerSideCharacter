@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Terraria;
+using Terraria.ModLoader;
+using Terraria.ModLoader.Default;
 
 namespace ServerSideCharacter
 {
@@ -19,6 +22,52 @@ namespace ServerSideCharacter
 			return info.Item(i++).InnerText;
 		}
 
+
+		private void TryReadItemInfo(Dictionary<string, Mod> modTable, XmlNodeList info, 
+			ServerPlayer player, ref int i, int id, ref Item[] slots)
+		{
+			int type = 0;
+			string text = ReadNext(info, ref i);
+			//如果是mod物品
+			if (text[0] == '$')
+			{
+				text = text.Substring(1);
+
+				string modName = text.Substring(0, text.IndexOf('.'));
+				string itemName = text.Substring(text.LastIndexOf('.') + 1);
+				//解析物品id，字典中有mod名字
+				if (modTable.ContainsKey(modName))
+				{
+					type = modTable[modName].ItemType(itemName);
+					//如果数据合法
+					if (type > 0)
+					{
+						slots[id].netDefaults(type);
+					}
+					else
+					{
+						slots[id].netDefaults(ModLoader.GetMod("ModLoader").ItemType("MysteryItem"));
+						//物品数据会丢失
+					}
+				}
+				else
+				{
+					slots[id].netDefaults(ModLoader.GetMod("ModLoader").ItemType("MysteryItem"));
+					//物品数据会丢失
+
+				}
+			}
+			else
+			{
+				type = Convert.ToInt32(text);
+
+				if (type != 0)
+				{
+					slots[id].netDefaults(type);
+				}
+			}
+		}
+
 		public XMLData(string path)
 		{
 			if (File.Exists(path))
@@ -30,6 +79,11 @@ namespace ServerSideCharacter
 				xmlDoc.Load(reader);
 				XmlNode xn = xmlDoc.SelectSingleNode("Players");
 				var list = xn.ChildNodes;
+				Dictionary<string, Mod> modTable = new Dictionary<string, Mod>();
+				foreach(var mod in ModLoader.LoadedMods)
+				{
+					modTable.Add(mod.Name, mod);
+				}
 				foreach (var node in list)
 				{
 					XmlElement pData = (XmlElement)node;
@@ -46,14 +100,10 @@ namespace ServerSideCharacter
 					player.StatMana = Convert.ToInt32(ReadNext(info, ref i));
 					for (int id = 0; id < player.inventroy.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.inventroy[id].SetDefaults(type);
-							player.inventroy[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-							player.inventroy[id].stack =
-								Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.inventroy);
+						player.inventroy[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
+						player.inventroy[id].stack =
+							Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
 					}
 					for (int id = 0; id < player.armor.Length; id++)
 					{

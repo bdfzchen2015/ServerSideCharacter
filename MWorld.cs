@@ -1,7 +1,10 @@
-﻿using System;
+﻿#define DEBUGMODE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -14,6 +17,16 @@ namespace ServerSideCharacter
 
 		public override void PreUpdate()
 		{
+
+			//Item g = new Item();
+			//g.SetDefaults(100);
+			//MessageBox.Show((g.modItem == null).ToString());
+
+			//foreach (var othermod in ModLoader.LoadedMods)
+			//{
+			//	//string modName = othermod.FullName.Substring(0, item.FullName.IndexOf('.'));
+			//		MessageBox.Show(othermod.Name);
+			//}
 			if (Main.netMode == 2)
 			{
 				ServerStarted = true;
@@ -62,7 +75,9 @@ namespace ServerSideCharacter
 						{
 							Console.WriteLine(ex);
 						}
+#if DEBUGMODE
 						Console.WriteLine("Saved " + player.Key);
+#endif
 					}
 				}
 			}
