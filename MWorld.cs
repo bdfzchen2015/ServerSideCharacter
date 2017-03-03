@@ -1,5 +1,6 @@
 ﻿#define DEBUGMODE
 
+using ServerSideCharacter.ServerCommand;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace ServerSideCharacter
 	public class MWorld : ModWorld
 	{
 		public static bool ServerStarted = false;
+
 
 		public override void PreUpdate()
 		{
@@ -30,7 +32,7 @@ namespace ServerSideCharacter
 			if (Main.netMode == 2)
 			{
 				ServerStarted = true;
-				if (Main.time % 180 < 1)
+				if (Main.time % 120 < 1)
 				{
 					for (int i = 0; i < 255; i++)
 					{
@@ -40,6 +42,9 @@ namespace ServerSideCharacter
 							player.CopyFrom(Main.player[i]);
 						}
 					}
+				}
+				if(Main.time % 180 < 1)
+				{
 					foreach (var player in ServerSideCharacter.xmlData.Data)
 					{
 						if (player.Value.prototypePlayer != null)
@@ -63,7 +68,7 @@ namespace ServerSideCharacter
 						}
 					}
 				}
-				if (Main.time % 600 < 1)
+				if (Main.time % 1000 < 1)
 				{
 					foreach (var player in ServerSideCharacter.xmlData.Data)
 					{
@@ -76,9 +81,10 @@ namespace ServerSideCharacter
 							Console.WriteLine(ex);
 						}
 #if DEBUGMODE
-						Console.WriteLine("Saved " + player.Key);
+						//Console.WriteLine("Saved " + player.Key);
 #endif
 					}
+					CommandBoardcast.ShowSaveInfo();
 				}
 			}
 		}

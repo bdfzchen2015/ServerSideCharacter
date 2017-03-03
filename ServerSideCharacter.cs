@@ -15,6 +15,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using ServerSideCharacter.ServerCommand;
+using ServerSideCharacter.Plugin;
 
 namespace ServerSideCharacter
 {
@@ -28,11 +29,13 @@ namespace ServerSideCharacter
 
 		public static Thread CheckDisconnect;
 
-		public static string Version = "V1.0b";
+		public static string Version = "V1.0.1";
 
 		public static List<Command> Commands = new List<Command>();
 
 		private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
+
+		public static TextLog Logger;
 
 		public ServerSideCharacter()
 		{
@@ -138,9 +141,12 @@ namespace ServerSideCharacter
 				player.miscDye.CopyTo(Main.player[plr].miscDyes, 0);
 				Main.player[plr].trashItem = new Item();
 				player.prototypePlayer = Main.player[plr];
-
-				//增加限制性debuff
-				player.ApplyLockBuffs();
+				if (toWho == -1)
+				{
+					player.IsLogin = false;
+					//增加限制性debuff
+					player.ApplyLockBuffs();
+				}
 
 				for (int i = 0; i < 59; i++)
 				{
@@ -268,6 +274,11 @@ namespace ServerSideCharacter
 		{
 			if (Main.dedServ)
 			{
+				SetupDefaults();
+				//尝试在tml做插件，但是失败了QaQ
+				//等待你们来修复 /(ㄒoㄒ)/~~
+				//PluginLoader.LoadPlugins();
+
 				if (!Directory.Exists("SSC"))
 				{
 					Directory.CreateDirectory("SSC");
@@ -281,8 +292,11 @@ namespace ServerSideCharacter
 					MainWriter = writer;
 					Console.WriteLine("Saved data: " + save);
 				}
+
 				xmlData = new XMLData("SSC/datas.xml");
-				Console.WriteLine("Data loaded!");
+				Logger = new TextLog("ServerLog.txt", false);
+				CommandBoardcast.ShowMessage("Data loaded!");
+
 
 				CheckDisconnect = new Thread(() =>
 				{
@@ -303,10 +317,12 @@ namespace ServerSideCharacter
 							{
 								Console.WriteLine(ex);
 							}
-#if DEBUGMODE
-						Console.WriteLine("\nOn Server Close: Saved " + player.Key);
-#endif
+							CommandBoardcast.ShowMessage("\nOn Server Close: Saved " + player.Key);
+						}
 					}
+					lock (ServerSideCharacter.Logger)
+					{
+						Logger.Dispose();
 					}
 
 				});
@@ -419,9 +435,9 @@ namespace ServerSideCharacter
 				{
 					Console.WriteLine(ex);
 				}
-				
+
 #if DEBUGMODE
-				Console.WriteLine("Saved " + player.Name);
+				CommandBoardcast.ShowSavePlayer(player);
 #endif
 			}
 			else if (msgType == SSCMessageType.RequestRegister)
@@ -510,11 +526,6 @@ namespace ServerSideCharacter
 					}
 					broadcast = false;
 					int cmdIndex = Commands.FindIndex(cmd => cmd.Name == command);
-					Main.NewText(cmdIndex.ToString());
-					foreach (var cmd in Commands)
-					{
-						Main.NewText(cmd.Name);
-					}
 					if (cmdIndex != -1)
 					{
 						Command cmd = Commands[cmdIndex];
@@ -549,6 +560,43 @@ namespace ServerSideCharacter
 				//	}
 				//}
 			}
+		}
+
+		private static void SetupDefaults()
+		{
+			//if (!Directory.Exists("Plugins"))
+			//{
+			//	Directory.CreateDirectory("Plugins");
+			//}
+
+			//物品信息读取方式添加
+			ModDataHooks.BuildItemDataHook("prefix",
+				(item) =>
+				{
+					return item.prefix.ToString();
+				},
+				(str, item) =>
+				{
+					item.prefix = Convert.ToByte(str);
+				});
+			ModDataHooks.BuildItemDataHook("stack",
+				(item) =>
+				{
+					return item.stack.ToString();
+				},
+				(str, item) =>
+				{
+					item.stack = Convert.ToInt32(str);
+				});
+			ModDataHooks.BuildItemDataHook("fav",
+				(item) =>
+				{
+					return item.favorited.ToString();
+				},
+				(str, item) =>
+				{
+					item.favorited = Convert.ToBoolean(str);
+				});
 		}
 	}
 }

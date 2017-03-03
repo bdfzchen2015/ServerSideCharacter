@@ -19,7 +19,6 @@ namespace ServerSideCharacter.ServerCommand
 		private static void SaveCommand(string[] args)
 		{
 			NetSync.SendRequestSave(Main.myPlayer);
-			Main.NewText("Saving");
 		}
 		private static void RegisterCommand(string[] args)
 		{

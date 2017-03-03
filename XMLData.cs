@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerSideCharacter.Items;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -43,16 +44,24 @@ namespace ServerSideCharacter
 					if (type > 0)
 					{
 						slots[id].netDefaults(type);
+						foreach (var pair in ModDataHooks.ItemExtraInfoTable)
+						{
+							ModDataHooks.InterpretStringTable[pair.Key].Invoke(
+								((info.Item(i - 1) as XmlElement).GetAttribute(pair.Key)),
+								slots[id]);
+						}
 					}
 					else
 					{
-						slots[id].netDefaults(ModLoader.GetMod("ModLoader").ItemType("MysteryItem"));
+						slots[id].netDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
+						((TestItem)slots[id].modItem).SetUp(text);
 						//物品数据会丢失
 					}
 				}
 				else
 				{
-					slots[id].netDefaults(ModLoader.GetMod("ModLoader").ItemType("MysteryItem"));
+					slots[id].netDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
+					((TestItem)slots[id].modItem).SetUp(text);
 					//物品数据会丢失
 
 				}
@@ -64,6 +73,12 @@ namespace ServerSideCharacter
 				if (type != 0)
 				{
 					slots[id].netDefaults(type);
+				}
+				foreach (var pair in ModDataHooks.ItemExtraInfoTable)
+				{
+					ModDataHooks.InterpretStringTable[pair.Key].Invoke(
+						((info.Item(i - 1) as XmlElement).GetAttribute(pair.Key)),
+						slots[id]);
 				}
 			}
 		}
@@ -101,75 +116,37 @@ namespace ServerSideCharacter
 					for (int id = 0; id < player.inventroy.Length; id++)
 					{
 						TryReadItemInfo(modTable, info, player, ref i, id, ref player.inventroy);
-						player.inventroy[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-						player.inventroy[id].stack =
-							Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
+						//player.inventroy[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
+						//player.inventroy[id].stack =
+						//	Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
 					}
 					for (int id = 0; id < player.armor.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.armor[id].SetDefaults(type);
-							player.armor[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.armor);
 					}
 					for (int id = 0; id < player.dye.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.dye[id].SetDefaults(type);
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.dye);
 					}
 					for (int id = 0; id < player.miscEquips.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.miscEquips[id].SetDefaults(type);
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.miscEquips);
 					}
 					for (int id = 0; id < player.miscDye.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.miscDye[id].SetDefaults(type);
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.miscDye);
 					}
 					for (int id = 0; id < player.bank.item.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.bank.item[id].SetDefaults(type);
-							player.bank.item[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-							player.bank.item[id].stack =
-								Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.bank.item);
 					}
 					for (int id = 0; id < player.bank2.item.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.bank2.item[id].SetDefaults(type);
-							player.bank2.item[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-							player.bank2.item[id].stack =
-								Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.bank2.item);
 					}
 					for (int id = 0; id < player.bank3.item.Length; id++)
 					{
-						int type = Convert.ToInt32(ReadNext(info, ref i));
-						if (type != 0)
-						{
-							player.bank3.item[id].SetDefaults(type);
-							player.bank3.item[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-							player.bank3.item[id].stack =
-								Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
-						}
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.bank2.item);
 					}
 
 					Data.Add(player.Name, player);

@@ -10,14 +10,14 @@ namespace ServerSideCharacter.Items
 {
     public class TestItem : ModItem
     {
+		public string FullName;
+
         public override void SetDefaults()
         {
-            item.name = "Temporary Summoner";
-            item.toolTip = "Summons the King of Brain";
+            item.name = "Unloaded Item";
             item.height = 32;
             item.width = 32;
-            item.maxStack = 30;
-            item.rare = 11;
+            item.rare = 10;
             item.expert = true;
             item.value = 0;
             item.useTime = 30;
@@ -25,12 +25,13 @@ namespace ServerSideCharacter.Items
             item.useStyle = 4;
         }
 
-
-        public override void AddRecipes()
-        {
-            ModRecipe re = new ModRecipe(mod);
-            re.SetResult(this);
-            re.AddRecipe();
-        }
+		public void SetUp(string fullName)
+		{
+			string modName = fullName.Substring(0, fullName.IndexOf('.'));
+			string itemName = fullName.Substring(fullName.LastIndexOf('.') + 1);
+			item.toolTip = "Mod: " + modName;
+			item.toolTip2 = "Name: " + itemName;
+			FullName = fullName;
+		}
     }
 }

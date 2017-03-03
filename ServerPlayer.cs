@@ -110,11 +110,11 @@ namespace ServerSideCharacter
 
 		public void ApplyLockBuffs()
 		{
-			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), 180, false);
+			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), 300, false);
 			prototypePlayer.AddBuff(BuffID.Frozen, 180, false);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
-				ServerSideCharacter.instance.BuffType("Locked"), 180, 0f, 0, 0, 0);
+				ServerSideCharacter.instance.BuffType("Locked"), 300, 0f, 0, 0, 0);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
 				BuffID.Frozen, 180, 0f, 0, 0, 0);
@@ -131,7 +131,10 @@ namespace ServerSideCharacter
 		public static ServerPlayer CreateNewPlayer(Player p)
 		{
 			ServerPlayer player = new ServerPlayer(p);
-			player.inventroy[0].SetDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
+			player.inventroy[0].SetDefaults(ItemID.ShadewoodSword);
+			player.inventroy[0].Prefix(82);
+			player.inventroy[1].SetDefaults(ItemID.IronPickaxe);
+			player.inventroy[2].SetDefaults(ItemID.IronAxe);
 			player.Name = p.name;
 			player.Hash = GenHashCode(p.name);
 			player.HasPassword = false;

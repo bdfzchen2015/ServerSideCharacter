@@ -67,18 +67,27 @@
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
     <Compile Include="Items\TestItem.cs" />
+    <Compile Include="ModDataHooks.cs" />
+    <Compile Include="Plugin\ModExtraIO.cs" />
+    <Compile Include="Plugin\PluginBase.cs" />
+    <Compile Include="Plugin\PluginLoader.cs" />
     <Compile Include="ServerCommand\Command.cs" />
     <Compile Include="MPlayer.cs" />
     <Compile Include="MWorld.cs" />
     <Compile Include="NetSync.cs" />
     <Compile Include="PacketType.cs" />
     <Compile Include="SaveInfo.cs" />
+    <Compile Include="ServerCommand\CommandBoardcast.cs" />
     <Compile Include="ServerCommand\CommandDelegate.cs" />
+    <Compile Include="TextLog.cs" />
     <Compile Include="XMLData.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />
     <Compile Include="XMLHelper\NodeHelper.cs" />
     <Compile Include="XMLWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

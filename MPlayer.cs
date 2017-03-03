@@ -29,8 +29,17 @@ namespace ServerSideCharacter
 				player.controlThrow = false;
 				player.controlHook = false;
 				player.controlMount = false;
+				player.controlInv = false;
 				player.gravDir = 0f;
 				player.position = player.oldPosition;
+			}
+		}
+
+		public override void OnEnterWorld(Player player)
+		{
+			if(Main.netMode == 1)
+			{
+				player.AddBuff(mod.BuffType("Locked"), 180);
 			}
 		}
 
