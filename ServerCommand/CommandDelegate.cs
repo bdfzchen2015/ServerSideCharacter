@@ -21,6 +21,33 @@ namespace ServerSideCharacter.ServerCommand
 			list.Add(new Command("butcher", ButcherCommand));
 			list.Add(new Command("tp", TeleportCommand));
 			list.Add(new Command("time", TimeCommand));
+			list.Add(new Command("help", HelpCommand));
+			list.Add(new Command("region", RegionCommand));
+			list.Add(new Command("item", ItemCommand));
+			list.Add(new Command("find", FindCommand));
+		}
+
+		private static void FindCommand(string[] obj)
+		{
+			try
+			{
+				string trytoFind = obj[0];
+				List<int> numbers = new List<int>(Main.maxItemTypes);
+				for(int i = 0; i < Main.maxItemTypes; i++)
+				{
+					numbers.Add(i);
+				}
+				var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(trytoFind.ToLower()));
+				foreach(var pair in items)
+				{
+					Main.NewText(Main.itemName[pair] + " -> " + pair);
+				}
+
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /tp <player id>", 255, 25, 0);
+			}
 		}
 
 		private static void SaveCommand(string[] args)
@@ -123,6 +150,11 @@ namespace ServerSideCharacter.ServerCommand
 			NetSync.SendButcherCommand(Main.myPlayer);
 		}
 
+		private static void HelpCommand(string[] args)
+		{
+			NetSync.SendHelpCommand(Main.myPlayer);
+		}
+
 		private static void LockCommand(string[] args)
 		{
 			try
@@ -132,6 +164,18 @@ namespace ServerSideCharacter.ServerCommand
 			catch
 			{
 				Main.NewText("Invalid Sytanx! Usage: /lock <player id> <time>", 255, 25, 0);
+			}
+		}
+
+		private static void ItemCommand(string[] args)
+		{
+			try
+			{
+				NetSync.SendItemCommand(Convert.ToInt32(args[0]));
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /item <type>", 255, 25, 0);
 			}
 		}
 
@@ -148,6 +192,30 @@ namespace ServerSideCharacter.ServerCommand
 			catch(Exception ex)
 			{
 				Main.NewText("Invalid Sytanx! Usage: /group set <$hash> <permission group>", 255, 25, 0);
+			}
+		}
+
+		private static void RegionCommand(string[] args)
+		{
+			try
+			{
+				if (args[0] == "create")
+				{
+					//string name = args[1];
+					//NetSync.SendSetRegion(Main.myPlayer, name);
+				}
+				else if(args[0] == "info")
+				{
+
+				}
+				else if (args[0] == "delete")
+				{
+
+				}
+			}
+			catch (Exception ex)
+			{
+				Main.NewText("Invalid Sytanx! Usage: /region <create/info/delete> [region name]", 255, 25, 0);
 			}
 		}
 	}

@@ -62,6 +62,7 @@
     <Content Include="Buffs\Locked.png" />
     <Content Include="build.txt" />
     <Content Include="description.txt" />
+    <Content Include="Items\RegionItem.png" />
     <Content Include="Items\TestItem.png" />
   </ItemGroup>
   <ItemGroup>
@@ -70,11 +71,14 @@
     <Compile Include="GroupManage\Group.cs" />
     <Compile Include="GroupManage\GroupType.cs" />
     <Compile Include="GroupManage\PermissionInfo.cs" />
+    <Compile Include="Items\RegionItem.cs" />
     <Compile Include="Items\TestItem.cs" />
     <Compile Include="ModDataHooks.cs" />
     <Compile Include="Plugin\ModExtraIO.cs" />
     <Compile Include="Plugin\PluginBase.cs" />
     <Compile Include="Plugin\PluginLoader.cs" />
+    <Compile Include="Region\RegionInfo.cs" />
+    <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="ServerCommand\Command.cs" />
     <Compile Include="MPlayer.cs" />
     <Compile Include="MWorld.cs" />

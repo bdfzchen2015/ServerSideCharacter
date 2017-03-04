@@ -19,6 +19,7 @@ using ServerSideCharacter.ServerCommand;
 using ServerSideCharacter.Plugin;
 using ServerSideCharacter.GroupManage;
 using Microsoft.Xna.Framework;
+using Terraria.GameContent.UI.Chat;
 
 namespace ServerSideCharacter
 {
@@ -32,7 +33,7 @@ namespace ServerSideCharacter
 
 		public static Thread CheckDisconnect;
 
-		public static string Version = "V1.0.1";
+		public static string Version = "V1.0.2";
 
 		public static List<Command> Commands = new List<Command>();
 
@@ -41,6 +42,10 @@ namespace ServerSideCharacter
 		public static TextLog Logger;
 
 		public static string AuthCode = "";
+
+		public static Point TilePos1 = new Point();
+
+		public static Point TilePos2 = new Point();
 
 		public ServerSideCharacter()
 		{
@@ -102,37 +107,62 @@ namespace ServerSideCharacter
 				NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
 				return true;
 			}
-			else if(messageType == MessageID.ChatText)
+			else if (messageType == MessageID.ChatText)
 			{
-				if(Main.netMode == 2)
+				int playerID = reader.ReadByte();
+				if (Main.netMode == 2)
 				{
-					int playerID = reader.ReadByte();
-					if (Main.netMode == 2)
+					playerID = playerNumber;
+				}
+				Color c = reader.ReadRGB();
+				if (Main.netMode == 2)
+				{
+					c = new Color(255, 255, 255);
+				}
+				string text = reader.ReadString();
+				if (Main.netMode == 1)
+				{
+					string text2 = text.Substring(text.IndexOf('>') + 1);
+					if (playerID < 255)
 					{
-						playerID = playerNumber;
+						Main.player[playerID].chatOverhead.NewMessage(text2, Main.chatLength / 2);
 					}
-					Color c = reader.ReadRGB();
-					if (Main.netMode == 2)
-					{
-						c = new Color(255, 255, 255);
-					}
-					string text = reader.ReadString();
+					Main.NewTextMultiline(text, false, c, -1);
+				}
+				else
+				{
 					Player p = Main.player[playerID];
 					ServerPlayer player = p.GetServerPlayer();
 					string prefix = "";
-					if(player.PermissionGroup.GroupName == "spadmin")
+					if (player.PermissionGroup.GroupName == "spadmin")
 					{
 						prefix = "[SuperAdmin] ";
 						c = Color.Red;
 					}
-					NetMessage.SendData(25, -1, -1, prefix + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
+					NetMessage.SendData(25, -1, -1, prefix + "<" + p.name + "> " + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
 					if (Main.dedServ)
 					{
 
 						Console.WriteLine(string.Format("{0}<" + Main.player[playerID].name + "> " + text, prefix));
 					}
-					return true;
 				}
+				return true;
+			}
+			else if(messageType == MessageID.TileChange)
+			{
+				//if (Main.netMode == 2)
+				//{
+				//	Player p = Main.player[playerNumber];
+				//	ServerPlayer player = p.GetServerPlayer();
+				//	int action = reader.ReadByte();
+				//	short X = reader.ReadInt16();
+				//	short Y = reader.ReadInt16();
+				//	short type = reader.ReadInt16();
+				//	int style = reader.ReadByte();
+				//	NetMessage.SendData(25, -1, -1, "Warning: You do not have the permission to change this tile", playerNumber, 255, 20, 20, 0, 0, 0);
+				//	NetMessage.SendTileSquare(-1, X, Y, 4);
+				//	return true;
+				//}
 			}
 			return false;
 		}
@@ -564,7 +594,7 @@ namespace ServerSideCharacter
 					Player p = Main.player[plr];
 					ServerPlayer player = xmlData.Data[p.name];
 					if (!player.IsLogin) return;
-					if (true)
+					if (player.PermissionGroup.HasPermission("ls"))
 					{
 						try
 						{
@@ -717,6 +747,7 @@ namespace ServerSideCharacter
 					bool day = reader.ReadBoolean();
 					Player p = Main.player[plr];
 					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("time"))
 					{
 						if (!set)
@@ -735,6 +766,10 @@ namespace ServerSideCharacter
 								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
 						}
 					}
+					else
+					{
+						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+					}
 
 				}
 				else if(msgType == SSCMessageType.SendTimeSet)
@@ -749,6 +784,49 @@ namespace ServerSideCharacter
 						Main.dayTime = day;
 						Main.sunModY = sunY;
 						Main.moonModY = moonY;
+					}
+				}
+				else if(msgType == SSCMessageType.HelpCommand)
+				{
+					int plr = reader.ReadByte();
+					StringBuilder sb = new StringBuilder();
+					sb.Append("Current commands:\n");
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					int i = 0;
+
+					foreach(var command in Commands)
+					{
+						if (player.PermissionGroup.HasPermission(command.Name))
+						{
+							sb.Append("/" + command.Name + "  ");
+							i++;
+							if(i > 4)
+							{
+								i = 0;
+								sb.Append("\n");
+							}
+						}
+					}
+					CommandBoardcast.SendInfoToPlayer(plr, sb.ToString());
+				}
+				else if(msgType == SSCMessageType.RequestItem)
+				{
+					int plr = reader.ReadByte();
+					int type = reader.ReadInt32();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (player.PermissionGroup.HasPermission("item"))
+					{
+						Item item = new Item();
+						item.netDefaults(type);
+						Item.NewItem(p.position, Vector2.Zero, type, item.maxStack);
+						CommandBoardcast.SendInfoToPlayer(plr, string.Format("Sever has give you {0} {1}", item.maxStack, Main.itemName[type]));
+					}
+					else
+					{
+						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
 					}
 				}
 				else
@@ -806,6 +884,7 @@ namespace ServerSideCharacter
 			//}
 
 			GroupType.SetupGroups();
+			CommandDelegate.SetUpCommands(Commands);
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",

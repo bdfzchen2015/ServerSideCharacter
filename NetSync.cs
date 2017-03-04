@@ -150,6 +150,15 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
+		public static void SendItemCommand(int type)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RequestItem);
+			p.Write((byte)Main.myPlayer);
+			p.Write(type);
+			p.Send();
+		}
+
 		public static void SendTeleportCommand(int plr, int target)
 		{
 			string name = Main.player[plr].name;
@@ -165,6 +174,14 @@ namespace ServerSideCharacter
 			string name = Main.player[plr].name;
 			ModPacket p = ServerSideCharacter.instance.GetPacket();
 			p.Write((int)SSCMessageType.ListCommand);
+			p.Write((byte)plr);
+			p.Send();
+		}
+
+		public static void SendHelpCommand(int plr)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.HelpCommand);
 			p.Write((byte)plr);
 			p.Send();
 		}

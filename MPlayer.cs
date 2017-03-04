@@ -43,8 +43,9 @@ namespace ServerSideCharacter
 			}
 		}
 
-		public override void PreUpdate()
+		public override void PostUpdate()
 		{
+
 			playerCounter++;
 		}
 	}

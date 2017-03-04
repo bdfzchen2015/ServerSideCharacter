@@ -22,11 +22,13 @@ namespace ServerSideCharacter.GroupManage
 			Admin.permissions = new List<PermissionInfo>(DefaultGroup.permissions);
 			Admin.permissions.Add(new PermissionInfo("time", "Changing times"));
 			Admin.permissions.Add(new PermissionInfo("butcher", "Kill all monsters"));
+			
 			Groups.Add(Admin.GroupName, Admin);
 
 
 			Group SuperAdmin = new Group("spadmin");
 			SuperAdmin.permissions = new List<PermissionInfo>(Admin.permissions);
+			SuperAdmin.permissions.Add(new PermissionInfo("group", "Manage group"));
 			Groups.Add(SuperAdmin.GroupName, SuperAdmin);
 		}
 
