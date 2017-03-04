@@ -150,19 +150,22 @@ namespace ServerSideCharacter
 			}
 			else if(messageType == MessageID.TileChange)
 			{
-				//if (Main.netMode == 2)
-				//{
-				//	Player p = Main.player[playerNumber];
-				//	ServerPlayer player = p.GetServerPlayer();
-				//	int action = reader.ReadByte();
-				//	short X = reader.ReadInt16();
-				//	short Y = reader.ReadInt16();
-				//	short type = reader.ReadInt16();
-				//	int style = reader.ReadByte();
-				//	NetMessage.SendData(25, -1, -1, "Warning: You do not have the permission to change this tile", playerNumber, 255, 20, 20, 0, 0, 0);
-				//	NetMessage.SendTileSquare(-1, X, Y, 4);
-				//	return true;
-				//}
+				if (Main.netMode == 2)
+				{
+					Player p = Main.player[playerNumber];
+					ServerPlayer player = p.GetServerPlayer();
+					int action = reader.ReadByte();
+					short X = reader.ReadInt16();
+					short Y = reader.ReadInt16();
+					short type = reader.ReadInt16();
+					int style = reader.ReadByte();
+					if (CheckSpawn(X, Y))
+					{
+						NetMessage.SendData(MessageID.ChatText, playerNumber, -1, "Warning: You do not have the permission to change this tile", playerNumber, 255, 20, 20, 0, 0, 0);
+						NetMessage.SendTileSquare(-1, X, Y, 4);
+						return true;
+					}
+				}
 			}
 			return false;
 		}
@@ -362,9 +365,29 @@ namespace ServerSideCharacter
 					Console.WriteLine("Saved data: " + save);
 				}
 
+				if (!System.IO.File.Exists("SSC/authcode"))
+				{
+					string authcode = Convert.ToString((Main.rand.Next(300000) + DateTime.Now.Millisecond) % 65536 + 65535, 16);
+					AuthCode = authcode;
+					using (StreamWriter sw = new StreamWriter("SSC/authcode"))
+					{
+						sw.WriteLine(authcode);
+					}
+				}
+				else
+				{
+					using(StreamReader sr = new StreamReader("SSC/authcode"))
+					{
+						AuthCode = sr.ReadLine();
+					}
+				}
+
+				
+
 				xmlData = new XMLData("SSC/datas.xml");
 				Logger = new TextLog("ServerLog.txt", false);
 				CommandBoardcast.ShowMessage("Data loaded!");
+				CommandBoardcast.ShowMessage("You can type /auth " + AuthCode + " to become super admin");
 
 				CheckDisconnect = new Thread(() =>
 				{
@@ -610,7 +633,7 @@ namespace ServerSideCharacter
 									"    ",
 									pla.Value.Hash,
 									"    ",
-									pla.Value.PermissionGroup,
+									pla.Value.PermissionGroup.GroupName,
 									"    ",
 									pla.Value.LifeMax,
 									"    "
@@ -618,7 +641,7 @@ namespace ServerSideCharacter
 								sb.AppendLine(line);
 							}
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-									sb.ToString(),
+									sb.ToString() + "\n" + xmlData.Data.Count,
 									255, 255, 255, 0);
 						}
 						catch (Exception ex)
@@ -672,13 +695,15 @@ namespace ServerSideCharacter
 					int target = reader.ReadByte();
 					int time = reader.ReadInt32();
 					Player p = Main.player[plr];
+					Player target0 = Main.player[target];
+					ServerPlayer target1 = xmlData.Data[target0.name];
 					ServerPlayer player = xmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("lock"))
 					{
-						player.ApplyLockBuffs(time);
+						target1.ApplyLockBuffs(time);
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								string.Format("You have successfully locked {0} for {1} frames", player.Name, time),
+								string.Format("You have successfully locked {0} for {1} frames", target1.Name, time),
 								255, 50, 255, 50);
 					}
 					else
@@ -726,6 +751,7 @@ namespace ServerSideCharacter
 						if (targetPlayer.prototypePlayer != null && targetPlayer.prototypePlayer.active)
 						{
 							p.Teleport(Main.player[target].position);
+							NetSync.SendTeleport(plr, Main.player[target].position);
 							CommandBoardcast.SendInfoToPlayer(plr, "You have teleproted to " + targetPlayer.Name);
 							CommandBoardcast.SendInfoToPlayer(target, player.Name + " has teleproted to you!");
 						}
@@ -827,6 +853,28 @@ namespace ServerSideCharacter
 					else
 					{
 						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+					}
+				}
+				else if (msgType == SSCMessageType.TeleportPalyer)
+				{
+
+					Vector2 dest = reader.ReadVector2();
+					if (Main.netMode == 1)
+					{
+						Main.LocalPlayer.Teleport(dest);
+					}
+				}
+				else if(msgType == SSCMessageType.RequestAuth)
+				{
+					int plr = reader.ReadByte();
+					string code = reader.ReadString();
+					Player p = Main.player[plr];
+					CommandBoardcast.ShowMessage(p.name + " has tried to auth with code " + code);
+					if(code.Equals(AuthCode))
+					{
+						ServerPlayer targetPlayer = p.GetServerPlayer();
+						targetPlayer.PermissionGroup = GroupType.Groups["spadmin"];
+						CommandBoardcast.SendInfoToPlayer(plr, "You have successfully auth as SuperAdmin");
 					}
 				}
 				else
@@ -953,6 +1001,13 @@ namespace ServerSideCharacter
 				time1 += 15.0;
 			time1 = time1 % 24.0;
 			return time1;
+		}
+
+		public static bool CheckSpawn(int x, int y)
+		{
+			Vector2 tile = new Vector2(x, y);
+			Vector2 spawn = new Vector2(Main.spawnTileX, Main.spawnTileY);
+			return Vector2.Distance(spawn, tile) <= 5;
 		}
 	}
 }

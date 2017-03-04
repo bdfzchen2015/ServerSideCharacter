@@ -9,6 +9,7 @@
 		RequestRegister,
 		RequestSetGroup,
 		RequestItem,
+		RequestAuth,
 		SendLoginPassword,
 		SendTimeSet,
 		HelpCommand,
@@ -18,6 +19,7 @@
 		TPCommand,
 		TimeCommand,
 		LockPlayer,
+		TeleportPalyer,
 
 	}
 }

@@ -25,6 +25,19 @@ namespace ServerSideCharacter.ServerCommand
 			list.Add(new Command("region", RegionCommand));
 			list.Add(new Command("item", ItemCommand));
 			list.Add(new Command("find", FindCommand));
+			list.Add(new Command("auth", AuthCommand));
+		}
+
+		private static void AuthCommand(string[] obj)
+		{
+			try
+			{
+				NetSync.SendAuthRequest(Main.myPlayer, obj[0]);
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /auth <code>", 255, 25, 0);
+			}
 		}
 
 		private static void FindCommand(string[] obj)

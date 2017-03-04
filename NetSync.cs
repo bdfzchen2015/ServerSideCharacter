@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ModLoader;
 namespace ServerSideCharacter
 {
@@ -75,6 +76,14 @@ namespace ServerSideCharacter
 				p.Write((short)player.bank3.item[k].stack);
 			}
 			p.Send(to, from);
+		}
+
+		public static void SendTeleport(int plr, Vector2 pos)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.TeleportPalyer);
+			p.WriteVector2(pos);
+			p.Send(plr, -1);
 		}
 
 		public static void SendRequestSave(int plr)
@@ -192,6 +201,15 @@ namespace ServerSideCharacter
 			ModPacket p = ServerSideCharacter.instance.GetPacket();
 			p.Write((int)SSCMessageType.ButcherCommand);
 			p.Write((byte)plr);
+			p.Send();
+		}
+
+		public static void SendAuthRequest(int plr, string code)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RequestAuth);
+			p.Write((byte)plr);
+			p.Write(code); 
 			p.Send();
 		}
 

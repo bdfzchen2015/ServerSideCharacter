@@ -15,6 +15,7 @@ namespace ServerSideCharacter.GroupManage
 			Group DefaultGroup = new Group("default");
 			DefaultGroup.permissions.Add(new PermissionInfo("tp", "Teleport player"));
 			DefaultGroup.permissions.Add(new PermissionInfo("ls", "List all player's info"));
+			DefaultGroup.permissions.Add(new PermissionInfo("auth", "Auth as super admin"));
 			Groups.Add(DefaultGroup.GroupName, DefaultGroup);
 
 
