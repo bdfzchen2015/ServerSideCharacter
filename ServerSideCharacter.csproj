@@ -66,6 +66,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Extensions\PlayerExtension.cs" />
+    <Compile Include="GroupManage\Group.cs" />
+    <Compile Include="GroupManage\GroupType.cs" />
+    <Compile Include="GroupManage\PermissionInfo.cs" />
     <Compile Include="Items\TestItem.cs" />
     <Compile Include="ModDataHooks.cs" />
     <Compile Include="Plugin\ModExtraIO.cs" />

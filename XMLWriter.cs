@@ -105,6 +105,11 @@ namespace ServerSideCharacter
 				if (element.GetAttribute("name").Equals(player.Name))
 				{
 					targetNode = element;
+					element.SetAttribute("group", player.PermissionGroup.GroupName);
+					foreach (var pair in ModDataHooks.PlayerExtraInfoTable)
+					{
+						element.SetAttribute(pair.Key, pair.Value(player));
+					}
 					break;
 				}
 			}
@@ -164,7 +169,6 @@ namespace ServerSideCharacter
 					XMLDoc.Save(xtw);
 				}
 			}
-			Console.WriteLine("XML Saved!");
 		}
 
 
@@ -175,6 +179,11 @@ namespace ServerSideCharacter
 			XmlElement element = playerNode as XmlElement;
 			element.SetAttribute("name", player.Name);
 			element.SetAttribute("hash", ServerPlayer.GenHashCode(player.Name));
+			element.SetAttribute("group", player.PermissionGroup.GroupName);
+			foreach(var pair in ModDataHooks.PlayerExtraInfoTable)
+			{
+				element.SetAttribute(pair.Key, pair.Value(player));
+			}
 			NodeHelper.CreateNode(XMLDoc, playerNode, "haspwd", player.HasPassword.ToString());
 			NodeHelper.CreateNode(XMLDoc, playerNode, "password", player.Password);
 			NodeHelper.CreateNode(XMLDoc, playerNode, "lifeMax", player.LifeMax.ToString());

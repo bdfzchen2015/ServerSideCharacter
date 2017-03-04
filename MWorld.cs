@@ -68,7 +68,7 @@ namespace ServerSideCharacter
 						}
 					}
 				}
-				if (Main.time % 1000 < 1)
+				if (Main.time % 3600 < 1)
 				{
 					foreach (var player in ServerSideCharacter.xmlData.Data)
 					{
@@ -78,7 +78,7 @@ namespace ServerSideCharacter
 						}
 						catch (Exception ex)
 						{
-							Console.WriteLine(ex);
+							CommandBoardcast.ShowError(ex);
 						}
 #if DEBUGMODE
 						//Console.WriteLine("Saved " + player.Key);

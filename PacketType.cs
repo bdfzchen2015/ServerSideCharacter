@@ -7,6 +7,15 @@
 		SyncPlayerBank,
 		RequestSaveData,
 		RequestRegister,
-		SendLoginPassword
+		RequestSetGroup,
+		SendLoginPassword,
+		SendTimeSet,
+		KillCommand,
+		ListCommand,
+		ButcherCommand,
+		TPCommand,
+		TimeCommand,
+		LockPlayer,
+
 	}
 }

@@ -86,6 +86,17 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
+		public static void SendTimeSet(double time, bool day)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.SendTimeSet);
+			p.Write(time);
+			p.Write(day);
+			p.Write(Main.sunModY);
+			p.Write(Main.moonModY);
+			p.Send();
+		}
+
 		public static void SendSetPassword(int plr, string password)
 		{
 			string name = Main.player[plr].name;
@@ -103,6 +114,78 @@ namespace ServerSideCharacter
 			p.Write((int)SSCMessageType.SendLoginPassword);
 			p.Write((byte)plr);
 			p.Write(password);
+			p.Send();
+		}
+
+		public static void SendKillCommand(int plr, int target)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.KillCommand);
+			p.Write((byte)plr);
+			p.Write((byte)target);
+			p.Send();
+		}
+
+		public static void SendTimeCommand(int plr, bool set, int time, bool day)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.TimeCommand);
+			p.Write((byte)plr);
+			p.Write(set);
+			p.Write(time);
+			p.Write(day);
+			p.Send();
+		}
+
+		public static void SendLockCommand(int plr, int target, int time)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.LockPlayer);
+			p.Write((byte)plr);
+			p.Write((byte)target);
+			p.Write(time);
+			p.Send();
+		}
+
+		public static void SendTeleportCommand(int plr, int target)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.TPCommand);
+			p.Write((byte)plr);
+			p.Write((byte)target);
+			p.Send();
+		}
+
+		public static void SendListCommand(int plr)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.ListCommand);
+			p.Write((byte)plr);
+			p.Send();
+		}
+
+		public static void SendButcherCommand(int plr)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.ButcherCommand);
+			p.Write((byte)plr);
+			p.Send();
+		}
+
+		public static void SendSetGroup(int plr, string hash, string group)
+		{
+			string name = Main.player[plr].name;
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RequestSetGroup);
+			p.Write((byte)plr);
+			p.Write(hash);
+			p.Write(group);
 			p.Send();
 		}
 	}

@@ -1,7 +1,6 @@
 #define DEBUGMODE
 using System;
 
-using System.Windows.Forms;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -9,13 +8,17 @@ using System.IO;
 using System.Xml;
 using Terraria.IO;
 using Terraria.Localization;
+using Terraria.DataStructures;
 using ServerSideCharacter.XMLHelper;
 using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using ServerSideCharacter.ServerCommand;
 using ServerSideCharacter.Plugin;
+using ServerSideCharacter.GroupManage;
+using Microsoft.Xna.Framework;
 
 namespace ServerSideCharacter
 {
@@ -37,6 +40,8 @@ namespace ServerSideCharacter
 
 		public static TextLog Logger;
 
+		public static string AuthCode = "";
+
 		public ServerSideCharacter()
 		{
 			Properties = new ModProperties()
@@ -48,6 +53,7 @@ namespace ServerSideCharacter
 		}
 		public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
 		{
+
 			if (messageType == MessageID.SpawnPlayer)
 			{
 				int id = reader.ReadByte();
@@ -95,6 +101,38 @@ namespace ServerSideCharacter
 				}
 				NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
 				return true;
+			}
+			else if(messageType == MessageID.ChatText)
+			{
+				if(Main.netMode == 2)
+				{
+					int playerID = reader.ReadByte();
+					if (Main.netMode == 2)
+					{
+						playerID = playerNumber;
+					}
+					Color c = reader.ReadRGB();
+					if (Main.netMode == 2)
+					{
+						c = new Color(255, 255, 255);
+					}
+					string text = reader.ReadString();
+					Player p = Main.player[playerID];
+					ServerPlayer player = p.GetServerPlayer();
+					string prefix = "";
+					if(player.PermissionGroup.GroupName == "spadmin")
+					{
+						prefix = "[SuperAdmin] ";
+						c = Color.Red;
+					}
+					NetMessage.SendData(25, -1, -1, prefix + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
+					if (Main.dedServ)
+					{
+
+						Console.WriteLine(string.Format("{0}<" + Main.player[playerID].name + "> " + text, prefix));
+					}
+					return true;
+				}
 			}
 			return false;
 		}
@@ -279,6 +317,7 @@ namespace ServerSideCharacter
 				//等待你们来修复 /(ㄒoㄒ)/~~
 				//PluginLoader.LoadPlugins();
 
+
 				if (!Directory.Exists("SSC"))
 				{
 					Directory.CreateDirectory("SSC");
@@ -296,7 +335,6 @@ namespace ServerSideCharacter
 				xmlData = new XMLData("SSC/datas.xml");
 				Logger = new TextLog("ServerLog.txt", false);
 				CommandBoardcast.ShowMessage("Data loaded!");
-
 
 				CheckDisconnect = new Thread(() =>
 				{
@@ -353,153 +391,374 @@ namespace ServerSideCharacter
 		public override void HandlePacket(BinaryReader reader, int whoAmI)
 		{
 			SSCMessageType msgType = (SSCMessageType)reader.ReadInt32();
-			if (msgType == SSCMessageType.SyncPlayerHealth)
+			try
 			{
-				int id = reader.ReadByte();
+				if (msgType == SSCMessageType.SyncPlayerHealth)
+				{
+					int id = reader.ReadByte();
 
-				if (id == Main.myPlayer && !Main.ServerSideCharacter)
-				{
-					return;
-				}
-				Player player = Main.player[id];
-				player.statLife = reader.ReadInt32();
-				player.statLifeMax = reader.ReadInt32();
-				if (player.statLifeMax < 100)
-				{
-					player.statLifeMax = 100;
-				}
-				player.dead = player.statLife <= 0;
-			}
-			else if (msgType == SSCMessageType.SyncPlayerMana)
-			{
-				int id = reader.ReadByte();
-				if (Main.myPlayer == id && !Main.ServerSideCharacter)
-				{
-					return;
-				}
-				int statMana = reader.ReadInt32();
-				int statManaMax = reader.ReadInt32();
-				Main.player[id].statMana = statMana;
-				Main.player[id].statManaMax = statManaMax;
-			}
-			else if (msgType == SSCMessageType.SyncPlayerBank)
-			{
-				int id = reader.ReadByte();
-				if (id == Main.myPlayer && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
-				{
-					return;
-				}
-				Player player = Main.player[id];
-				lock (player)
-				{
-					for (int k = 0; k < player.bank.item.Length; k++)
+					if (id == Main.myPlayer && !Main.ServerSideCharacter)
 					{
-						int type = reader.ReadInt32();
-						int prefix = reader.ReadInt16();
-						int stack = reader.ReadInt16();
-						player.bank.item[k].SetDefaults(type);
-						player.bank.item[k].Prefix(prefix);
-						player.bank.item[k].stack = stack;
+						return;
 					}
-					for (int k = 0; k < player.bank2.item.Length; k++)
+					Player player = Main.player[id];
+					player.statLife = reader.ReadInt32();
+					player.statLifeMax = reader.ReadInt32();
+					if (player.statLifeMax < 100)
 					{
-						int type = reader.ReadInt32();
-						int prefix = reader.ReadInt16();
-						int stack = reader.ReadInt16();
-						player.bank2.item[k].SetDefaults(type);
-						player.bank2.item[k].Prefix(prefix);
-						player.bank2.item[k].stack = stack;
+						player.statLifeMax = 100;
 					}
-					for (int k = 0; k < player.bank3.item.Length; k++)
+					player.dead = player.statLife <= 0;
+				}
+				else if (msgType == SSCMessageType.SyncPlayerMana)
+				{
+					int id = reader.ReadByte();
+					if (Main.myPlayer == id && !Main.ServerSideCharacter)
 					{
-						int type = reader.ReadInt32();
-						int prefix = reader.ReadInt16();
-						int stack = reader.ReadInt16();
-						player.bank3.item[k].SetDefaults(type);
-						player.bank3.item[k].Prefix(prefix);
-						player.bank3.item[k].stack = stack;
+						return;
+					}
+					int statMana = reader.ReadInt32();
+					int statManaMax = reader.ReadInt32();
+					Main.player[id].statMana = statMana;
+					Main.player[id].statManaMax = statManaMax;
+				}
+				else if (msgType == SSCMessageType.SyncPlayerBank)
+				{
+					int id = reader.ReadByte();
+					if (id == Main.myPlayer && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
+					{
+						return;
+					}
+					Player player = Main.player[id];
+					lock (player)
+					{
+						for (int k = 0; k < player.bank.item.Length; k++)
+						{
+							int type = reader.ReadInt32();
+							int prefix = reader.ReadInt16();
+							int stack = reader.ReadInt16();
+							player.bank.item[k].SetDefaults(type);
+							player.bank.item[k].Prefix(prefix);
+							player.bank.item[k].stack = stack;
+						}
+						for (int k = 0; k < player.bank2.item.Length; k++)
+						{
+							int type = reader.ReadInt32();
+							int prefix = reader.ReadInt16();
+							int stack = reader.ReadInt16();
+							player.bank2.item[k].SetDefaults(type);
+							player.bank2.item[k].Prefix(prefix);
+							player.bank2.item[k].stack = stack;
+						}
+						for (int k = 0; k < player.bank3.item.Length; k++)
+						{
+							int type = reader.ReadInt32();
+							int prefix = reader.ReadInt16();
+							int stack = reader.ReadInt16();
+							player.bank3.item[k].SetDefaults(type);
+							player.bank3.item[k].Prefix(prefix);
+							player.bank3.item[k].stack = stack;
+						}
 					}
 				}
-			}
-			else if (msgType == SSCMessageType.RequestSaveData)
-			{
-				int plr = reader.ReadByte();
-				Player p = Main.player[plr];
-				ServerPlayer player = xmlData.Data[p.name];
-				player.CopyFrom(Main.player[plr]);
-				try
+				else if (msgType == SSCMessageType.RequestSaveData)
 				{
-					MainWriter.SavePlayer(player);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex);
-				}
+					int plr = reader.ReadByte();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					player.CopyFrom(Main.player[plr]);
+					try
+					{
+						MainWriter.SavePlayer(player);
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);
+					}
 
 #if DEBUGMODE
-				CommandBoardcast.ShowSavePlayer(player);
+					CommandBoardcast.ShowSavePlayer(player);
 #endif
-			}
-			else if (msgType == SSCMessageType.RequestRegister)
-			{
-				int plr = reader.ReadByte();
-				string password = reader.ReadString();
-				Player p = Main.player[plr];
-				ServerPlayer player = xmlData.Data[p.name];
-				if (player.HasPassword)
-				{
-					NetMessage.SendData(MessageID.ChatText, plr, -1, "You cannot register twice!",
-						255, 255, 0, 0);
-					return;
-
 				}
-				else
+				else if (msgType == SSCMessageType.RequestRegister)
 				{
-					player.HasPassword = true;
-					player.Password = password;
-					NetMessage.SendData(MessageID.ChatText, plr, -1,
-						string.Format("You have successfully set your password as {0}. Remember it!", password),
-						255, 50, 255, 50);
-				}
-			}
-			else if (msgType == SSCMessageType.SendLoginPassword)
-			{
-				int plr = reader.ReadByte();
-				string password = reader.ReadString();
-				Player p = Main.player[plr];
-				ServerPlayer player = xmlData.Data[p.name];
-				
-				if (!player.HasPassword)
-				{
-					NetMessage.SendData(MessageID.ChatText, plr, -1, "You should first register an account use /register <password> !",
-						255, 255, 0, 0);
-					return;
-
-				}
-				else
-				{
-					bool isPasswordCorrrect = password.Equals(player.Password);
-					if (isPasswordCorrrect)
+					int plr = reader.ReadByte();
+					string password = reader.ReadString();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (player.HasPassword)
 					{
-						player.IsLogin = true;
+						NetMessage.SendData(MessageID.ChatText, plr, -1, "You cannot register twice!",
+							255, 255, 0, 0);
+						return;
+
+					}
+					else
+					{
+						player.HasPassword = true;
+						player.Password = password;
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-							string.Format("You have successfully logged in as {0}", player.Name),
+							string.Format("You have successfully set your password as {0}. Remember it!", password),
 							255, 50, 255, 50);
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-							"Please wait for a few seconds and then you can move",
-							255, 255, 255, 0);
+					}
+				}
+				else if (msgType == SSCMessageType.SendLoginPassword)
+				{
+					int plr = reader.ReadByte();
+					string password = reader.ReadString();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+
+					if (!player.HasPassword)
+					{
+						NetMessage.SendData(MessageID.ChatText, plr, -1, "You should first register an account use /register <password> !",
+							255, 255, 0, 0);
+						return;
+
+					}
+					else
+					{
+						bool isPasswordCorrrect = password.Equals(player.Password);
+						if (isPasswordCorrrect)
+						{
+							player.IsLogin = true;
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								string.Format("You have successfully logged in as {0}", player.Name),
+								255, 50, 255, 50);
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"Please wait for a few seconds and then you can move",
+								255, 255, 255, 0);
+						}
+						else
+						{
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"Wrong password! Please try again!",
+								255, 255, 20, 0);
+						}
+					}
+				}
+				else if (msgType == SSCMessageType.KillCommand)
+				{
+					int plr = reader.ReadByte();
+					int target = reader.ReadByte();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (player.PermissionGroup.HasPermission("kill"))
+					{
+						Main.player[target].KillMe(PlayerDeathReason.ByCustomReason(" was killed by absolute power!"),
+							23333, 0, false);
+						NetMessage.SendPlayerDeath(target, PlayerDeathReason.ByCustomReason(" was killed by absolute power!"),
+							23333, 0, false, -1, -1);
 					}
 					else
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-							"Wrong password! Please try again!",
-							255, 255, 20, 0);
+								"You don't have the permission to this command.",
+								255, 255, 20, 0);
 					}
 				}
+				else if (msgType == SSCMessageType.ListCommand)
+				{
+					int plr = reader.ReadByte();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (true)
+					{
+						try
+						{
+							StringBuilder sb = new StringBuilder();
+							sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
+							foreach (var pla in xmlData.Data)
+							{
+								Player player1 = pla.Value.prototypePlayer;
+								string line = string.Concat(
+									player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
+									"    ",
+									pla.Value.Name,
+									"    ",
+									pla.Value.Hash,
+									"    ",
+									pla.Value.PermissionGroup,
+									"    ",
+									pla.Value.LifeMax,
+									"    "
+									);
+								sb.AppendLine(line);
+							}
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+									sb.ToString(),
+									255, 255, 255, 0);
+						}
+						catch (Exception ex)
+						{
+							CommandBoardcast.ShowError(ex);
+						}
+					}
+					else
+					{
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"You don't have the permission to this command.",
+								255, 255, 20, 0);
+					}
+				}
+				else if (msgType == SSCMessageType.RequestSetGroup)
+				{
+					int plr = reader.ReadByte();
+					string hash = reader.ReadString();
+					string group = reader.ReadString();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (player.PermissionGroup.HasPermission("group"))
+					{
+						try
+						{
+							ServerPlayer targetPlayer = FindPlayer(hash);
+							targetPlayer.PermissionGroup = GroupType.Groups[group];
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group),
+								255, 50, 255, 50);
+						}
+						catch
+						{
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"Cannot find this player or group name invalid!",
+								255, 255, 20, 0);
+							return;
+						}
+					}
+					else
+					{
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"You don't have the permission to this command.",
+								255, 255, 20, 0);
+					}
+				}
+				else if (msgType == SSCMessageType.LockPlayer)
+				{
+					int plr = reader.ReadByte();
+					int target = reader.ReadByte();
+					int time = reader.ReadInt32();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (player.PermissionGroup.HasPermission("lock"))
+					{
+						player.ApplyLockBuffs(time);
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+								string.Format("You have successfully locked {0} for {1} frames", player.Name, time),
+								255, 50, 255, 50);
+					}
+					else
+					{
+						NetMessage.SendData(MessageID.ChatText, plr, -1,
+								"You don't have the permission to this command.",
+								255, 255, 20, 0);
+					}
+				}
+				else if (msgType == SSCMessageType.ButcherCommand)
+				{
+					int plr = reader.ReadByte();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (!player.IsLogin) return;
+					if (player.PermissionGroup.HasPermission("butcher"))
+					{
+						int kills = 0;
+						for (int i = 0; i < Main.npc.Length; i++)
+						{
+							if (Main.npc[i].active && (!Main.npc[i].townNPC && Main.npc[i].netID != NPCID.TargetDummy))
+							{
+								Main.npc[i].StrikeNPC(100000000, 0, 0);
+								NetMessage.SendData((int)MessageID.StrikeNPC, -1, -1, "", i, 100000000, 0, 0);
+								kills++;
+							}
+						}
+						CommandBoardcast.SendInfoToAll(string.Format("{0} butchered {1} NPCs.", player.Name, kills));
+					}
+					else
+					{
+						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+					}
+				}
+				else if (msgType == SSCMessageType.TPCommand)
+				{
+					int plr = reader.ReadByte();
+					int target = reader.ReadByte();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer targetPlayer = xmlData.Data[Main.player[target].name];
+					if (!player.IsLogin || target == plr) return;
+					if (player.PermissionGroup.HasPermission("tp"))
+					{
+						if (targetPlayer.prototypePlayer != null && targetPlayer.prototypePlayer.active)
+						{
+							p.Teleport(Main.player[target].position);
+							CommandBoardcast.SendInfoToPlayer(plr, "You have teleproted to " + targetPlayer.Name);
+							CommandBoardcast.SendInfoToPlayer(target, player.Name + " has teleproted to you!");
+						}
+						else
+						{
+							CommandBoardcast.SendErrorToPlayer(plr, "Cannot find this player");
+						}
+					}
+					else
+					{
+						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+					}
+				}
+				else if (msgType == SSCMessageType.TimeCommand)
+				{
+					int plr = reader.ReadByte();
+					bool set = reader.ReadBoolean();
+					int time = reader.ReadInt32();
+					bool day = reader.ReadBoolean();
+					Player p = Main.player[plr];
+					ServerPlayer player = xmlData.Data[p.name];
+					if (player.PermissionGroup.HasPermission("time"))
+					{
+						if (!set)
+						{
+							double time1 = GetTime();
+							CommandBoardcast.SendInfoToPlayer(plr, string.Format("The current time is {0}:{1:D2}.", 
+								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
+						}
+						else
+						{
+							Main.time = time;
+							Main.dayTime = day;
+							NetSync.SendTimeSet(Main.time, Main.dayTime);
+							double time1 = GetTime();
+							CommandBoardcast.SendInfoToAll(string.Format("{0} set the time to {1}:{2:D2}.", player.Name,
+								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
+						}
+					}
+
+				}
+				else if(msgType == SSCMessageType.SendTimeSet)
+				{
+					double time = reader.ReadDouble();
+					bool day = reader.ReadBoolean();
+					short sunY = reader.ReadInt16();
+					short moonY = reader.ReadInt16();
+					if(Main.netMode == 1)
+					{
+						Main.time = time;
+						Main.dayTime = day;
+						Main.sunModY = sunY;
+						Main.moonModY = moonY;
+					}
+				}
+				else
+				{
+					Console.WriteLine("Unexpected message type!");
+				}
 			}
-			else
+			catch(Exception ex)
 			{
-				Console.WriteLine("Unexpected message type!");
+				CommandBoardcast.ShowError(ex);
 			}
 		}
 
@@ -531,34 +790,11 @@ namespace ServerSideCharacter
 						Command cmd = Commands[cmdIndex];
 						cmd.CommandAction(args);
 					}
+					else
+					{
+						Main.NewText("Command not found!", 255, 25, 0);
+					}
 				}
-				//if (command == "save")
-				//{
-				//	NetSync.SendRequestSave(Main.myPlayer);
-				//	Main.NewText("Saving");
-				//}
-				//if (command == "register")
-				//{
-				//	try
-				//	{
-				//		NetSync.SendSetPassword(Main.myPlayer, args[0]);
-				//	}
-				//	catch
-				//	{
-				//		Main.NewText("Invalid Sytanx! Usage: /register <your password>", 255, 255, 0);
-				//	}
-				//}
-				//if(command == "login")
-				//{
-				//	try
-				//	{
-				//		NetSync.SendLoginPassword(Main.myPlayer, args[0]);
-				//	}
-				//	catch
-				//	{
-				//		Main.NewText("Invalid Sytanx! Usage: /login <your password>", 255, 255, 0);
-				//	}
-				//}
 			}
 		}
 
@@ -568,6 +804,8 @@ namespace ServerSideCharacter
 			//{
 			//	Directory.CreateDirectory("Plugins");
 			//}
+
+			GroupType.SetupGroups();
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",
@@ -597,6 +835,45 @@ namespace ServerSideCharacter
 				{
 					item.favorited = Convert.ToBoolean(str);
 				});
+
+			AddToStartInv(ItemID.ShadewoodSword, 82);
+			AddToStartInv(ItemID.IronPickaxe);
+			AddToStartInv(ItemID.IronAxe);
+			if (ModLoader.LoadedMods.Any(mod => mod.Name == "ThoriumMod"))
+			{
+				var thorium = ModLoader.LoadedMods.Where(mod => mod.Name == "ThoriumMod");
+				AddToStartInv(thorium.First().ItemType("FamilyHeirloom"));
+			}
+		}
+
+		private static void AddToStartInv(int type, int prefex = 0)
+		{
+			Item item1 = new Item();
+			item1.SetDefaults(type);
+			item1.Prefix(prefex);
+			ServerPlayer.StartUpItems.Add(item1);
+		}
+
+		private static ServerPlayer FindPlayer(string hash)
+		{
+			foreach(var pair in xmlData.Data)
+			{
+				if(pair.Value.Hash == hash)
+				{
+					return pair.Value;
+				}
+			}
+			throw new Exception("Cannot find the player!");
+		}
+
+		private static double GetTime()
+		{
+			double time1 = Main.time / 3600.0;
+			time1 += 4.5;
+			if (!Main.dayTime)
+				time1 += 15.0;
+			time1 = time1 % 24.0;
+			return time1;
 		}
 	}
 }

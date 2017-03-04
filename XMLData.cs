@@ -1,4 +1,5 @@
-﻿using ServerSideCharacter.Items;
+﻿using ServerSideCharacter.GroupManage;
+using ServerSideCharacter.Items;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,6 +108,18 @@ namespace ServerSideCharacter
 					int i = 0;
 					player.Name = pData.GetAttribute("name");
 					player.Hash = pData.GetAttribute("hash");
+					try
+					{
+						player.PermissionGroup = GroupType.Groups[pData.GetAttribute("group")];
+					}
+					catch
+					{
+						player.PermissionGroup = GroupType.Groups["default"];
+					}
+					foreach(var pair in ModDataHooks.InterpretPlayerStringTable)
+					{
+						pair.Value(pData.GetAttribute(pair.Key), player);
+					}
 					player.HasPassword = Convert.ToBoolean(ReadNext(info, ref i));
 					player.Password = ReadNext(info, ref i);
 					player.LifeMax = Convert.ToInt32(ReadNext(info, ref i));

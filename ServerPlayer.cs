@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
+using ServerSideCharacter.GroupManage;
 
 namespace ServerSideCharacter
 {
 	public class ServerPlayer
 	{
 
-		//TODO: Write this in XML Doc
+		
 		public bool HasPassword { get; set; }
 
 		public bool IsLogin { get; set; }
@@ -17,6 +19,8 @@ namespace ServerSideCharacter
 		public string Password { get; set; }
 
 		public string Hash { get; set; }
+
+		public Group PermissionGroup { get; set; }
 
 		public int LifeMax { get; set; }
 
@@ -43,6 +47,8 @@ namespace ServerSideCharacter
 		public Chest bank3 = new Chest(true);
 
 		public Player prototypePlayer { get; set; }
+
+		public static List<Item> StartUpItems = new List<Item>();
 
 		private void SetupPlayer()
 		{
@@ -108,16 +114,16 @@ namespace ServerSideCharacter
 		}
 
 
-		public void ApplyLockBuffs()
+		public void ApplyLockBuffs(int time = 180)
 		{
-			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), 300, false);
-			prototypePlayer.AddBuff(BuffID.Frozen, 180, false);
+			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), time * 2, false);
+			prototypePlayer.AddBuff(BuffID.Frozen, time, false);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
-				ServerSideCharacter.instance.BuffType("Locked"), 300, 0f, 0, 0, 0);
+				ServerSideCharacter.instance.BuffType("Locked"), time * 2, 0f, 0, 0, 0);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
-				BuffID.Frozen, 180, 0f, 0, 0, 0);
+				BuffID.Frozen, time, 0f, 0, 0, 0);
 		}
 
 		public static string GenHashCode(string name)
@@ -131,13 +137,15 @@ namespace ServerSideCharacter
 		public static ServerPlayer CreateNewPlayer(Player p)
 		{
 			ServerPlayer player = new ServerPlayer(p);
-			player.inventroy[0].SetDefaults(ItemID.ShadewoodSword);
-			player.inventroy[0].Prefix(82);
-			player.inventroy[1].SetDefaults(ItemID.IronPickaxe);
-			player.inventroy[2].SetDefaults(ItemID.IronAxe);
+			int i = 0;
+			foreach(var item in StartUpItems)
+			{
+				player.inventroy[i++] = item;
+			}
 			player.Name = p.name;
 			player.Hash = GenHashCode(p.name);
 			player.HasPassword = false;
+			player.PermissionGroup = GroupType.Groups["default"];
 			player.IsLogin = false;
 			player.Password = "";
 			player.LifeMax = 100;
