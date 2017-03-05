@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Terraria;
 using Terraria.ID;
@@ -70,23 +71,26 @@ namespace ServerSideCharacter
 				}
 				if (Main.time % 3600 < 1)
 				{
-					foreach (var player in ServerSideCharacter.xmlData.Data)
-					{
-						try
-						{
-							ServerSideCharacter.MainWriter.SavePlayer(player.Value);
-						}
-						catch (Exception ex)
-						{
-							CommandBoardcast.ShowError(ex);
-						}
-#if DEBUGMODE
-						//Console.WriteLine("Saved " + player.Key);
-#endif
-					}
-					CommandBoardcast.ShowSaveInfo();
+					ThreadPool.QueueUserWorkItem(do_Save);
 				}
 			}
 		}
+
+		private void do_Save(object state)
+		{
+			foreach (var player in ServerSideCharacter.xmlData.Data)
+			{
+				try
+				{
+					ServerSideCharacter.MainWriter.SavePlayer(player.Value);
+				}
+				catch (Exception ex)
+				{
+					CommandBoardcast.ShowError(ex);
+				}
+			}
+			CommandBoardcast.ShowSaveInfo();
+		}
+
 	}
 }

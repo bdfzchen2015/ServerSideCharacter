@@ -23,21 +23,31 @@ namespace ServerSideCharacter.Region
 
 		public bool HasNameConflect(string name)
 		{
-			bool hascon = false;
 			foreach(var region in ServerRegions)
 			{
 				if (name.Equals(region.Name))
 				{
-					hascon = true;
-					break;
+					return true;
 				}
 			}
-			return hascon;
+			return false;
 		}
 
 		public bool CheckPlayerRegionMax(ServerPlayer player)
 		{
 			return ServerRegions.Count(info => info.Owner.Equals(player)) < 3;
+		}
+
+		public bool CheckRegionConflict(Rectangle rect)
+		{
+			foreach(var region in ServerRegions)
+			{
+				if (region.Area.Intersects(rect))
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 
 		public void ReadRegionInfo()
@@ -99,6 +109,25 @@ namespace ServerSideCharacter.Region
 
 			xmlDoc.Save("SSC/regions.xml");
 
+		}
+
+		public bool CheckRegion(int X, int Y, ServerPlayer player)
+		{
+			Vector2 TilePos = new Vector2(X, Y);
+			foreach(var regions in ServerRegions)
+			{
+				if(regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
+		{
+			return !HasNameConflect(name) && ServerRegions.Count < 512 
+				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area);
 		}
 	}
 }

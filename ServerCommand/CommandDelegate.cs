@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -306,6 +307,7 @@ namespace ServerSideCharacter.ServerCommand
 				{
 					string name = args[1];
 					MessageSender.SendRegionCreate(Main.myPlayer, name);
+					ServerSideCharacter.TilePos1 = ServerSideCharacter.TilePos2 = Vector2.Zero;
 				}
 				else if(args[0] == "info")
 				{

@@ -174,6 +174,12 @@ namespace ServerSideCharacter
 						NetMessage.SendTileSquare(-1, X, Y, 4);
 						return true;
 					}
+					else if(regionManager.CheckRegion(X, Y, player))
+					{
+						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: You don't have permission to change this tile");
+						NetMessage.SendTileSquare(-1, X, Y, 4);
+						return true;
+					}
 				}
 			}
 			return false;
@@ -979,19 +985,19 @@ namespace ServerSideCharacter
 			if (!player.IsLogin) return;
 			if (player.PermissionGroup.HasPermission("regioncreate"))
 			{
-				if (!regionManager.HasNameConflect(name) && regionManager.CheckPlayerRegionMax(player))
+				int width = (int)Math.Abs(p1.X - p2.X);
+				int height = (int)Math.Abs(p1.Y - p2.Y);
+				Vector2 realPos = p2.X - width == p1.X ? p1 : p2;
+				Rectangle regionArea = new Rectangle((int)realPos.X, (int)realPos.Y, width, height);
+				if (regionManager.ValidRegion(player, name, regionArea))
 				{
-					int width = (int)Math.Abs(p1.X - p2.X);
-					int height = (int)Math.Abs(p1.Y - p2.Y);
-					Vector2 realPos = p2.X - width == p1.X ? p1 : p2;
-					Rectangle regionArea = new Rectangle((int)realPos.X, (int)realPos.Y, width, height);
 					regionManager.CreateNewRegion(regionArea, name, player);
 					regionManager.WriteRegionInfo();
 					CommandBoardcast.SendInfoToPlayer(plr, "You have successfully created a region named: " + name);
 				}
 				else
 				{
-					CommandBoardcast.SendErrorToPlayer(plr, "Sorry, but this name has been occupied or your regions is too many!");
+					CommandBoardcast.SendErrorToPlayer(plr, "Sorry, but this name has been occupied or you have too many regions!");
 				}
 			}
 			else
