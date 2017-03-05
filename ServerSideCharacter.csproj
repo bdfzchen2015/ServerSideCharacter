@@ -92,6 +92,7 @@
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />
     <Compile Include="XMLHelper\NodeHelper.cs" />
+    <Compile Include="XMLHelper\ServerConfigXml.cs" />
     <Compile Include="XMLWriter.cs" />
   </ItemGroup>
   <ItemGroup>

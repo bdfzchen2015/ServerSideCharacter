@@ -11,21 +11,40 @@ namespace ServerSideCharacter.ServerCommand
 		public static void SetUpCommands(List<Command> list)
 		{
 			list.Clear();
-			list.Add(new Command("save", SaveCommand));
-			list.Add(new Command("register", RegisterCommand));
-			list.Add(new Command("login", LoginCommand));
-			list.Add(new Command("kill", KillCommand));
-			list.Add(new Command("ls", ListCommand));
-			list.Add(new Command("group", GroupCommand));
-			list.Add(new Command("lock", LockCommand));
-			list.Add(new Command("butcher", ButcherCommand));
-			list.Add(new Command("tp", TeleportCommand));
-			list.Add(new Command("time", TimeCommand));
-			list.Add(new Command("help", HelpCommand));
-			list.Add(new Command("region", RegionCommand));
-			list.Add(new Command("item", ItemCommand));
-			list.Add(new Command("find", FindCommand));
-			list.Add(new Command("auth", AuthCommand));
+			list.Add(new Command("save", SaveCommand, "Save player's data"));
+			list.Add(new Command("register", RegisterCommand, "Register an account"));
+			list.Add(new Command("login", LoginCommand, "Login to an account"));
+			list.Add(new Command("kill", KillCommand, "Kill a player"));
+			list.Add(new Command("ls", ListCommand, "List current player's info"));
+			list.Add(new Command("group", GroupCommand, "Group management"));
+			list.Add(new Command("lock", LockCommand, "Lock a player"));
+			list.Add(new Command("butcher", ButcherCommand, "Butcher all hostile npcs"));
+			list.Add(new Command("tp", TeleportCommand, "Teleport to a player"));
+			list.Add(new Command("time", TimeCommand, "Check or adjust the time of the world"));
+			list.Add(new Command("help", HelpCommand, "Show commands"));
+			list.Add(new Command("region", RegionCommand, "Region management"));
+			list.Add(new Command("item", ItemCommand, "Give player items"));
+			list.Add(new Command("find", FindCommand, "Find item(-i) or npc(-n) names"));
+			list.Add(new Command("auth", AuthCommand, "Aithorize command"));
+			list.Add(new Command("sm", SummonCommand, "Summon npcs"));
+			list.Add(new Command("tphere", TPHereCommand, "Teleport a player to your position"));
+		}
+
+		private static void TPHereCommand(string[] obj)
+		{
+			
+		}
+
+		private static void SummonCommand(string[] args)
+		{
+			try
+			{
+				NetSync.SendSummonCommand(Main.myPlayer, Convert.ToInt32(args[0]), Convert.ToInt32(args[1]));
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /sm <npc id> <number>", 255, 25, 0);
+			}
 		}
 
 		private static void AuthCommand(string[] obj)
@@ -44,28 +63,52 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				string trytoFind = obj[0];
-				List<int> numbers = new List<int>(Main.maxItemTypes);
-				for(int i = 0; i < Main.maxItemTypes; i++)
+				string type = obj[0];
+				string tryToFind = obj[1];
+				if (type == "-i")
 				{
-					numbers.Add(i);
+					List<int> numbers = new List<int>(Main.itemName.Length);
+					for (int i = 0; i < Main.itemName.Length; i++)
+					{
+						numbers.Add(i);
+					}
+					var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(tryToFind.ToLower()));
+					foreach (var pair in items)
+					{
+						Main.NewText(Main.itemName[pair] + " -> ID: " + pair);
+					}
+					Main.NewText("Total Find: " + items.Count());
 				}
-				var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(trytoFind.ToLower()));
-				foreach(var pair in items)
+				else if(type == "-n")
 				{
-					Main.NewText(Main.itemName[pair] + " -> " + pair);
+					List<int> numbers = new List<int>(Main.npcName.Length);
+					for (int i = 0; i < Main.npcName.Length; i++)
+					{
+						numbers.Add(i);
+					}
+					var items = numbers.Where(i => Main.npcName[i].ToLower().Contains(tryToFind.ToLower()));
+					foreach (var pair in items)
+					{
+						Main.NewText(Main.npcName[pair] + " -> ID: " + pair);
+					}
+					Main.NewText("Total Find: " + items.Count());
+				}
+				else
+				{
+					Main.NewText("Invalid Sytanx! Usage: /find <type(-n/-i)> <string>", 255, 25, 0);
 				}
 
 			}
 			catch
 			{
-				Main.NewText("Invalid Sytanx! Usage: /tp <player id>", 255, 25, 0);
+				Main.NewText("Invalid Sytanx! Usage: /find <type(-n/-i)> <string>", 255, 25, 0);
 			}
 		}
 
 		private static void SaveCommand(string[] args)
 		{
 			NetSync.SendRequestSave(Main.myPlayer);
+			Main.NewText("Saved player's data");
 		}
 		private static void RegisterCommand(string[] args)
 		{
@@ -155,7 +198,22 @@ namespace ServerSideCharacter.ServerCommand
 
 		private static void ListCommand(string[] args)
 		{
-			NetSync.SendListCommand(Main.myPlayer);
+			try
+			{
+				bool all = false;
+				if (args.Length > 0)
+				{
+					if (args[0] == "-al")
+					{
+						all = true;
+					}
+				}
+				NetSync.SendListCommand(Main.myPlayer, all);
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /ls [-al]", 255, 25, 0);
+			}
 		}
 
 		private static void ButcherCommand(string[] args)

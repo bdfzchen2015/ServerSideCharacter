@@ -56,6 +56,10 @@ namespace ServerSideCharacter
 				AutoloadGores = true
 			};
 		}
+
+
+
+
 		public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
 		{
 
@@ -133,16 +137,12 @@ namespace ServerSideCharacter
 				{
 					Player p = Main.player[playerID];
 					ServerPlayer player = p.GetServerPlayer();
-					string prefix = "";
-					if (player.PermissionGroup.GroupName == "spadmin")
-					{
-						prefix = "[SuperAdmin] ";
-						c = Color.Red;
-					}
+					Group group = player.PermissionGroup;
+					string prefix = "[" + group.ChatPrefix + "] ";
+					c = group.ChatColor;
 					NetMessage.SendData(25, -1, -1, prefix + "<" + p.name + "> " + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
 					if (Main.dedServ)
 					{
-
 						Console.WriteLine(string.Format("{0}<" + Main.player[playerID].name + "> " + text, prefix));
 					}
 				}
@@ -159,9 +159,15 @@ namespace ServerSideCharacter
 					short Y = reader.ReadInt16();
 					short type = reader.ReadInt16();
 					int style = reader.ReadByte();
-					if (CheckSpawn(X, Y))
+					if (CheckSpawn(X, Y) && player.PermissionGroup.GroupName != "spadmin")
 					{
-						NetMessage.SendData(MessageID.ChatText, playerNumber, -1, "Warning: You do not have the permission to change this tile", playerNumber, 255, 20, 20, 0, 0, 0);
+						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Spawn is protected from change");
+						NetMessage.SendTileSquare(-1, X, Y, 4);
+						return true;
+					}
+					else if(player.PermissionGroup.GroupName == "criminal")
+					{
+						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Criminals cannot change tiles");
 						NetMessage.SendTileSquare(-1, X, Y, 4);
 						return true;
 					}
@@ -169,6 +175,11 @@ namespace ServerSideCharacter
 			}
 			return false;
 		}
+
+
+
+
+
 
 		public static void SyncConnectedPlayer(int plr)
 		{
@@ -351,20 +362,6 @@ namespace ServerSideCharacter
 				//PluginLoader.LoadPlugins();
 
 
-				if (!Directory.Exists("SSC"))
-				{
-					Directory.CreateDirectory("SSC");
-					string save = Path.Combine("SSC", "datas.xml");
-					XMLWriter writer = new XMLWriter(save);
-					writer.Create();
-					Player tmp = new Player();
-					tmp.name = "DXTsT";
-					ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer(tmp);
-					writer.Write(newPlayer);
-					MainWriter = writer;
-					Console.WriteLine("Saved data: " + save);
-				}
-
 				if (!System.IO.File.Exists("SSC/authcode"))
 				{
 					string authcode = Convert.ToString((Main.rand.Next(300000) + DateTime.Now.Millisecond) % 65536 + 65535, 16);
@@ -408,9 +405,10 @@ namespace ServerSideCharacter
 							{
 								Console.WriteLine(ex);
 							}
-							CommandBoardcast.ShowMessage("\nOn Server Close: Saved " + player.Key);
+							
 						}
 					}
+					CommandBoardcast.ShowMessage("\nOn Server Close: Saved all datas!");
 					lock (ServerSideCharacter.Logger)
 					{
 						Logger.Dispose();
@@ -614,10 +612,11 @@ namespace ServerSideCharacter
 				else if (msgType == SSCMessageType.ListCommand)
 				{
 					int plr = reader.ReadByte();
+					bool all = reader.ReadBoolean();
 					Player p = Main.player[plr];
 					ServerPlayer player = xmlData.Data[p.name];
 					if (!player.IsLogin) return;
-					if (player.PermissionGroup.HasPermission("ls"))
+					if (all && player.PermissionGroup.HasPermission("ls -al"))
 					{
 						try
 						{
@@ -641,7 +640,36 @@ namespace ServerSideCharacter
 								sb.AppendLine(line);
 							}
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-									sb.ToString() + "\n" + xmlData.Data.Count,
+									sb.ToString(),
+									255, 255, 255, 0);
+						}
+						catch (Exception ex)
+						{
+							CommandBoardcast.ShowError(ex);
+						}
+					}
+					else if (!all && player.PermissionGroup.HasPermission("ls"))
+					{
+						try
+						{
+							StringBuilder sb = new StringBuilder();
+							sb.AppendLine("Player ID    Name    Permission Group");
+							foreach (var pla in Main.player)
+							{
+								if (pla.active)
+								{
+									string line = string.Concat(
+										pla.whoAmI,
+										"    ",
+										pla.name,
+										"    ",
+										pla.GetServerPlayer().PermissionGroup.GroupName
+										);
+									sb.AppendLine(line);
+								}
+							}
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+									sb.ToString(),
 									255, 255, 255, 0);
 						}
 						catch (Exception ex)
@@ -727,7 +755,7 @@ namespace ServerSideCharacter
 							if (Main.npc[i].active && (!Main.npc[i].townNPC && Main.npc[i].netID != NPCID.TargetDummy))
 							{
 								Main.npc[i].StrikeNPC(100000000, 0, 0);
-								NetMessage.SendData((int)MessageID.StrikeNPC, -1, -1, "", i, 100000000, 0, 0);
+								NetMessage.SendData((int)MessageID.StrikeNPC, -1, -1, "", i, 10000000, 0, 0);
 								kills++;
 							}
 						}
@@ -825,7 +853,7 @@ namespace ServerSideCharacter
 					{
 						if (player.PermissionGroup.HasPermission(command.Name))
 						{
-							sb.Append("/" + command.Name + "  ");
+							sb.Append("/" + command.Name + " [" + command.Description + "]  ");
 							i++;
 							if(i > 4)
 							{
@@ -876,6 +904,10 @@ namespace ServerSideCharacter
 						targetPlayer.PermissionGroup = GroupType.Groups["spadmin"];
 						CommandBoardcast.SendInfoToPlayer(plr, "You have successfully auth as SuperAdmin");
 					}
+				}
+				else if(msgType == SSCMessageType.SummonCommand)
+				{
+					SummonNPC(reader, whoAmI);
 				}
 				else
 				{
@@ -962,24 +994,23 @@ namespace ServerSideCharacter
 				{
 					item.favorited = Convert.ToBoolean(str);
 				});
-
-			AddToStartInv(ItemID.ShadewoodSword, 82);
-			AddToStartInv(ItemID.IronPickaxe);
-			AddToStartInv(ItemID.IronAxe);
-			if (ModLoader.LoadedMods.Any(mod => mod.Name == "ThoriumMod"))
+			if (!Directory.Exists("SSC"))
 			{
-				var thorium = ModLoader.LoadedMods.Where(mod => mod.Name == "ThoriumMod");
-				AddToStartInv(thorium.First().ItemType("FamilyHeirloom"));
+				Directory.CreateDirectory("SSC");
+				string save = Path.Combine("SSC", "datas.xml");
+				XMLWriter writer = new XMLWriter(save);
+				writer.Create();
+				Player tmp = new Player();
+				tmp.name = "DXTsT";
+				ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer(tmp);
+				writer.Write(newPlayer);
+				MainWriter = writer;
+				Console.WriteLine("Saved data: " + save);
 			}
+			ServerConfigXml.SetUpStartInv();
 		}
 
-		private static void AddToStartInv(int type, int prefex = 0)
-		{
-			Item item1 = new Item();
-			item1.SetDefaults(type);
-			item1.Prefix(prefex);
-			ServerPlayer.StartUpItems.Add(item1);
-		}
+
 
 		private static ServerPlayer FindPlayer(string hash)
 		{
@@ -1007,7 +1038,81 @@ namespace ServerSideCharacter
 		{
 			Vector2 tile = new Vector2(x, y);
 			Vector2 spawn = new Vector2(Main.spawnTileX, Main.spawnTileY);
-			return Vector2.Distance(spawn, tile) <= 5;
+			return Vector2.Distance(spawn, tile) <= 10;
+		}
+
+		public static void SummonNPC(BinaryReader reader, int whoAmI)
+		{
+			
+			int plr = reader.ReadByte();
+			int type = reader.ReadInt32();
+			int number = reader.ReadInt32();
+			Player p = Main.player[plr];
+			ServerPlayer player = xmlData.Data[p.name];
+			try
+			{
+				if (!player.IsLogin) return;
+				if (player.PermissionGroup.HasPermission("sm"))
+				{
+					if (type >= 1 && type < Main.npcName.Length && type != 113)
+					{
+						for (int i = 0; i < number; i++)
+						{
+							int spawnTileX;
+							int spawnTileY;
+							GetRandomClearTileWithInRange((int)(p.Center.X) / 16, (int)(p.Center.Y) / 16, 50, 30, out spawnTileX,
+																		 out spawnTileY);
+							int npcid = NPC.NewNPC(spawnTileX * 16, spawnTileY * 16, type, 0);
+							// This is for special slimes
+							Main.npc[npcid].netDefaults(type);
+						}
+						CommandBoardcast.SendInfoToAll(string.Format("{0} summoned {1} {2}(s)",
+						player.Name, number, Main.npcName[type]));
+					}
+					else
+					{
+						CommandBoardcast.SendErrorToPlayer(plr, "Invalid mob type!");
+					}
+				}
+				else
+				{
+					CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+				}
+			}
+			catch(Exception ex)
+			{
+				CommandBoardcast.ShowError(ex);
+			}
+		}
+		private static void GetRandomClearTileWithInRange(int startTileX, int startTileY, int tileXRange, int tileYRange,
+			out int tileX, out int tileY)
+		{
+			int j = 0;
+			do
+			{
+				if (j == 100)
+				{
+					tileX = startTileX;
+					tileY = startTileY;
+					break;
+				}
+				tileX = startTileX + Main.rand.Next(tileXRange * -1, tileXRange);
+				tileY = startTileY + Main.rand.Next(tileYRange * -1, tileYRange);
+				j++;
+			} while (TilePlacementValid(tileX, tileY) && TileSolid(tileX, tileY));
+		}
+
+		private static bool TilePlacementValid(int tileX, int tileY)
+		{
+			return tileX >= 0 && tileX < Main.maxTilesX && tileY >= 0 && tileY < Main.maxTilesY;
+		}
+
+		private static bool TileSolid(int tileX, int tileY)
+		{
+			return TilePlacementValid(tileX, tileY) && Main.tile[tileX, tileY] != null &&
+				Main.tile[tileX, tileY].active() && Main.tileSolid[Main.tile[tileX, tileY].type] &&
+				!Main.tile[tileX, tileY].inActive() && !Main.tile[tileX, tileY].halfBrick() &&
+				Main.tile[tileX, tileY].slope() == 0 && Main.tile[tileX, tileY].type != TileID.Bubble;
 		}
 	}
 }

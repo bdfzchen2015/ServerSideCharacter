@@ -15,6 +15,7 @@
 		HelpCommand,
 		KillCommand,
 		ListCommand,
+		SummonCommand,
 		ButcherCommand,
 		TPCommand,
 		TimeCommand,

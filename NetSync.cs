@@ -178,12 +178,13 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
-		public static void SendListCommand(int plr)
+		public static void SendListCommand(int plr, bool all)
 		{
 			string name = Main.player[plr].name;
 			ModPacket p = ServerSideCharacter.instance.GetPacket();
 			p.Write((int)SSCMessageType.ListCommand);
 			p.Write((byte)plr);
+			p.Write(all);
 			p.Send();
 		}
 
@@ -210,6 +211,16 @@ namespace ServerSideCharacter
 			p.Write((int)SSCMessageType.RequestAuth);
 			p.Write((byte)plr);
 			p.Write(code); 
+			p.Send();
+		}
+
+		public static void SendSummonCommand(int plr, int type, int number)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.SummonCommand);
+			p.Write((byte)plr);
+			p.Write(type);
+			p.Write(number);
 			p.Send();
 		}
 
