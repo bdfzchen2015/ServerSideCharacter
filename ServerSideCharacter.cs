@@ -20,6 +20,7 @@ using ServerSideCharacter.Plugin;
 using ServerSideCharacter.GroupManage;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI.Chat;
+using ServerSideCharacter.Region;
 
 namespace ServerSideCharacter
 {
@@ -27,15 +28,17 @@ namespace ServerSideCharacter
 	{
 		public static ServerSideCharacter instance;
 
-		public static XMLData xmlData;
+		public static PlayerData xmlData;
 
 		public static XMLWriter MainWriter;
 
 		public static Thread CheckDisconnect;
 
-		public static string Version = "V1.0.2";
+		public static string APIVersion = "V1.0.2";
 
 		public static List<Command> Commands = new List<Command>();
+
+		public static RegionManager regionManager = new RegionManager();
 
 		private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
 
@@ -43,9 +46,9 @@ namespace ServerSideCharacter
 
 		public static string AuthCode = "";
 
-		public static Point TilePos1 = new Point();
+		public static Vector2 TilePos1 = new Vector2();
 
-		public static Point TilePos2 = new Point();
+		public static Vector2 TilePos2 = new Vector2();
 
 		public ServerSideCharacter()
 		{
@@ -208,11 +211,11 @@ namespace ServerSideCharacter
 				NetMessage.SendData(MessageID.SyncPlayer, toWho, fromWho, Main.player[plr].name, plr, 0f, 0f, 0f, 0, 0, 0);
 				NetMessage.SendData(MessageID.PlayerControls, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				//NetMessage.SendData(MessageID.PlayerHealth, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
-				NetSync.SyncPlayerHealth(plr, -1, -1);
+				MessageSender.SyncPlayerHealth(plr, -1, -1);
 				NetMessage.SendData(MessageID.PlayerPvP, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				NetMessage.SendData(MessageID.PlayerTeam, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				//NetMessage.SendData(MessageID.PlayerMana, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
-				NetSync.SyncPlayerMana(plr, -1, -1);
+				MessageSender.SyncPlayerMana(plr, -1, -1);
 				NetMessage.SendData(MessageID.PlayerBuffs, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				string name = Main.player[plr].name;
 				ServerPlayer player = xmlData.Data[name];
@@ -250,7 +253,7 @@ namespace ServerSideCharacter
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
 				}
-				NetSync.SyncPlayerBanks(plr, -1, -1);
+				MessageSender.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
 				PlayerActiveTable[plr] = new SaveInfo() { Name = Main.player[plr].name, Active = true };
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
@@ -373,15 +376,16 @@ namespace ServerSideCharacter
 				}
 				else
 				{
-					using(StreamReader sr = new StreamReader("SSC/authcode"))
+					using (StreamReader sr = new StreamReader("SSC/authcode"))
 					{
 						AuthCode = sr.ReadLine();
 					}
 				}
 
-				
 
-				xmlData = new XMLData("SSC/datas.xml");
+
+				xmlData = new PlayerData("SSC/datas.xml");
+				regionManager.ReadRegionInfo();
 				Logger = new TextLog("ServerLog.txt", false);
 				CommandBoardcast.ShowMessage("Data loaded!");
 				CommandBoardcast.ShowMessage("You can type /auth " + AuthCode + " to become super admin");
@@ -393,26 +397,25 @@ namespace ServerSideCharacter
 
 						Thread.Sleep(100);
 					}
-					lock (ServerSideCharacter.xmlData.Data)
+					lock (this)
 					{
-						foreach (var player in ServerSideCharacter.xmlData.Data)
+						foreach (var player in xmlData.Data)
 						{
 							try
 							{
-								ServerSideCharacter.MainWriter.SavePlayer(player.Value);
+								MainWriter.SavePlayer(player.Value);
 							}
 							catch (Exception ex)
 							{
 								Console.WriteLine(ex);
 							}
-							
+
 						}
-					}
-					CommandBoardcast.ShowMessage("\nOn Server Close: Saved all datas!");
-					lock (ServerSideCharacter.Logger)
-					{
+						CommandBoardcast.ShowMessage("\nOn Server Close: Saved all datas!");
 						Logger.Dispose();
+						regionManager.WriteRegionInfo();
 					}
+
 
 				});
 				CheckDisconnect.Start();
@@ -425,7 +428,7 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				Main.ServerSideCharacter = true;
-				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + Version + "]");
+				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + APIVersion + "]");
 			}
 			else
 			{
@@ -435,7 +438,7 @@ namespace ServerSideCharacter
 
 		private void Netplay_OnDisconnect()
 		{
-			NetSync.SendRequestSave(Main.myPlayer);
+			MessageSender.SendRequestSave(Main.myPlayer);
 			Main.NewText("Saving");
 		}
 
@@ -612,6 +615,7 @@ namespace ServerSideCharacter
 				else if (msgType == SSCMessageType.ListCommand)
 				{
 					int plr = reader.ReadByte();
+					ListType type = (ListType)reader.ReadByte();
 					bool all = reader.ReadBoolean();
 					Player p = Main.player[plr];
 					ServerPlayer player = xmlData.Data[p.name];
@@ -621,23 +625,41 @@ namespace ServerSideCharacter
 						try
 						{
 							StringBuilder sb = new StringBuilder();
-							sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
-							foreach (var pla in xmlData.Data)
+							if (type == ListType.ListPlayers)
 							{
-								Player player1 = pla.Value.prototypePlayer;
-								string line = string.Concat(
-									player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
-									"    ",
-									pla.Value.Name,
-									"    ",
-									pla.Value.Hash,
-									"    ",
-									pla.Value.PermissionGroup.GroupName,
-									"    ",
-									pla.Value.LifeMax,
-									"    "
-									);
-								sb.AppendLine(line);
+								sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
+								foreach (var pla in xmlData.Data)
+								{
+									Player player1 = pla.Value.prototypePlayer;
+									string line = string.Concat(
+										player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
+										"    ",
+										pla.Value.Name,
+										"    ",
+										pla.Value.Hash,
+										"    ",
+										pla.Value.PermissionGroup.GroupName,
+										"    ",
+										pla.Value.LifeMax,
+										"    "
+										);
+									sb.AppendLine(line);
+								}
+							}
+							else if (type == ListType.ListRegions)
+							{
+								sb.AppendLine("RegionName    Owner    Region Area");
+								foreach (var region in regionManager.ServerRegions)
+								{
+									string line = string.Concat(
+										region.Name,
+										"    ",
+										region.Owner.Name,
+										"    ",
+										region.Area.ToString()
+										);
+									sb.AppendLine(line);
+								}
 							}
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
 									sb.ToString(),
@@ -652,18 +674,35 @@ namespace ServerSideCharacter
 					{
 						try
 						{
+							
 							StringBuilder sb = new StringBuilder();
-							sb.AppendLine("Player ID    Name    Permission Group");
-							foreach (var pla in Main.player)
+							if (type == ListType.ListPlayers)
 							{
-								if (pla.active)
+								sb.AppendLine("Player ID    Name    Permission Group");
+								foreach (var pla in Main.player)
+								{
+									if (pla.active)
+									{
+										string line = string.Concat(
+											pla.whoAmI,
+											"    ",
+											pla.name,
+											"    ",
+											pla.GetServerPlayer().PermissionGroup.GroupName
+											);
+										sb.AppendLine(line);
+									}
+								}
+							}
+							else if(type == ListType.ListRegions)
+							{
+								sb.AppendLine("Region Name    Region Area");
+								foreach (var region in regionManager.ServerRegions)
 								{
 									string line = string.Concat(
-										pla.whoAmI,
+										region.Name,
 										"    ",
-										pla.name,
-										"    ",
-										pla.GetServerPlayer().PermissionGroup.GroupName
+										region.Area.ToString()
 										);
 									sb.AppendLine(line);
 								}
@@ -696,7 +735,7 @@ namespace ServerSideCharacter
 					{
 						try
 						{
-							ServerPlayer targetPlayer = FindPlayer(hash);
+							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(hash);
 							targetPlayer.PermissionGroup = GroupType.Groups[group];
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
 								string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group),
@@ -779,7 +818,7 @@ namespace ServerSideCharacter
 						if (targetPlayer.prototypePlayer != null && targetPlayer.prototypePlayer.active)
 						{
 							p.Teleport(Main.player[target].position);
-							NetSync.SendTeleport(plr, Main.player[target].position);
+							MessageSender.SendTeleport(plr, Main.player[target].position);
 							CommandBoardcast.SendInfoToPlayer(plr, "You have teleproted to " + targetPlayer.Name);
 							CommandBoardcast.SendInfoToPlayer(target, player.Name + " has teleproted to you!");
 						}
@@ -814,7 +853,7 @@ namespace ServerSideCharacter
 						{
 							Main.time = time;
 							Main.dayTime = day;
-							NetSync.SendTimeSet(Main.time, Main.dayTime);
+							MessageSender.SendTimeSet(Main.time, Main.dayTime);
 							double time1 = GetTime();
 							CommandBoardcast.SendInfoToAll(string.Format("{0} set the time to {1}:{2:D2}.", player.Name,
 								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
@@ -847,19 +886,12 @@ namespace ServerSideCharacter
 					sb.Append("Current commands:\n");
 					Player p = Main.player[plr];
 					ServerPlayer player = xmlData.Data[p.name];
-					int i = 0;
 
 					foreach(var command in Commands)
 					{
 						if (player.PermissionGroup.HasPermission(command.Name))
 						{
-							sb.Append("/" + command.Name + " [" + command.Description + "]  ");
-							i++;
-							if(i > 4)
-							{
-								i = 0;
-								sb.Append("\n");
-							}
+							sb.AppendLine("/" + command.Name + " [" + command.Description + "]  ");
 						}
 					}
 					CommandBoardcast.SendInfoToPlayer(plr, sb.ToString());
@@ -909,6 +941,22 @@ namespace ServerSideCharacter
 				{
 					SummonNPC(reader, whoAmI);
 				}
+				else if(msgType == SSCMessageType.ToggleGodMode)
+				{
+					ToggleGodMode(reader, whoAmI);
+				}
+				else if(msgType == SSCMessageType.SetGodMode)
+				{
+					Main.LocalPlayer.GetModPlayer<MPlayer>(this).GodMode = reader.ReadBoolean();
+				}
+				else if(msgType == SSCMessageType.TPHereCommand)
+				{
+					TPHere(reader, whoAmI);
+				}
+				else if(msgType == SSCMessageType.RegionCreateCommand)
+				{
+					RegionCreate(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -920,6 +968,77 @@ namespace ServerSideCharacter
 			}
 		}
 
+		private void RegionCreate(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			string name = reader.ReadString();
+			Vector2 p1 = reader.ReadVector2();
+			Vector2 p2 = reader.ReadVector2();
+			Player p = Main.player[plr];
+			ServerPlayer player = p.GetServerPlayer();
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("regioncreate"))
+			{
+				if (!regionManager.HasNameConflect(name) && regionManager.CheckPlayerRegionMax(player))
+				{
+					int width = (int)Math.Abs(p1.X - p2.X);
+					int height = (int)Math.Abs(p1.Y - p2.Y);
+					Vector2 realPos = p2.X - width == p1.X ? p1 : p2;
+					Rectangle regionArea = new Rectangle((int)realPos.X, (int)realPos.Y, width, height);
+					regionManager.CreateNewRegion(regionArea, name, player);
+					regionManager.WriteRegionInfo();
+					CommandBoardcast.SendInfoToPlayer(plr, "You have successfully created a region named: " + name);
+				}
+				else
+				{
+					CommandBoardcast.SendErrorToPlayer(plr, "Sorry, but this name has been occupied or your regions is too many!");
+				}
+			}
+			else
+			{
+				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+			}
+		}
+
+		private void TPHere(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			int t = reader.ReadByte();
+			Player p = Main.player[plr];
+			Player target = Main.player[t];
+			ServerPlayer player = xmlData.Data[p.name];
+			ServerPlayer tar = xmlData.Data[target.name];
+			if (player.PermissionGroup.HasPermission("tphere"))
+			{
+				MessageSender.SendTeleport(t, p.position);
+				CommandBoardcast.SendInfoToPlayer(plr, "You have teleported " + tar.Name + " to your position");
+				CommandBoardcast.SendInfoToPlayer(t, "You have been forced teleport to " + player.Name);
+			}
+			else
+			{
+				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+			}
+		}
+
+		private void ToggleGodMode(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			Player p = Main.player[plr];
+			ServerPlayer player = xmlData.Data[p.name];
+			if (player.PermissionGroup.HasPermission("god"))
+			{
+				p.GetModPlayer<MPlayer>(this).GodMode = !p.GetModPlayer<MPlayer>(this).GodMode;
+				ModPacket pack = this.GetPacket();
+				pack.Write((int)SSCMessageType.SetGodMode);
+				pack.Write(p.GetModPlayer<MPlayer>(this).GodMode);
+				pack.Send(plr, -1);
+				CommandBoardcast.SendInfoToPlayer(plr, "God mode is " + (p.GetModPlayer<MPlayer>(this).GodMode ? "actived!" : "disactived!"));
+			}
+			else
+			{
+				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+			}
+		}
 
 		public override void ChatInput(string text, ref bool broadcast)
 		{
@@ -1012,17 +1131,7 @@ namespace ServerSideCharacter
 
 
 
-		private static ServerPlayer FindPlayer(string hash)
-		{
-			foreach(var pair in xmlData.Data)
-			{
-				if(pair.Value.Hash == hash)
-				{
-					return pair.Value;
-				}
-			}
-			throw new Exception("Cannot find the player!");
-		}
+
 
 		private static double GetTime()
 		{

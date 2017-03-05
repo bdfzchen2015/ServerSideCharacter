@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using ServerSideCharacter.GroupManage;
+using ServerSideCharacter.Region;
 
 namespace ServerSideCharacter
 {
@@ -48,7 +49,10 @@ namespace ServerSideCharacter
 
 		public Player prototypePlayer { get; set; }
 
+		public List<RegionInfo> ownedregion = new List<RegionInfo>();
+
 		public static List<Item> StartUpItems = new List<Item>();
+
 
 		private void SetupPlayer()
 		{
@@ -153,6 +157,18 @@ namespace ServerSideCharacter
 			player.ManaMax = 20;
 			player.StatMana = 20;
 			return player;
+		}
+
+		public static ServerPlayer FindPlayer(string hash)
+		{
+			foreach (var pair in ServerSideCharacter.xmlData.Data)
+			{
+				if (pair.Value.Hash == hash)
+				{
+					return pair.Value;
+				}
+			}
+			throw new Exception("Cannot find the player!");
 		}
 	}
 }

@@ -12,6 +12,14 @@ namespace ServerSideCharacter.XMLHelper
 			return node;
 		}
 
+		public static XmlElement CreateElement(XmlDocument xmlDoc, XmlNode parentNode, string name, string value)
+		{
+			XmlNode node = xmlDoc.CreateNode(XmlNodeType.Element, name, null);
+			node.InnerText = value;
+			parentNode.AppendChild(node);
+			return node as XmlElement;
+		}
+
 		public static XmlNode CreateItem(XmlDocument xmlDoc, XmlNode parentNode, int type, int prefix)
 		{
 			XmlNode node = xmlDoc.CreateNode(XmlNodeType.Element, "item", null);

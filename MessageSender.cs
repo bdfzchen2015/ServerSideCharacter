@@ -1,15 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
+using ServerSideCharacter.ServerCommand;
 using Terraria;
 using Terraria.ModLoader;
 namespace ServerSideCharacter
 {
-	public class NetSync
+	public class MessageSender
 	{
 		private Player player;
 		private int to;
 		private int from;
 
-		public NetSync(int playerID, int to, int from)
+		public MessageSender(int playerID, int to, int from)
 		{
 			player = Main.player[playerID];
 			this.to = to;
@@ -178,12 +179,13 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
-		public static void SendListCommand(int plr, bool all)
+		public static void SendListCommand(int plr, ListType type, bool all)
 		{
 			string name = Main.player[plr].name;
 			ModPacket p = ServerSideCharacter.instance.GetPacket();
 			p.Write((int)SSCMessageType.ListCommand);
 			p.Write((byte)plr);
+			p.Write((byte)type);
 			p.Write(all);
 			p.Send();
 		}
@@ -224,6 +226,7 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
+
 		public static void SendSetGroup(int plr, string hash, string group)
 		{
 			string name = Main.player[plr].name;
@@ -232,6 +235,17 @@ namespace ServerSideCharacter
 			p.Write((byte)plr);
 			p.Write(hash);
 			p.Write(group);
+			p.Send();
+		}
+
+		public static void SendRegionCreate(int plr, string name)
+		{
+			ModPacket p = ServerSideCharacter.instance.GetPacket();
+			p.Write((int)SSCMessageType.RegionCreateCommand);
+			p.Write((byte)plr);
+			p.Write(name);
+			p.WriteVector2(ServerSideCharacter.TilePos1);
+			p.WriteVector2(ServerSideCharacter.TilePos2);
 			p.Send();
 		}
 	}

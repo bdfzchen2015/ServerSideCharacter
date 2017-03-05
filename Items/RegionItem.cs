@@ -33,13 +33,13 @@ namespace ServerSideCharacter.Items
 
 			if (player.altFunctionUse != 2 && Main.mouseLeftRelease)
 			{
-				Point tilePos = new Point(Player.tileTargetX, Player.tileTargetY);
+				Vector2 tilePos = new Vector2(Player.tileTargetX, Player.tileTargetY);
 				ServerSideCharacter.TilePos1 = tilePos;
 				Main.NewText(string.Format("Selected tile positon 1 at ({0}, {1})", tilePos.X, tilePos.Y));
 			}
 			else if (player.altFunctionUse == 2 && Main.mouseRightRelease)
 			{
-				Point tilePos = new Point(Player.tileTargetX, Player.tileTargetY);
+				Vector2 tilePos = new Vector2(Player.tileTargetX, Player.tileTargetY);
 				ServerSideCharacter.TilePos2 = tilePos;
 				Main.NewText(string.Format("Selected tile positon 2 at ({0}, {1})", tilePos.X, tilePos.Y));
 			}

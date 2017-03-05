@@ -14,7 +14,7 @@ namespace ServerSideCharacter.ServerCommand
 		public static void ShowSaveInfo()
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			string info = string.Format("[SSC {0}] Saved all player data", ServerSideCharacter.Version);
+			string info = string.Format("[SSC {0}] Saved all player data", ServerSideCharacter.APIVersion);
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();
@@ -23,21 +23,21 @@ namespace ServerSideCharacter.ServerCommand
 		public static void ShowSavePlayer(ServerPlayer p)
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			string info = string.Format("[SSC {0}] Saved {1}'s data", ServerSideCharacter.Version, p.Name);
+			string info = string.Format("[SSC {0}] Saved {1}'s data", ServerSideCharacter.APIVersion, p.Name);
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();
 		}
 		public static void ShowNormalText(string msg)
 		{
-			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.Version, msg);
+			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);
 			Console.WriteLine(info);
 			LogInfo(info);
 		}
 		public static void ShowMessage(string msg)
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.Version, msg);
+			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();
@@ -45,7 +45,7 @@ namespace ServerSideCharacter.ServerCommand
 		public static void ShowError(Exception ex)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.Version, ex.ToString());
+			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, ex.ToString());
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();
@@ -53,7 +53,7 @@ namespace ServerSideCharacter.ServerCommand
 		public static void ShowError(string msg)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.Version, msg);
+			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();

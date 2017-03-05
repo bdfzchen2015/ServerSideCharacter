@@ -14,11 +14,12 @@ namespace ServerSideCharacter.Region
 		public Rectangle Area { get; set; }
 		public List<RegionPermission> permissions { get; set; }
 
-		public RegionInfo(string name, ServerPlayer player, Point pos1, Point pos2)
+		public RegionInfo(string name, ServerPlayer player, Rectangle rect)
 		{
 			Name = name;
 			Owner = player;
-			Area = new Rectangle();
+			Area = rect;
 		}
+
 	}
 }

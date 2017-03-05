@@ -1,6 +1,7 @@
 ﻿using Terraria.ModLoader;
 using Terraria;
 using Microsoft.Xna.Framework;
+using Terraria.DataStructures;
 
 namespace ServerSideCharacter
 {
@@ -9,6 +10,8 @@ namespace ServerSideCharacter
 		public int playerCounter = 0;
 
 		public bool Locked = false;
+
+		public bool GodMode = false;
 
 		public override void ResetEffects()
 		{
@@ -32,6 +35,19 @@ namespace ServerSideCharacter
 				player.controlInv = false;
 				player.gravDir = 0f;
 				player.position = player.oldPosition;
+			}
+		}
+
+		public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource)
+		{
+			return !GodMode;
+		}
+
+		public override void PreUpdate()
+		{
+			if (GodMode)
+			{
+				player.statLife = player.statLifeMax2;
 			}
 		}
 

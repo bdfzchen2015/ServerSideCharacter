@@ -58,7 +58,7 @@ namespace ServerSideCharacter
 								255, 255, 30, 30);
 								continue;
 							}
-							else if (!player.Value.IsLogin)
+							if (!player.Value.IsLogin)
 							{
 								player.Value.ApplyLockBuffs();
 								NetMessage.SendData(MessageID.ChatText, playerID, -1,

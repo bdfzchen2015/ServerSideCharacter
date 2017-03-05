@@ -16,11 +16,14 @@
 		KillCommand,
 		ListCommand,
 		SummonCommand,
+		TPHereCommand,
 		ButcherCommand,
 		TPCommand,
 		TimeCommand,
+		RegionCreateCommand,
 		LockPlayer,
 		TeleportPalyer,
-
+		ToggleGodMode,
+		SetGodMode,
 	}
 }

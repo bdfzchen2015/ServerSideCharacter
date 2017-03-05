@@ -10,11 +10,11 @@ using Terraria.ModLoader.Default;
 
 namespace ServerSideCharacter
 {
-	public class XMLData
+	public class PlayerData
 	{
 		public Dictionary<string, ServerPlayer> Data = new Dictionary<string, ServerPlayer>();
 
-		public XMLData()
+		public PlayerData()
 		{
 
 		}
@@ -84,7 +84,7 @@ namespace ServerSideCharacter
 			}
 		}
 
-		public XMLData(string path)
+		public PlayerData(string path)
 		{
 			if (File.Exists(path))
 			{

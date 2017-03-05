@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace ServerSideCharacter.ServerCommand
 {
+	public enum ListType
+	{
+		ListPlayers,
+		ListRegions
+	}
+
 	public static class CommandDelegate
 	{
 		public static void SetUpCommands(List<Command> list)
@@ -28,18 +35,38 @@ namespace ServerSideCharacter.ServerCommand
 			list.Add(new Command("auth", AuthCommand, "Aithorize command"));
 			list.Add(new Command("sm", SummonCommand, "Summon npcs"));
 			list.Add(new Command("tphere", TPHereCommand, "Teleport a player to your position"));
+			list.Add(new Command("god", GodCommand, "Toggle player's god mode"));
+		}
+
+		private static void GodCommand(string[] obj)
+		{
+			ModPacket pack = ServerSideCharacter.instance.GetPacket();
+			pack.Write((int)SSCMessageType.ToggleGodMode);
+			pack.Write(Main.myPlayer);
+			pack.Send();
 		}
 
 		private static void TPHereCommand(string[] obj)
 		{
-			
+			try
+			{
+				ModPacket pack = ServerSideCharacter.instance.GetPacket();
+				pack.Write((int)SSCMessageType.TPHereCommand);
+				pack.Write((byte)Main.myPlayer);
+				pack.Write(Convert.ToByte(obj[0]));
+				pack.Send();
+			}
+			catch
+			{
+				Main.NewText("Invalid Sytanx! Usage: /tphere <player id>", 255, 25, 0);
+			}
 		}
 
 		private static void SummonCommand(string[] args)
 		{
 			try
 			{
-				NetSync.SendSummonCommand(Main.myPlayer, Convert.ToInt32(args[0]), Convert.ToInt32(args[1]));
+				MessageSender.SendSummonCommand(Main.myPlayer, Convert.ToInt32(args[0]), Convert.ToInt32(args[1]));
 			}
 			catch
 			{
@@ -51,7 +78,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				NetSync.SendAuthRequest(Main.myPlayer, obj[0]);
+				MessageSender.SendAuthRequest(Main.myPlayer, obj[0]);
 			}
 			catch
 			{
@@ -107,14 +134,14 @@ namespace ServerSideCharacter.ServerCommand
 
 		private static void SaveCommand(string[] args)
 		{
-			NetSync.SendRequestSave(Main.myPlayer);
+			MessageSender.SendRequestSave(Main.myPlayer);
 			Main.NewText("Saved player's data");
 		}
 		private static void RegisterCommand(string[] args)
 		{
 			try
 			{
-				NetSync.SendSetPassword(Main.myPlayer, args[0]);
+				MessageSender.SendSetPassword(Main.myPlayer, args[0]);
 			}
 			catch
 			{
@@ -126,7 +153,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				NetSync.SendLoginPassword(Main.myPlayer, args[0]);
+				MessageSender.SendLoginPassword(Main.myPlayer, args[0]);
 			}
 			catch
 			{
@@ -138,7 +165,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				NetSync.SendKillCommand(Main.myPlayer, Convert.ToInt32(args[0]));
+				MessageSender.SendKillCommand(Main.myPlayer, Convert.ToInt32(args[0]));
 			}
 			catch
 			{
@@ -150,7 +177,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				NetSync.SendTeleportCommand(Main.myPlayer, Convert.ToInt32(args[0]));
+				MessageSender.SendTeleportCommand(Main.myPlayer, Convert.ToInt32(args[0]));
 			}
 			catch
 			{
@@ -164,7 +191,7 @@ namespace ServerSideCharacter.ServerCommand
 			{
 				if (args.Length == 0)
 				{
-					NetSync.SendTimeCommand(Main.myPlayer, false, 0, true);
+					MessageSender.SendTimeCommand(Main.myPlayer, false, 0, true);
 					return;
 				}
 				else
@@ -173,16 +200,16 @@ namespace ServerSideCharacter.ServerCommand
 					switch (args[0])
 					{
 						case "night":
-							NetSync.SendTimeCommand(Main.myPlayer, true, 0, false);
+							MessageSender.SendTimeCommand(Main.myPlayer, true, 0, false);
 							break;
 						case "morning":
-							NetSync.SendTimeCommand(Main.myPlayer, true, 0, true);
+							MessageSender.SendTimeCommand(Main.myPlayer, true, 0, true);
 							break;
 						case "noon":
-							NetSync.SendTimeCommand(Main.myPlayer, true, 27000, true);
+							MessageSender.SendTimeCommand(Main.myPlayer, true, 27000, true);
 							break;
 						case "midnight":
-							NetSync.SendTimeCommand(Main.myPlayer, true, 16200, false);
+							MessageSender.SendTimeCommand(Main.myPlayer, true, 16200, false);
 							break;
 						default:
 							Main.NewText("Invalid Sytanx! Usage: /time [night/morning/noon/midnight]", 255, 25, 0);
@@ -201,14 +228,19 @@ namespace ServerSideCharacter.ServerCommand
 			try
 			{
 				bool all = false;
+				ListType type = ListType.ListPlayers;
 				if (args.Length > 0)
 				{
-					if (args[0] == "-al")
+					if (args.Any(str => str.Equals("-al")))
 					{
 						all = true;
 					}
+					if (args[0] == "-rg")
+					{
+						type = ListType.ListRegions;
+					}
 				}
-				NetSync.SendListCommand(Main.myPlayer, all);
+				MessageSender.SendListCommand(Main.myPlayer, type, all);
 			}
 			catch
 			{
@@ -218,19 +250,19 @@ namespace ServerSideCharacter.ServerCommand
 
 		private static void ButcherCommand(string[] args)
 		{
-			NetSync.SendButcherCommand(Main.myPlayer);
+			MessageSender.SendButcherCommand(Main.myPlayer);
 		}
 
 		private static void HelpCommand(string[] args)
 		{
-			NetSync.SendHelpCommand(Main.myPlayer);
+			MessageSender.SendHelpCommand(Main.myPlayer);
 		}
 
 		private static void LockCommand(string[] args)
 		{
 			try
 			{
-				NetSync.SendLockCommand(Main.myPlayer, Convert.ToInt32(args[0]), Convert.ToInt32(args[1]));
+				MessageSender.SendLockCommand(Main.myPlayer, Convert.ToInt32(args[0]), Convert.ToInt32(args[1]));
 			}
 			catch
 			{
@@ -242,7 +274,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				NetSync.SendItemCommand(Convert.ToInt32(args[0]));
+				MessageSender.SendItemCommand(Convert.ToInt32(args[0]));
 			}
 			catch
 			{
@@ -257,7 +289,7 @@ namespace ServerSideCharacter.ServerCommand
 				if (args[0] == "set")
 				{
 					string hash = args[1];
-					NetSync.SendSetGroup(Main.myPlayer, hash, args[2]);
+					MessageSender.SendSetGroup(Main.myPlayer, hash, args[2]);
 				}
 			}
 			catch(Exception ex)
@@ -272,8 +304,8 @@ namespace ServerSideCharacter.ServerCommand
 			{
 				if (args[0] == "create")
 				{
-					//string name = args[1];
-					//NetSync.SendSetRegion(Main.myPlayer, name);
+					string name = args[1];
+					MessageSender.SendRegionCreate(Main.myPlayer, name);
 				}
 				else if(args[0] == "info")
 				{
