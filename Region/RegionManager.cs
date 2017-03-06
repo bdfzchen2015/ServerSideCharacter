@@ -23,7 +23,7 @@ namespace ServerSideCharacter.Region
 
 		public bool HasNameConflect(string name)
 		{
-			foreach(var region in ServerRegions)
+			foreach (var region in ServerRegions)
 			{
 				if (name.Equals(region.Name))
 				{
@@ -40,7 +40,7 @@ namespace ServerSideCharacter.Region
 
 		public bool CheckRegionConflict(Rectangle rect)
 		{
-			foreach(var region in ServerRegions)
+			foreach (var region in ServerRegions)
 			{
 				if (region.Area.Intersects(rect))
 				{
@@ -70,7 +70,7 @@ namespace ServerSideCharacter.Region
 				xmlDoc.Load(reader);
 				XmlNode xn = xmlDoc.SelectSingleNode("Regions");
 				var list = xn.ChildNodes;
-				foreach(var node in list)
+				foreach (var node in list)
 				{
 					XmlElement regionData = (XmlElement)node;
 
@@ -83,7 +83,7 @@ namespace ServerSideCharacter.Region
 					area.Width = Convert.ToInt32(info.Item(3).InnerText);
 					area.Height = Convert.ToInt32(info.Item(4).InnerText);
 					ServerPlayer player = ServerPlayer.FindPlayer(hash);
-					ServerSideCharacter.regionManager.CreateNewRegion(area, name, player); 
+					ServerSideCharacter.regionManager.CreateNewRegion(area, name, player);
 				}
 			}
 		}
@@ -114,9 +114,9 @@ namespace ServerSideCharacter.Region
 		public bool CheckRegion(int X, int Y, ServerPlayer player)
 		{
 			Vector2 TilePos = new Vector2(X, Y);
-			foreach(var regions in ServerRegions)
+			foreach (var regions in ServerRegions)
 			{
-				if(regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
+				if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
 				{
 					return true;
 				}
@@ -124,16 +124,16 @@ namespace ServerSideCharacter.Region
 			return false;
 		}
 
-        public bool CheckRegionSize(ServerPlayer player, Rectangle area)
-        {
-            return player.PermissionGroup.isSuperAdmin() ? true : (area.Width < 35 && area.Height < 35);
-        }
+		public bool CheckRegionSize(ServerPlayer player, Rectangle area)
+		{
+			return player.PermissionGroup.isSuperAdmin() ? true : (area.Width < 35 && area.Height < 35);
+		}
 
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
 		{
-			return !HasNameConflect(name) && ServerRegions.Count < 512 
-				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area) 
-                && CheckRegionSize(player, area);
+			return !HasNameConflect(name) && ServerRegions.Count < 512
+				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area)
+				&& CheckRegionSize(player, area);
 		}
 	}
 }

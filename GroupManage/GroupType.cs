@@ -40,6 +40,7 @@ namespace ServerSideCharacter.GroupManage
 			Admin.permissions.Add(new PermissionInfo("lock", "Lock a player"));
 			Admin.permissions.Add(new PermissionInfo("sm", "Summon monsters"));
 			Admin.permissions.Add(new PermissionInfo("tphere", "Force teleport a player to your place"));
+			Admin.permissions.Add(new PermissionInfo("region", "Manage regions"));
 			AddToGroup(Admin);
 
 

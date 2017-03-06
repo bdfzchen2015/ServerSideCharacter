@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
+using Microsoft.Xna.Framework;
 
 namespace ServerSideCharacter
 {
@@ -49,7 +50,7 @@ namespace ServerSideCharacter
 
 		public Player prototypePlayer { get; set; }
         
-        public string enteredRegion { get; set; }
+        public RegionInfo enteredRegion { get; set; }
 
 		public List<RegionInfo> ownedregion = new List<RegionInfo>();
 
@@ -190,6 +191,22 @@ namespace ServerSideCharacter
 				}
 			}
 			throw new Exception("Cannot find the player!");
+		}
+
+		public bool InAnyRegion(out RegionInfo region)
+		{
+			foreach (var reg in ServerSideCharacter.regionManager.ServerRegions)
+			{
+				Rectangle worldArea = new Rectangle(reg.Area.X * 16, reg.Area.Y * 16,
+					reg.Area.Width * 16, reg.Area.Height * 16);
+				if (worldArea.Intersects(this.prototypePlayer.Hitbox))
+				{
+					region = reg;
+					return true;
+				}
+			}
+			region = null;
+			return false;
 		}
 	}
 }

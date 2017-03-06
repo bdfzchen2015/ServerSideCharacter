@@ -10,7 +10,7 @@ namespace ServerSideCharacter.Region
 	{
 		public string Name { get; set; }
 		public ServerPlayer Owner { get; set; }
-		public List<ServerPlayer> SharedOwner { get; set; }
+		public List<ServerPlayer> SharedOwner = new List<ServerPlayer>();
 		public Rectangle Area { get; set; }
 		public List<RegionPermission> permissions { get; set; }
 
@@ -21,5 +21,18 @@ namespace ServerSideCharacter.Region
 			Area = rect;
 		}
 
+		public string WelcomeInfo()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine(string.Format("Welcome to region '{0}'!", Name));
+			sb.AppendLine(string.Format("*Region Owner: {0}", Owner.Name));
+			sb.AppendLine(string.Format("*Region Area: {0}", Area.ToString()));
+			return sb.ToString();
+		}
+
+		public string LeaveInfo()
+		{
+			return string.Format("You have left '{0}'", Name);
+		}
 	}
 }

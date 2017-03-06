@@ -1,5 +1,6 @@
 ﻿#define DEBUGMODE
 
+using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
 using System;
 using System.Collections.Generic;
@@ -72,6 +73,29 @@ namespace ServerSideCharacter
 				if (Main.time % 3600 < 1)
 				{
 					ThreadPool.QueueUserWorkItem(do_Save);
+				}
+				foreach(var player in Main.player)
+				{
+					if (player.active && player.GetServerPlayer().enteredRegion == null)
+					{
+						var serverPlayer = player.GetServerPlayer();
+						RegionInfo region;
+						if (serverPlayer.InAnyRegion(out region))
+						{
+							serverPlayer.enteredRegion = region;
+							serverPlayer.SendInfo(region.WelcomeInfo());
+						}
+					}
+					else if(player.GetServerPlayer().enteredRegion != null)
+					{
+						var serverPlayer = player.GetServerPlayer();
+						RegionInfo region;
+						if (!serverPlayer.InAnyRegion(out region))
+						{
+							serverPlayer.SendInfo(serverPlayer.enteredRegion.LeaveInfo());
+							serverPlayer.enteredRegion = null;
+						}
+					}
 				}
 			}
 		}

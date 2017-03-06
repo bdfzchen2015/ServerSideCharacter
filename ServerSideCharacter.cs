@@ -155,31 +155,39 @@ namespace ServerSideCharacter
 			{
 				if (Main.netMode == 2)
 				{
-					Player p = Main.player[playerNumber];
-					ServerPlayer player = p.GetServerPlayer();
-					int action = reader.ReadByte();
-					short X = reader.ReadInt16();
-					short Y = reader.ReadInt16();
-					short type = reader.ReadInt16();
-					int style = reader.ReadByte();
-					if (CheckSpawn(X, Y) && player.PermissionGroup.GroupName != "spadmin")
+					try
 					{
-						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Spawn is protected from change");
-						NetMessage.SendTileSquare(-1, X, Y, 4);
-						return true;
+						Player p = Main.player[playerNumber];
+						ServerPlayer player = p.GetServerPlayer();
+						int action = reader.ReadByte();
+						short X = reader.ReadInt16();
+						short Y = reader.ReadInt16();
+						short type = reader.ReadInt16();
+						int style = reader.ReadByte();
+						if (CheckSpawn(X, Y) && player.PermissionGroup.GroupName != "spadmin")
+						{
+							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Spawn is protected from change");
+							NetMessage.SendTileSquare(-1, X, Y, 4);
+							return true;
+						}
+						else if (regionManager.CheckRegion(X, Y, player))
+						{
+							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: You don't have permission to change this tile");
+							NetMessage.SendTileSquare(-1, X, Y, 4);
+							return true;
+						}
+						else if (player.PermissionGroup.GroupName == "criminal")
+						{
+							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Criminals cannot change tiles");
+							NetMessage.SendTileSquare(-1, X, Y, 4);
+							return true;
+						}
 					}
-					else if(player.PermissionGroup.GroupName == "criminal")
+					catch(Exception ex)
 					{
-						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Criminals cannot change tiles");
-						NetMessage.SendTileSquare(-1, X, Y, 4);
-						return true;
+						CommandBoardcast.ShowError(ex);
 					}
-					else if(regionManager.CheckRegion(X, Y, player))
-					{
-						CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: You don't have permission to change this tile");
-						NetMessage.SendTileSquare(-1, X, Y, 4);
-						return true;
-					}
+
 				}
 			}
 			return false;
