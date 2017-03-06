@@ -103,7 +103,7 @@ namespace ServerSideCharacter.ServerCommand
 					var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(tryToFind.ToLower()));
 					foreach (var pair in items)
 					{
-						Main.NewText(Main.itemName[pair] + " -> ID: " + pair);
+						Main.NewText(Main.itemName[pair] + " -> ID: " + pair, 255, 255, 50);
 					}
 					Main.NewText("Total Find: " + items.Count());
 				}
@@ -117,7 +117,7 @@ namespace ServerSideCharacter.ServerCommand
 					var items = numbers.Where(i => Main.npcName[i].ToLower().Contains(tryToFind.ToLower()));
 					foreach (var pair in items)
 					{
-						Main.NewText(Main.npcName[pair] + " -> ID: " + pair);
+                        Main.NewText(Main.npcName[pair] + " -> ID: " + pair, 255, 255, 50);
 					}
 					Main.NewText("Total Find: " + items.Count());
 				}

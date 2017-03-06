@@ -19,6 +19,11 @@ namespace ServerSideCharacter.GroupManage
 			ChatColor = Color.White;
 		}
 
+        public bool isSuperAdmin()
+        {
+            return GroupName == "spadmin";
+        }
+
 		public bool HasPermission(string name)
 		{
 			if (GroupName == "spadmin") return true;

@@ -124,10 +124,16 @@ namespace ServerSideCharacter.Region
 			return false;
 		}
 
+        public bool CheckRegionSize(ServerPlayer player, Rectangle area)
+        {
+            return player.PermissionGroup.isSuperAdmin() ? true : (area.Width < 35 && area.Height < 35);
+        }
+
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
 		{
 			return !HasNameConflect(name) && ServerRegions.Count < 512 
-				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area);
+				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area) 
+                && CheckRegionSize(player, area);
 		}
 	}
 }

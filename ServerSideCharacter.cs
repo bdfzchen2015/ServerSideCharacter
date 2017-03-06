@@ -989,7 +989,7 @@ namespace ServerSideCharacter
 				int height = (int)Math.Abs(p1.Y - p2.Y);
 				Vector2 realPos = p2.X - width == p1.X ? p1 : p2;
 				Rectangle regionArea = new Rectangle((int)realPos.X, (int)realPos.Y, width, height);
-				if (regionManager.ValidRegion(player, name, regionArea))
+				if (regionManager.ValidRegion(player, name, regionArea) && name.Length >= 3)
 				{
 					regionManager.CreateNewRegion(regionArea, name, player);
 					regionManager.WriteRegionInfo();
