@@ -26,9 +26,9 @@ namespace ServerSideCharacter
 {
 	public class ServerSideCharacter : Mod
 	{
-		public static ServerSideCharacter instance;
+		public static ServerSideCharacter Instance;
 
-		public static PlayerData xmlData;
+		public static PlayerData XmlData;
 
 		public static XMLWriter MainWriter;
 
@@ -38,9 +38,9 @@ namespace ServerSideCharacter
 
 		public static List<Command> Commands = new List<Command>();
 
-		public static RegionManager regionManager = new RegionManager();
+		public static RegionManager RegionManager = new RegionManager();
 
-		private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
+		//private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
 
 		public static TextLog Logger;
 
@@ -87,14 +87,14 @@ namespace ServerSideCharacter
 					return true;
 				}
 				//如果数据中没有玩家的信息
-				if (!xmlData.Data.ContainsKey(Main.player[playerNumber].name))
+				if (!XmlData.Data.ContainsKey(Main.player[playerNumber].name))
 				{
 					try
 					{
 						//创建新的玩家数据
 						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber]);
 						serverPlayer.prototypePlayer = Main.player[playerNumber];
-						xmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
+						XmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
 					}
 					catch (Exception ex)
 					{
@@ -146,7 +146,7 @@ namespace ServerSideCharacter
 					NetMessage.SendData(25, -1, -1, prefix + "<" + p.name + "> " + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
 					if (Main.dedServ)
 					{
-						Console.WriteLine(string.Format("{0}<" + Main.player[playerID].name + "> " + text, prefix));
+						Console.WriteLine("{0}<" + Main.player[playerID].name + "> " + text, prefix);
 					}
 				}
 				return true;
@@ -170,7 +170,7 @@ namespace ServerSideCharacter
 							NetMessage.SendTileSquare(-1, X, Y, 4);
 							return true;
 						}
-						else if (regionManager.CheckRegion(X, Y, player))
+						else if (RegionManager.CheckRegion(X, Y, player))
 						{
 							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: You don't have permission to change this tile");
 							NetMessage.SendTileSquare(-1, X, Y, 4);
@@ -232,7 +232,7 @@ namespace ServerSideCharacter
 				MessageSender.SyncPlayerMana(plr, -1, -1);
 				NetMessage.SendData(MessageID.PlayerBuffs, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				string name = Main.player[plr].name;
-				ServerPlayer player = xmlData.Data[name];
+				ServerPlayer player = XmlData.Data[name];
 				player.inventroy.CopyTo(Main.player[plr].inventory, 0);
 				player.armor.CopyTo(Main.player[plr].armor, 0);
 				player.dye.CopyTo(Main.player[plr].dye, 0);
@@ -269,7 +269,7 @@ namespace ServerSideCharacter
 				}
 				MessageSender.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
-				PlayerActiveTable[plr] = new SaveInfo() { Name = Main.player[plr].name, Active = true };
+				//PlayerActiveTable[plr] = new SaveInfo() { Name = Main.player[plr].name, Active = true };
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = true;
@@ -278,7 +278,6 @@ namespace ServerSideCharacter
 					{
 						Console.WriteLine(Main.player[plr].name + " joined the Game. Welcome!");
 					}
-					return;
 				}
 			}
 			else
@@ -398,8 +397,8 @@ namespace ServerSideCharacter
 
 
 
-				xmlData = new PlayerData("SSC/datas.xml");
-				regionManager.ReadRegionInfo();
+				XmlData = new PlayerData("SSC/datas.xml");
+				RegionManager.ReadRegionInfo();
 				Logger = new TextLog("ServerLog.txt", false);
 				CommandBoardcast.ShowMessage("Data loaded!");
 				CommandBoardcast.ShowMessage("You can type /auth " + AuthCode + " to become super admin");
@@ -413,7 +412,7 @@ namespace ServerSideCharacter
 					}
 					lock (this)
 					{
-						foreach (var player in xmlData.Data)
+						foreach (var player in XmlData.Data)
 						{
 							try
 							{
@@ -427,7 +426,7 @@ namespace ServerSideCharacter
 						}
 						CommandBoardcast.ShowMessage("\nOn Server Close: Saved all datas!");
 						Logger.Dispose();
-						regionManager.WriteRegionInfo();
+						RegionManager.WriteRegionInfo();
 					}
 
 
@@ -438,7 +437,7 @@ namespace ServerSideCharacter
 
 		public override void Load()
 		{
-			instance = this;
+			Instance = this;
 			if (Main.dedServ)
 			{
 				Main.ServerSideCharacter = true;
@@ -448,12 +447,6 @@ namespace ServerSideCharacter
 			{
 				CommandDelegate.SetUpCommands(Commands);
 			}
-		}
-
-		private void Netplay_OnDisconnect()
-		{
-			MessageSender.SendRequestSave(Main.myPlayer);
-			Main.NewText("Saving");
 		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI)
@@ -493,39 +486,39 @@ namespace ServerSideCharacter
 				else if (msgType == SSCMessageType.SyncPlayerBank)
 				{
 					int id = reader.ReadByte();
-					if (id == Main.myPlayer && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
+					if ((id == Main.myPlayer) && !Main.ServerSideCharacter && !Main.player[id].IsStackingItems())
 					{
 						return;
 					}
 					Player player = Main.player[id];
 					lock (player)
 					{
-						for (int k = 0; k < player.bank.item.Length; k++)
+						foreach (Item item in player.bank.item)
 						{
 							int type = reader.ReadInt32();
 							int prefix = reader.ReadInt16();
 							int stack = reader.ReadInt16();
-							player.bank.item[k].SetDefaults(type);
-							player.bank.item[k].Prefix(prefix);
-							player.bank.item[k].stack = stack;
+							item.SetDefaults(type);
+							item.Prefix(prefix);
+							item.stack = stack;
 						}
-						for (int k = 0; k < player.bank2.item.Length; k++)
+						foreach (Item item in player.bank2.item)
 						{
 							int type = reader.ReadInt32();
 							int prefix = reader.ReadInt16();
 							int stack = reader.ReadInt16();
-							player.bank2.item[k].SetDefaults(type);
-							player.bank2.item[k].Prefix(prefix);
-							player.bank2.item[k].stack = stack;
+							item.SetDefaults(type);
+							item.Prefix(prefix);
+							item.stack = stack;
 						}
-						for (int k = 0; k < player.bank3.item.Length; k++)
+						foreach (Item item in player.bank3.item)
 						{
 							int type = reader.ReadInt32();
 							int prefix = reader.ReadInt16();
 							int stack = reader.ReadInt16();
-							player.bank3.item[k].SetDefaults(type);
-							player.bank3.item[k].Prefix(prefix);
-							player.bank3.item[k].stack = stack;
+							item.SetDefaults(type);
+							item.Prefix(prefix);
+							item.stack = stack;
 						}
 					}
 				}
@@ -533,7 +526,7 @@ namespace ServerSideCharacter
 				{
 					int plr = reader.ReadByte();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					player.CopyFrom(Main.player[plr]);
 					try
 					{
@@ -553,7 +546,7 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					string password = reader.ReadString();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (player.HasPassword)
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1, "You cannot register twice!",
@@ -575,14 +568,12 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					string password = reader.ReadString();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 
 					if (!player.HasPassword)
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1, "You should first register an account use /register <password> !",
 							255, 255, 0, 0);
-						return;
-
 					}
 					else
 					{
@@ -610,7 +601,7 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					int target = reader.ReadByte();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("kill"))
 					{
@@ -632,7 +623,7 @@ namespace ServerSideCharacter
 					ListType type = (ListType)reader.ReadByte();
 					bool all = reader.ReadBoolean();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (all && player.PermissionGroup.HasPermission("ls -al"))
 					{
@@ -642,7 +633,7 @@ namespace ServerSideCharacter
 							if (type == ListType.ListPlayers)
 							{
 								sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
-								foreach (var pla in xmlData.Data)
+								foreach (var pla in XmlData.Data)
 								{
 									Player player1 = pla.Value.prototypePlayer;
 									string line = string.Concat(
@@ -663,7 +654,7 @@ namespace ServerSideCharacter
 							else if (type == ListType.ListRegions)
 							{
 								sb.AppendLine("RegionName    Owner    Region Area");
-								foreach (var region in regionManager.ServerRegions)
+								foreach (var region in RegionManager.ServerRegions)
 								{
 									string line = string.Concat(
 										region.Name,
@@ -711,7 +702,7 @@ namespace ServerSideCharacter
 							else if(type == ListType.ListRegions)
 							{
 								sb.AppendLine("Region Name    Region Area");
-								foreach (var region in regionManager.ServerRegions)
+								foreach (var region in RegionManager.ServerRegions)
 								{
 									string line = string.Concat(
 										region.Name,
@@ -743,7 +734,7 @@ namespace ServerSideCharacter
 					string hash = reader.ReadString();
 					string group = reader.ReadString();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("group"))
 					{
@@ -777,8 +768,8 @@ namespace ServerSideCharacter
 					int time = reader.ReadInt32();
 					Player p = Main.player[plr];
 					Player target0 = Main.player[target];
-					ServerPlayer target1 = xmlData.Data[target0.name];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer target1 = XmlData.Data[target0.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("lock"))
 					{
@@ -798,7 +789,7 @@ namespace ServerSideCharacter
 				{
 					int plr = reader.ReadByte();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("butcher"))
 					{
@@ -824,8 +815,8 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					int target = reader.ReadByte();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
-					ServerPlayer targetPlayer = xmlData.Data[Main.player[target].name];
+					ServerPlayer player = XmlData.Data[p.name];
+					ServerPlayer targetPlayer = XmlData.Data[Main.player[target].name];
 					if (!player.IsLogin || target == plr) return;
 					if (player.PermissionGroup.HasPermission("tp"))
 					{
@@ -853,7 +844,7 @@ namespace ServerSideCharacter
 					int time = reader.ReadInt32();
 					bool day = reader.ReadBoolean();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("time"))
 					{
@@ -899,7 +890,7 @@ namespace ServerSideCharacter
 					StringBuilder sb = new StringBuilder();
 					sb.Append("Current commands:\n");
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 
 					foreach(var command in Commands)
 					{
@@ -915,7 +906,7 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					int type = reader.ReadInt32();
 					Player p = Main.player[plr];
-					ServerPlayer player = xmlData.Data[p.name];
+					ServerPlayer player = XmlData.Data[p.name];
 					if (!player.IsLogin) return;
 					if (player.PermissionGroup.HasPermission("item"))
 					{
@@ -995,12 +986,12 @@ namespace ServerSideCharacter
 			{
 				int width = (int)Math.Abs(p1.X - p2.X);
 				int height = (int)Math.Abs(p1.Y - p2.Y);
-				Vector2 realPos = p2.X - width == p1.X ? p1 : p2;
+				Vector2 realPos = Math.Abs(p2.X - width - p1.X) < 0.01f ? p1 : p2;
 				Rectangle regionArea = new Rectangle((int)realPos.X, (int)realPos.Y, width, height);
-				if (regionManager.ValidRegion(player, name, regionArea) && name.Length >= 3)
+				if (RegionManager.ValidRegion(player, name, regionArea) && name.Length >= 3)
 				{
-					regionManager.CreateNewRegion(regionArea, name, player);
-					regionManager.WriteRegionInfo();
+					RegionManager.CreateNewRegion(regionArea, name, player);
+					RegionManager.WriteRegionInfo();
 					CommandBoardcast.SendInfoToPlayer(plr, "You have successfully created a region named: " + name);
 				}
 				else
@@ -1020,8 +1011,8 @@ namespace ServerSideCharacter
 			int t = reader.ReadByte();
 			Player p = Main.player[plr];
 			Player target = Main.player[t];
-			ServerPlayer player = xmlData.Data[p.name];
-			ServerPlayer tar = xmlData.Data[target.name];
+			ServerPlayer player = XmlData.Data[p.name];
+			ServerPlayer tar = XmlData.Data[target.name];
 			if (player.PermissionGroup.HasPermission("tphere"))
 			{
 				MessageSender.SendTeleport(t, p.position);
@@ -1038,7 +1029,7 @@ namespace ServerSideCharacter
 		{
 			int plr = reader.ReadByte();
 			Player p = Main.player[plr];
-			ServerPlayer player = xmlData.Data[p.name];
+			ServerPlayer player = XmlData.Data[p.name];
 			if (player.PermissionGroup.HasPermission("god"))
 			{
 				p.GetModPlayer<MPlayer>(this).GodMode = !p.GetModPlayer<MPlayer>(this).GodMode;
@@ -1101,28 +1092,19 @@ namespace ServerSideCharacter
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",
-				(item) =>
-				{
-					return item.prefix.ToString();
-				},
+				(item) => item.prefix.ToString(),
 				(str, item) =>
 				{
 					item.prefix = Convert.ToByte(str);
 				});
 			ModDataHooks.BuildItemDataHook("stack",
-				(item) =>
-				{
-					return item.stack.ToString();
-				},
+				(item) => item.stack.ToString(),
 				(str, item) =>
 				{
 					item.stack = Convert.ToInt32(str);
 				});
 			ModDataHooks.BuildItemDataHook("fav",
-				(item) =>
-				{
-					return item.favorited.ToString();
-				},
+				(item) => item.favorited.ToString(),
 				(str, item) =>
 				{
 					item.favorited = Convert.ToBoolean(str);
@@ -1133,8 +1115,7 @@ namespace ServerSideCharacter
 				string save = Path.Combine("SSC", "datas.xml");
 				XMLWriter writer = new XMLWriter(save);
 				writer.Create();
-				Player tmp = new Player();
-				tmp.name = "DXTsT";
+				Player tmp = new Player {name = "DXTsT"};
 				ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer(tmp);
 				writer.Write(newPlayer);
 				MainWriter = writer;
@@ -1171,7 +1152,7 @@ namespace ServerSideCharacter
 			int type = reader.ReadInt32();
 			int number = reader.ReadInt32();
 			Player p = Main.player[plr];
-			ServerPlayer player = xmlData.Data[p.name];
+			ServerPlayer player = XmlData.Data[p.name];
 			try
 			{
 				if (!player.IsLogin) return;

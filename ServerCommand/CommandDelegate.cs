@@ -41,7 +41,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		private static void GodCommand(string[] obj)
 		{
-			ModPacket pack = ServerSideCharacter.instance.GetPacket();
+			ModPacket pack = ServerSideCharacter.Instance.GetPacket();
 			pack.Write((int)SSCMessageType.ToggleGodMode);
 			pack.Write(Main.myPlayer);
 			pack.Send();
@@ -51,7 +51,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			try
 			{
-				ModPacket pack = ServerSideCharacter.instance.GetPacket();
+				ModPacket pack = ServerSideCharacter.Instance.GetPacket();
 				pack.Write((int)SSCMessageType.TPHereCommand);
 				pack.Write((byte)Main.myPlayer);
 				pack.Write(Convert.ToByte(obj[0]));
@@ -101,11 +101,12 @@ namespace ServerSideCharacter.ServerCommand
 						numbers.Add(i);
 					}
 					var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(tryToFind.ToLower()));
-					foreach (var pair in items)
+					var enumerable = items as int[] ?? items.ToArray();
+					foreach (var pair in enumerable)
 					{
 						Main.NewText(Main.itemName[pair] + " -> ID: " + pair, 255, 255, 50);
 					}
-					Main.NewText("Total Find: " + items.Count());
+					Main.NewText("Total Find: " + enumerable.Count());
 				}
 				else if(type == "-n")
 				{
@@ -115,11 +116,12 @@ namespace ServerSideCharacter.ServerCommand
 						numbers.Add(i);
 					}
 					var items = numbers.Where(i => Main.npcName[i].ToLower().Contains(tryToFind.ToLower()));
-					foreach (var pair in items)
+					var enumerable = items as IList<int> ?? items.ToList();
+					foreach (var pair in enumerable)
 					{
                         Main.NewText(Main.npcName[pair] + " -> ID: " + pair, 255, 255, 50);
 					}
-					Main.NewText("Total Find: " + items.Count());
+					Main.NewText("Total Find: " + enumerable.Count());
 				}
 				else
 				{
@@ -193,7 +195,6 @@ namespace ServerSideCharacter.ServerCommand
 				if (args.Length == 0)
 				{
 					MessageSender.SendTimeCommand(Main.myPlayer, false, 0, true);
-					return;
 				}
 				else
 				{

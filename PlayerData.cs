@@ -19,16 +19,18 @@ namespace ServerSideCharacter
 
 		}
 
-		private string ReadNext(XmlNodeList info, ref int i)
+		private static string ReadNext(XmlNodeList info, ref int i)
 		{
-			return info.Item(i++).InnerText;
+			var xmlNode = info.Item(i++);
+			if (xmlNode != null) return xmlNode.InnerText;
+			throw new NullReferenceException("XMLNode is null");
 		}
 
 
 		private void TryReadItemInfo(Dictionary<string, Mod> modTable, XmlNodeList info, 
 			ServerPlayer player, ref int i, int id, ref Item[] slots)
 		{
-			int type = 0;
+			int type;
 			string text = ReadNext(info, ref i);
 			//如果是mod物品
 			if (text[0] == '$')
@@ -54,14 +56,14 @@ namespace ServerSideCharacter
 					}
 					else
 					{
-						slots[id].netDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
+						slots[id].netDefaults(ServerSideCharacter.Instance.ItemType("TestItem"));
 						((TestItem)slots[id].modItem).SetUp(text);
 						//物品数据会丢失
 					}
 				}
 				else
 				{
-					slots[id].netDefaults(ServerSideCharacter.instance.ItemType("TestItem"));
+					slots[id].netDefaults(ServerSideCharacter.Instance.ItemType("TestItem"));
 					((TestItem)slots[id].modItem).SetUp(text);
 					//物品数据会丢失
 
@@ -88,8 +90,8 @@ namespace ServerSideCharacter
 		{
 			if (File.Exists(path))
 			{
-				XmlReaderSettings settings = new XmlReaderSettings();
-				settings.IgnoreComments = true;                         //忽略文档里面的注释
+				XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
+				//忽略文档里面的注释
 				XmlDocument xmlDoc = new XmlDocument();
 				XmlReader reader = XmlReader.Create(path, settings);
 				xmlDoc.Load(reader);

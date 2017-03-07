@@ -83,7 +83,7 @@ namespace ServerSideCharacter.Region
 					area.Width = Convert.ToInt32(info.Item(3).InnerText);
 					area.Height = Convert.ToInt32(info.Item(4).InnerText);
 					ServerPlayer player = ServerPlayer.FindPlayer(hash);
-					ServerSideCharacter.regionManager.CreateNewRegion(area, name, player);
+					ServerSideCharacter.RegionManager.CreateNewRegion(area, name, player);
 				}
 			}
 		}
@@ -126,7 +126,7 @@ namespace ServerSideCharacter.Region
 
 		public bool CheckRegionSize(ServerPlayer player, Rectangle area)
 		{
-			return player.PermissionGroup.isSuperAdmin() ? true : (area.Width < 35 && area.Height < 35);
+			return player.PermissionGroup.IsSuperAdmin() || (area.Width < 35 && area.Height < 35);
 		}
 
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)

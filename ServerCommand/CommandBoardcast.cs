@@ -45,7 +45,7 @@ namespace ServerSideCharacter.ServerCommand
 		public static void ShowError(Exception ex)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, ex.ToString());
+			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, ex);
 			Console.WriteLine(info);
 			LogInfo(info);
 			Console.ResetColor();
@@ -69,13 +69,13 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			NetMessage.SendData(MessageID.ChatText, plr, -1,
 							msg,
-							255, 255, 20, 0);
+							255, 255, 20);
 		}
 		public static void SendInfoToPlayer(int plr, string msg)
 		{
 			NetMessage.SendData(MessageID.ChatText, plr, -1,
 							msg,
-							255, 255, 255, 0);
+							255, 255, 255);
 		}
 		public static void SendSuccessToPlayer(int plr, string msg)
 		{
@@ -87,7 +87,7 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			NetMessage.SendData(MessageID.ChatText, -1, -1,
 							msg,
-							255, 255, 255, 0);
+							255, 255, 255);
 		}
 	}
 }

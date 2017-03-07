@@ -18,38 +18,45 @@ namespace ServerSideCharacter.GroupManage
 
 		internal static void SetupGroups()
 		{
-			Group CrminalGroup = new Group("criminal");
-			CrminalGroup.ChatColor = Color.Gray;
-			CrminalGroup.ChatPrefix = "Criminal";
-			AddToGroup(CrminalGroup);
+			Group crminalGroup = new Group("criminal")
+			{
+				ChatColor = Color.Gray,
+				ChatPrefix = "Criminal"
+			};
+			AddToGroup(crminalGroup);
 
-			Group DefaultGroup = new Group("default");
-			DefaultGroup.permissions.Add(new PermissionInfo("tp", "Teleport player"));
-			DefaultGroup.permissions.Add(new PermissionInfo("ls", "List online player's info"));
-			DefaultGroup.permissions.Add(new PermissionInfo("auth", "Authorize as super admin"));
-			AddToGroup(DefaultGroup);
-
-
-			Group Admin = new Group("admin");
-			Admin.ChatColor = Color.Red;
-			Admin.ChatPrefix = "Admin";
-			Admin.permissions = new List<PermissionInfo>(DefaultGroup.permissions);
-			Admin.permissions.Add(new PermissionInfo("time", "Changing times"));
-			Admin.permissions.Add(new PermissionInfo("butcher", "Kill all monsters"));
-			Admin.permissions.Add(new PermissionInfo("ls -al", "List all player's info"));
-			Admin.permissions.Add(new PermissionInfo("lock", "Lock a player"));
-			Admin.permissions.Add(new PermissionInfo("sm", "Summon monsters"));
-			Admin.permissions.Add(new PermissionInfo("tphere", "Force teleport a player to your place"));
-			Admin.permissions.Add(new PermissionInfo("region", "Manage regions"));
-			AddToGroup(Admin);
+			Group defaultGroup = new Group("default");
+			defaultGroup.permissions.Add(new PermissionInfo("tp", "Teleport player"));
+			defaultGroup.permissions.Add(new PermissionInfo("ls", "List online player's info"));
+			defaultGroup.permissions.Add(new PermissionInfo("auth", "Authorize as super admin"));
+			AddToGroup(defaultGroup);
 
 
-			Group SuperAdmin = new Group("spadmin");
-			SuperAdmin.ChatColor = Color.Cyan;
-			SuperAdmin.ChatPrefix = "Super Admin";
-			SuperAdmin.permissions = new List<PermissionInfo>(Admin.permissions);
-			SuperAdmin.permissions.Add(new PermissionInfo("group", "Manage group"));
-			AddToGroup(SuperAdmin);
+			Group admin = new Group("admin")
+			{
+				ChatColor = Color.Red,
+				ChatPrefix = "Admin",
+				permissions = new List<PermissionInfo>(defaultGroup.permissions)
+				{
+					new PermissionInfo("time", "Changing times"),
+					new PermissionInfo("butcher", "Kill all monsters"),
+					new PermissionInfo("ls -al", "List all player's info"),
+					new PermissionInfo("lock", "Lock a player"),
+					new PermissionInfo("sm", "Summon monsters"),
+					new PermissionInfo("tphere", "Force teleport a player to your place"),
+					new PermissionInfo("region", "Manage regions")
+				}
+			};
+			AddToGroup(admin);
+
+
+			Group superAdmin = new Group("spadmin")
+			{
+				ChatColor = Color.Cyan,
+				ChatPrefix = "Super Admin",
+				permissions = new List<PermissionInfo>(admin.permissions) {new PermissionInfo("group", "Manage group")}
+			};
+			AddToGroup(superAdmin);
 		}
 
 	}

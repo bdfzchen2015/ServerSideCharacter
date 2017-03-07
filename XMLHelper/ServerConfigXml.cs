@@ -39,12 +39,27 @@ namespace ServerSideCharacter.XMLHelper
 				XmlReader reader = XmlReader.Create("SSC/config.xml", settings);
 				xmlDoc.Load(reader);
 				XmlNode xn = xmlDoc.SelectSingleNode("StartupInventory");
-				var list = xn.ChildNodes;
-				int count = Convert.ToInt32(list.Item(0).InnerText);
-				for(int i = 0; i < count; i++)
+				if (xn != null)
 				{
-					XmlElement xe = (XmlElement)list.Item(i + 1);
-					AddToStartInv(Convert.ToInt32(xe.InnerText), Convert.ToInt32(xe.GetAttribute("prefix")));
+					var list = xn.ChildNodes;
+					var xmlNode = list.Item(0);
+					if (xmlNode != null)
+					{
+						int count = Convert.ToInt32(xmlNode.InnerText);
+						for (int i = 0; i < count; i++)
+						{
+							XmlElement xe = (XmlElement) list.Item(i + 1);
+							AddToStartInv(Convert.ToInt32(xe.InnerText), Convert.ToInt32(xe.GetAttribute("prefix")));
+						}
+					}
+					else
+					{
+						throw new NullReferenceException("XMLNode is null");
+					}
+				}
+				else
+				{
+					throw  new NullReferenceException("XMLNode is null");
 				}
 			}
 

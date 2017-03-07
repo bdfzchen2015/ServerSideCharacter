@@ -19,24 +19,14 @@ namespace ServerSideCharacter.GroupManage
 			ChatColor = Color.White;
 		}
 
-        public bool isSuperAdmin()
+        public bool IsSuperAdmin()
         {
             return GroupName == "spadmin";
         }
 
 		public bool HasPermission(string name)
 		{
-			if (GroupName == "spadmin") return true;
-			bool hasperm = false;
-			for(int i = 0;i < permissions.Count; i++)
-			{
-				if(permissions[i].Name == name)
-				{
-					hasperm = true;
-					break;
-				}
-			}
-			return hasperm;
+			return GroupName == "spadmin" || permissions.Any(t => t.Name == name);
 		}
 	}
 }

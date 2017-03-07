@@ -11,7 +11,7 @@ namespace ServerSideCharacter
 	{
 		public static ServerPlayer GetServerPlayer(this Player p)
 		{
-			return ServerSideCharacter.xmlData.Data[p.name];
+			return ServerSideCharacter.XmlData.Data[p.name];
 		}
 	}
 }

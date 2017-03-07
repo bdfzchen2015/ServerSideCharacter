@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Terraria;
-using Terraria.ID;
+using Microsoft.Xna.Framework;
 using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
-using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ID;
 
 namespace ServerSideCharacter
 {
@@ -106,28 +106,28 @@ namespace ServerSideCharacter
 
 		public void CopyFrom(Player player)
 		{
-			this.LifeMax = player.statLifeMax;
-			this.StatLife = player.statLife;
-			this.StatMana = player.statMana;
-			this.ManaMax = player.statManaMax;
-			player.inventory.CopyTo(this.inventroy, 0);
-			player.armor.CopyTo(this.armor, 0);
-			player.dye.CopyTo(this.dye, 0);
-			player.miscEquips.CopyTo(this.miscEquips, 0);
-			player.miscDyes.CopyTo(this.miscDye, 0);
-			this.bank = (Chest)player.bank.Clone();
-			this.bank2 = (Chest)player.bank2.Clone();
-			this.bank3 = (Chest)player.bank3.Clone();
+			LifeMax = player.statLifeMax;
+			StatLife = player.statLife;
+			StatMana = player.statMana;
+			ManaMax = player.statManaMax;
+			player.inventory.CopyTo(inventroy, 0);
+			player.armor.CopyTo(armor, 0);
+			player.dye.CopyTo(dye, 0);
+			player.miscEquips.CopyTo(miscEquips, 0);
+			player.miscDyes.CopyTo(miscDye, 0);
+			bank = (Chest)player.bank.Clone();
+			bank2 = (Chest)player.bank2.Clone();
+			bank3 = (Chest)player.bank3.Clone();
 		}
 
 
 		public void ApplyLockBuffs(int time = 180)
 		{
-			prototypePlayer.AddBuff(ServerSideCharacter.instance.BuffType("Locked"), time * 2, false);
+			prototypePlayer.AddBuff(ServerSideCharacter.Instance.BuffType("Locked"), time * 2, false);
 			prototypePlayer.AddBuff(BuffID.Frozen, time, false);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
-				ServerSideCharacter.instance.BuffType("Locked"), time * 2, 0f, 0, 0, 0);
+				ServerSideCharacter.Instance.BuffType("Locked"), time * 2, 0f, 0, 0, 0);
 			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
 				"", prototypePlayer.whoAmI,
 				BuffID.Frozen, time, 0f, 0, 0, 0);
@@ -183,7 +183,7 @@ namespace ServerSideCharacter
 
 		public static ServerPlayer FindPlayer(string hash)
 		{
-			foreach (var pair in ServerSideCharacter.xmlData.Data)
+			foreach (var pair in ServerSideCharacter.XmlData.Data)
 			{
 				if (pair.Value.Hash == hash)
 				{
@@ -195,11 +195,11 @@ namespace ServerSideCharacter
 
 		public bool InAnyRegion(out RegionInfo region)
 		{
-			foreach (var reg in ServerSideCharacter.regionManager.ServerRegions)
+			foreach (var reg in ServerSideCharacter.RegionManager.ServerRegions)
 			{
 				Rectangle worldArea = new Rectangle(reg.Area.X * 16, reg.Area.Y * 16,
 					reg.Area.Width * 16, reg.Area.Height * 16);
-				if (worldArea.Intersects(this.prototypePlayer.Hitbox))
+				if (worldArea.Intersects(prototypePlayer.Hitbox))
 				{
 					region = reg;
 					return true;

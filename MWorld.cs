@@ -40,14 +40,14 @@ namespace ServerSideCharacter
 					{
 						if (Main.player[i].active)
 						{
-							ServerPlayer player = ServerSideCharacter.xmlData.Data[Main.player[i].name];
+							ServerPlayer player = ServerSideCharacter.XmlData.Data[Main.player[i].name];
 							player.CopyFrom(Main.player[i]);
 						}
 					}
 				}
 				if(Main.time % 180 < 1)
 				{
-					foreach (var player in ServerSideCharacter.xmlData.Data)
+					foreach (var player in ServerSideCharacter.XmlData.Data)
 					{
 						if (player.Value.prototypePlayer != null)
 						{
@@ -102,7 +102,7 @@ namespace ServerSideCharacter
 
 		private void do_Save(object state)
 		{
-			foreach (var player in ServerSideCharacter.xmlData.Data)
+			foreach (var player in ServerSideCharacter.XmlData.Data)
 			{
 				try
 				{
