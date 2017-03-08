@@ -14,20 +14,51 @@ namespace ServerSideCharacter.Region
 	{
 		public List<RegionInfo> ServerRegions = new List<RegionInfo>();
 
-		public void CreateNewRegion(Rectangle rect, string Name, ServerPlayer player)
+		public void CreateNewRegion(Rectangle rect, string name, ServerPlayer player)
 		{
-			RegionInfo playerRegion = new RegionInfo(Name, player, rect);
-			ServerRegions.Add(playerRegion);
-			player.ownedregion.Add(playerRegion);
+			lock (ServerRegions)
+			{
+				RegionInfo playerRegion = new RegionInfo(name, player, rect);
+				ServerRegions.Add(playerRegion);
+				player.ownedregion.Add(playerRegion);
+			}
+		}
+
+		public bool RemoveRegionWithName(string name)
+		{
+			lock (ServerRegions)
+			{
+				int index = ServerRegions.FindIndex(region => region.Name == name);
+				if (index == -1)
+				{
+					ServerRegions.RemoveAt(index);
+					foreach (var player in ServerSideCharacter.XmlData.Data)
+					{
+						int id = player.Value.ownedregion.FindIndex(region => region.Name == name);
+						if (id != -1)
+						{
+							player.Value.ownedregion.RemoveAt((id));
+						}
+					}
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
 		}
 
 		public bool HasNameConflect(string name)
 		{
-			foreach (var region in ServerRegions)
+			lock (ServerRegions)
 			{
-				if (name.Equals(region.Name))
+				foreach (var region in ServerRegions)
 				{
-					return true;
+					if (name.Equals(region.Name))
+					{
+						return true;
+					}
 				}
 			}
 			return false;
@@ -35,19 +66,18 @@ namespace ServerSideCharacter.Region
 
 		public bool CheckPlayerRegionMax(ServerPlayer player)
 		{
-			return ServerRegions.Count(info => info.Owner.Equals(player)) < 3;
+			lock (ServerRegions)
+			{
+				return ServerRegions.Count(info => info.Owner.Equals(player)) < 3;
+			}
 		}
 
 		public bool CheckRegionConflict(Rectangle rect)
 		{
-			foreach (var region in ServerRegions)
+			lock (ServerRegions)
 			{
-				if (region.Area.Intersects(rect))
-				{
-					return false;
-				}
+				return ServerRegions.All(region => !region.Area.Intersects(rect));
 			}
-			return true;
 		}
 
 		public void ReadRegionInfo()
@@ -63,8 +93,8 @@ namespace ServerSideCharacter.Region
 			}
 			else
 			{
-				XmlReaderSettings settings = new XmlReaderSettings();
-				settings.IgnoreComments = true;                         //忽略文档里面的注释
+				XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
+				//忽略文档里面的注释
 				XmlDocument xmlDoc = new XmlDocument();
 				XmlReader reader = XmlReader.Create("SSC/regions.xml", settings);
 				xmlDoc.Load(reader);
@@ -90,35 +120,41 @@ namespace ServerSideCharacter.Region
 
 		public void WriteRegionInfo()
 		{
-			XmlDocument xmlDoc = new XmlDocument();
-			XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
-			xmlDoc.AppendChild(node);
-			XmlNode root = xmlDoc.CreateElement("Regions");
-			xmlDoc.AppendChild(root);
-			foreach (var region in ServerRegions)
+			lock (ServerRegions)
 			{
-				XmlElement xe = (XmlElement)xmlDoc.CreateNode(XmlNodeType.Element, "Region", null);
-				xe.SetAttribute("hash", region.Owner.Hash);
-				NodeHelper.CreateNode(xmlDoc, xe, "Name", region.Name);
-				NodeHelper.CreateNode(xmlDoc, xe, "X", region.Area.X.ToString());
-				NodeHelper.CreateNode(xmlDoc, xe, "Y", region.Area.Y.ToString());
-				NodeHelper.CreateNode(xmlDoc, xe, "W", region.Area.Width.ToString());
-				NodeHelper.CreateNode(xmlDoc, xe, "H", region.Area.Height.ToString());
-				root.AppendChild(xe);
-			}
+				XmlDocument xmlDoc = new XmlDocument();
+				XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
+				xmlDoc.AppendChild(node);
+				XmlNode root = xmlDoc.CreateElement("Regions");
+				xmlDoc.AppendChild(root);
+				foreach (var region in ServerRegions)
+				{
+					XmlElement xe = (XmlElement) xmlDoc.CreateNode(XmlNodeType.Element, "Region", null);
+					xe.SetAttribute("hash", region.Owner.Hash);
+					NodeHelper.CreateNode(xmlDoc, xe, "Name", region.Name);
+					NodeHelper.CreateNode(xmlDoc, xe, "X", region.Area.X.ToString());
+					NodeHelper.CreateNode(xmlDoc, xe, "Y", region.Area.Y.ToString());
+					NodeHelper.CreateNode(xmlDoc, xe, "W", region.Area.Width.ToString());
+					NodeHelper.CreateNode(xmlDoc, xe, "H", region.Area.Height.ToString());
+					root.AppendChild(xe);
+				}
 
-			xmlDoc.Save("SSC/regions.xml");
+				xmlDoc.Save("SSC/regions.xml");
+			}
 
 		}
 
 		public bool CheckRegion(int X, int Y, ServerPlayer player)
 		{
-			Vector2 TilePos = new Vector2(X, Y);
-			foreach (var regions in ServerRegions)
+			lock (ServerRegions)
 			{
-				if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
+				Vector2 tilePos = new Vector2(X, Y);
+				foreach (var regions in ServerRegions)
 				{
-					return true;
+					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
+					{
+						return true;
+					}
 				}
 			}
 			return false;
@@ -132,8 +168,9 @@ namespace ServerSideCharacter.Region
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
 		{
 			return !HasNameConflect(name) && ServerRegions.Count < 512
-				&& CheckPlayerRegionMax(player) && CheckRegionConflict(area)
-				&& CheckRegionSize(player, area);
+			       && CheckPlayerRegionMax(player) && CheckRegionConflict(area)
+			       && CheckRegionSize(player, area);
+
 		}
 	}
 }

@@ -233,5 +233,14 @@ namespace ServerSideCharacter
 			p.WriteVector2(ServerSideCharacter.TilePos2);
 			p.Send();
 		}
+
+		public static void SendRegionRemove(int plr, string name)
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.RegionRemoveCommand);
+			p.Write((byte)plr);
+			p.Write(name);
+			p.Send();
+		}
 	}
 }

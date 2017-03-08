@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using ServerSideCharacter.ServerCommand;
 using ServerSideCharacter.Plugin;
 using ServerSideCharacter.GroupManage;
@@ -24,6 +25,7 @@ using ServerSideCharacter.Region;
 
 namespace ServerSideCharacter
 {
+	[SuppressMessage("ReSharper", "InvertIf")]
 	public class ServerSideCharacter : Mod
 	{
 		public static ServerSideCharacter Instance;
@@ -962,6 +964,10 @@ namespace ServerSideCharacter
 				{
 					RegionCreate(reader, whoAmI);
 				}
+				else if (msgType == SSCMessageType.RegionRemoveCommand)
+				{
+					RegionRemove(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -973,7 +979,27 @@ namespace ServerSideCharacter
 			}
 		}
 
-		private void RegionCreate(BinaryReader reader, int whoAmI)
+		private static void RegionRemove(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			string name = reader.ReadString();
+			Player p = Main.player[plr];
+			ServerPlayer player = p.GetServerPlayer();
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("region-remove"))
+			{
+				if (RegionManager.RemoveRegionWithName(name))
+				{
+					player.SendSuccessInfo("You have successfully removed region '" + name + "'");
+				}
+				else
+				{
+					player.SendErrorInfo("The region does not exist!");
+				}
+			}
+		}
+
+		private static void RegionCreate(BinaryReader reader, int whoAmI)
 		{
 			int plr = reader.ReadByte();
 			string name = reader.ReadString();
@@ -982,7 +1008,7 @@ namespace ServerSideCharacter
 			Player p = Main.player[plr];
 			ServerPlayer player = p.GetServerPlayer();
 			if (!player.IsLogin) return;
-			if (player.PermissionGroup.HasPermission("regioncreate"))
+			if (player.PermissionGroup.HasPermission("region-create"))
 			{
 				int width = (int)Math.Abs(p1.X - p2.X);
 				int height = (int)Math.Abs(p1.Y - p2.Y);
@@ -1005,7 +1031,7 @@ namespace ServerSideCharacter
 			}
 		}
 
-		private void TPHere(BinaryReader reader, int whoAmI)
+		private static void TPHere(BinaryReader reader, int whoAmI)
 		{
 			int plr = reader.ReadByte();
 			int t = reader.ReadByte();

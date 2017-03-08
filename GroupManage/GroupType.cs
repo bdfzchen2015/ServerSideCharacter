@@ -44,7 +44,9 @@ namespace ServerSideCharacter.GroupManage
 					new PermissionInfo("lock", "Lock a player"),
 					new PermissionInfo("sm", "Summon monsters"),
 					new PermissionInfo("tphere", "Force teleport a player to your place"),
-					new PermissionInfo("region", "Manage regions")
+					new PermissionInfo("region", "Manage regions"),
+					new PermissionInfo("region-create", "Create region"),
+					new PermissionInfo("region-remove", "Remove regions")
 				}
 			};
 			AddToGroup(admin);

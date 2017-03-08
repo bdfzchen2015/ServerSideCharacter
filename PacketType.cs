@@ -21,6 +21,7 @@
 		TPCommand,
 		TimeCommand,
 		RegionCreateCommand,
+		RegionRemoveCommand,
 		LockPlayer,
 		TeleportPalyer,
 		ToggleGodMode,

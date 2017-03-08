@@ -306,9 +306,16 @@ namespace ServerSideCharacter.ServerCommand
 			{
 				if (args[0] == "create")
 				{
-					string name = args[1];
-					MessageSender.SendRegionCreate(Main.myPlayer, name);
-					ServerSideCharacter.TilePos1 = ServerSideCharacter.TilePos2 = Vector2.Zero;
+					if ((ServerSideCharacter.TilePos1 == Vector2.Zero) || (ServerSideCharacter.TilePos2 == Vector2.Zero))
+					{
+						string name = args[1];
+						MessageSender.SendRegionCreate(Main.myPlayer, name);
+						ServerSideCharacter.TilePos1 = ServerSideCharacter.TilePos2 = Vector2.Zero;
+					}
+					else
+					{
+						Main.NewText("This is an invalid region", 255, 255, 0);
+					}
 				}
 				else if(args[0] == "info")
 				{
@@ -316,7 +323,8 @@ namespace ServerSideCharacter.ServerCommand
 				}
 				else if (args[0] == "delete")
 				{
-
+					string name = args[1];
+					MessageSender.SendRegionRemove(Main.myPlayer, name);
 				}
 			}
 			catch (Exception ex)
