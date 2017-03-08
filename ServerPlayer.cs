@@ -48,9 +48,9 @@ namespace ServerSideCharacter
 
 		public Chest bank3 = new Chest(true);
 
-		public Player prototypePlayer { get; set; }
+		public Player PrototypePlayer { get; set; }
         
-        public RegionInfo enteredRegion { get; set; }
+        public RegionInfo EnteredRegion { get; set; }
 
 		public List<RegionInfo> ownedregion = new List<RegionInfo>();
 
@@ -101,7 +101,7 @@ namespace ServerSideCharacter
 		public ServerPlayer(Player player)
 		{
 			SetupPlayer();
-			prototypePlayer = player;
+			PrototypePlayer = player;
 		}
 
 		public void CopyFrom(Player player)
@@ -123,31 +123,31 @@ namespace ServerSideCharacter
 
 		public void ApplyLockBuffs(int time = 180)
 		{
-			prototypePlayer.AddBuff(ServerSideCharacter.Instance.BuffType("Locked"), time * 2, false);
-			prototypePlayer.AddBuff(BuffID.Frozen, time, false);
-			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
-				"", prototypePlayer.whoAmI,
+			PrototypePlayer.AddBuff(ServerSideCharacter.Instance.BuffType("Locked"), time * 2, false);
+			PrototypePlayer.AddBuff(BuffID.Frozen, time, false);
+			NetMessage.SendData(MessageID.AddPlayerBuff, PrototypePlayer.whoAmI, -1,
+				"", PrototypePlayer.whoAmI,
 				ServerSideCharacter.Instance.BuffType("Locked"), time * 2, 0f, 0, 0, 0);
-			NetMessage.SendData(MessageID.AddPlayerBuff, prototypePlayer.whoAmI, -1,
-				"", prototypePlayer.whoAmI,
+			NetMessage.SendData(MessageID.AddPlayerBuff, PrototypePlayer.whoAmI, -1,
+				"", PrototypePlayer.whoAmI,
 				BuffID.Frozen, time, 0f, 0, 0, 0);
 		}
 
         public void SendSuccessInfo(string msg)
         {
-            NetMessage.SendData(MessageID.ChatText, prototypePlayer.whoAmI, -1,
+            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
                             msg,
                             255, 50, 255, 50);
         }
         public void SendInfo(string msg)
         {
-            NetMessage.SendData(MessageID.ChatText, prototypePlayer.whoAmI, -1,
+            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
                             msg,
                             255, 255, 255, 0);
         }
         public void SendErrorInfo(string msg)
         {
-            NetMessage.SendData(MessageID.ChatText, prototypePlayer.whoAmI, -1,
+            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
                             msg,
                             255, 255, 20, 0);
         }
@@ -199,7 +199,7 @@ namespace ServerSideCharacter
 			{
 				Rectangle worldArea = new Rectangle(reg.Area.X * 16, reg.Area.Y * 16,
 					reg.Area.Width * 16, reg.Area.Height * 16);
-				if (worldArea.Intersects(prototypePlayer.Hitbox))
+				if (worldArea.Intersects(PrototypePlayer.Hitbox))
 				{
 					region = reg;
 					return true;

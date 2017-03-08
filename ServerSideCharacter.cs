@@ -1,27 +1,21 @@
 #define DEBUGMODE
+using Microsoft.Xna.Framework;
+using ServerSideCharacter.GroupManage;
+using ServerSideCharacter.Region;
+using ServerSideCharacter.ServerCommand;
+using ServerSideCharacter.XMLHelper;
 using System;
-
-using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Xml;
+using System.Text;
+using System.Threading;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.IO;
 using Terraria.Localization;
-using Terraria.DataStructures;
-using ServerSideCharacter.XMLHelper;
-using System.Text;
-using System.Linq;
-using System.Threading;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
-using ServerSideCharacter.ServerCommand;
-using ServerSideCharacter.Plugin;
-using ServerSideCharacter.GroupManage;
-using Microsoft.Xna.Framework;
-using Terraria.GameContent.UI.Chat;
-using ServerSideCharacter.Region;
+using Terraria.ModLoader;
 
 namespace ServerSideCharacter
 {
@@ -95,7 +89,7 @@ namespace ServerSideCharacter
 					{
 						//创建新的玩家数据
 						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber]);
-						serverPlayer.prototypePlayer = Main.player[playerNumber];
+						serverPlayer.PrototypePlayer = Main.player[playerNumber];
 						XmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
 					}
 					catch (Exception ex)
@@ -241,7 +235,7 @@ namespace ServerSideCharacter
 				player.miscEquips.CopyTo(Main.player[plr].miscEquips, 0);
 				player.miscDye.CopyTo(Main.player[plr].miscDyes, 0);
 				Main.player[plr].trashItem = new Item();
-				player.prototypePlayer = Main.player[plr];
+				player.PrototypePlayer = Main.player[plr];
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
@@ -637,7 +631,7 @@ namespace ServerSideCharacter
 								sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
 								foreach (var pla in XmlData.Data)
 								{
-									Player player1 = pla.Value.prototypePlayer;
+									Player player1 = pla.Value.PrototypePlayer;
 									string line = string.Concat(
 										player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
 										"    ",
@@ -822,7 +816,7 @@ namespace ServerSideCharacter
 					if (!player.IsLogin || target == plr) return;
 					if (player.PermissionGroup.HasPermission("tp"))
 					{
-						if (targetPlayer.prototypePlayer != null && targetPlayer.prototypePlayer.active)
+						if (targetPlayer.PrototypePlayer != null && targetPlayer.PrototypePlayer.active)
 						{
 							p.Teleport(Main.player[target].position);
 							MessageSender.SendTeleport(plr, Main.player[target].position);

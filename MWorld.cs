@@ -45,13 +45,13 @@ namespace ServerSideCharacter
 						}
 					}
 				}
-				if(Main.time % 180 < 1)
+				if (Main.time % 180 < 1)
 				{
 					foreach (var player in ServerSideCharacter.XmlData.Data)
 					{
-						if (player.Value.prototypePlayer != null)
+						if (player.Value.PrototypePlayer != null)
 						{
-							int playerID = player.Value.prototypePlayer.whoAmI;
+							int playerID = player.Value.PrototypePlayer.whoAmI;
 							if (!player.Value.HasPassword)
 							{
 								player.Value.ApplyLockBuffs();
@@ -72,35 +72,35 @@ namespace ServerSideCharacter
 				}
 				if (Main.time % 3600 < 1)
 				{
-					ThreadPool.QueueUserWorkItem(do_Save);
+					ThreadPool.QueueUserWorkItem(Do_Save);
 				}
-				foreach(var player in Main.player)
+				foreach (var player in Main.player)
 				{
-					if (player.active && player.GetServerPlayer().enteredRegion == null)
+					if (player.active && player.GetServerPlayer().EnteredRegion == null)
 					{
 						var serverPlayer = player.GetServerPlayer();
 						RegionInfo region;
 						if (serverPlayer.InAnyRegion(out region))
 						{
-							serverPlayer.enteredRegion = region;
+							serverPlayer.EnteredRegion = region;
 							serverPlayer.SendInfo(region.WelcomeInfo());
 						}
 					}
-					else if(player.GetServerPlayer().enteredRegion != null)
+					else if (player.GetServerPlayer().EnteredRegion != null)
 					{
 						var serverPlayer = player.GetServerPlayer();
 						RegionInfo region;
 						if (!serverPlayer.InAnyRegion(out region))
 						{
-							serverPlayer.SendInfo(serverPlayer.enteredRegion.LeaveInfo());
-							serverPlayer.enteredRegion = null;
+							serverPlayer.SendInfo(serverPlayer.EnteredRegion.LeaveInfo());
+							serverPlayer.EnteredRegion = null;
 						}
 					}
 				}
 			}
 		}
 
-		private void do_Save(object state)
+		private void Do_Save(object state)
 		{
 			foreach (var player in ServerSideCharacter.XmlData.Data)
 			{

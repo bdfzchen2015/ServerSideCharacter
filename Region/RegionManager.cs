@@ -29,7 +29,7 @@ namespace ServerSideCharacter.Region
 			lock (ServerRegions)
 			{
 				int index = ServerRegions.FindIndex(region => region.Name == name);
-				if (index == -1)
+				if (index != -1)
 				{
 					ServerRegions.RemoveAt(index);
 					foreach (var player in ServerSideCharacter.XmlData.Data)
