@@ -242,5 +242,12 @@ namespace ServerSideCharacter
 			p.Write(name);
 			p.Send();
 		}
+
+		public static void SendSSC()
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.ServerSideCharacter);
+			p.Send();
+		}
 	}
 }

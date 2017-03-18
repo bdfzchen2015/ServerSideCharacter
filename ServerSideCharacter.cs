@@ -1,5 +1,6 @@
 #define DEBUGMODE
 using Microsoft.Xna.Framework;
+using ServerSideCharacter.Extensions;
 using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Terraria;
@@ -225,6 +227,7 @@ namespace ServerSideCharacter
 				//NetMessage.SendData(MessageID.PlayerMana, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				MessageSender.SyncPlayerMana(plr, -1, -1);
 				NetMessage.SendData(MessageID.PlayerBuffs, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				MessageSender.SendSSC();
 				string name = Main.player[plr].name;
 				ServerPlayer player = XmlData.Data[name];
 				player.inventroy.CopyTo(Main.player[plr].inventory, 0);
@@ -422,14 +425,8 @@ namespace ServerSideCharacter
 						Logger.Dispose();
 						RegionManager.WriteRegionInfo();
 					}
-
-
 				});
 				CheckDisconnect.Start();
-			}
-			else
-			{
-				Main.ServerSideCharacter = true;
 			}
 		}
 
@@ -440,10 +437,6 @@ namespace ServerSideCharacter
 			{
 				Main.ServerSideCharacter = true;
 				Console.WriteLine("[ServerSideCharacter Mod, Author: DXTsT	Version: " + APIVersion + "]");
-			}
-			else
-			{
-				CommandDelegate.SetUpCommands(Commands);
 			}
 		}
 
@@ -555,7 +548,7 @@ namespace ServerSideCharacter
 					else
 					{
 						player.HasPassword = true;
-						player.Password = password;
+						player.Password = MD5Crypto.ComputeMD5(password);
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
 							string.Format("You have successfully set your password as {0}. Remember it!", password),
 							255, 50, 255, 50);
@@ -575,6 +568,7 @@ namespace ServerSideCharacter
 					}
 					else
 					{
+						password = MD5Crypto.ComputeMD5(password);
 						bool isPasswordCorrrect = password.Equals(player.Password);
 						if (isPasswordCorrrect)
 						{
@@ -964,6 +958,10 @@ namespace ServerSideCharacter
 				{
 					RegionRemove(reader, whoAmI);
 				}
+				else if(msgType == SSCMessageType.ServerSideCharacter)
+				{
+					Main.ServerSideCharacter = true;
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -1067,50 +1065,10 @@ namespace ServerSideCharacter
 			}
 		}
 
-		//public override void ChatInput(string text, ref bool broadcast)
-		//{
-		//	if (text[0] == '/')
-		//	{
-		//		if (Main.netMode != 0)
-		//		{
-		//			text = text.Substring(1);
-		//			int index = text.IndexOf(' ');
-		//			string command;
-		//			string[] args;
-		//			if (index < 0)
-		//			{
-		//				command = text;
-		//				args = new string[0];
-		//			}
-		//			else
-		//			{
-		//				command = text.Substring(0, index);
-		//				args = text.Substring(index + 1).Split(' ');
-		//			}
-		//			broadcast = false;
-		//			int cmdIndex = Commands.FindIndex(cmd => cmd.Name == command);
-		//			if (cmdIndex != -1)
-		//			{
-		//				Command cmd = Commands[cmdIndex];
-		//				cmd.CommandAction(args);
-		//			}
-		//			else
-		//			{
-		//				Main.NewText("Command not found!", 255, 25, 0);
-		//			}
-		//		}
-		//	}
-		//}
-
 		private static void SetupDefaults()
 		{
-			//if (!Directory.Exists("Plugins"))
-			//{
-			//	Directory.CreateDirectory("Plugins");
-			//}
 
 			GroupType.SetupGroups();
-			CommandDelegate.SetUpCommands(Commands);
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",
@@ -1241,5 +1199,7 @@ namespace ServerSideCharacter
 				!Main.tile[tileX, tileY].inActive() && !Main.tile[tileX, tileY].halfBrick() &&
 				Main.tile[tileX, tileY].slope() == 0 && Main.tile[tileX, tileY].type != TileID.Bubble;
 		}
+
+		
 	}
 }

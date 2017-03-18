@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Extensions\MD5Crypto.cs" />
     <Compile Include="Extensions\PlayerExtension.cs" />
     <Compile Include="GroupManage\Group.cs" />
     <Compile Include="GroupManage\GroupType.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
+    <Compile Include="ServerCommand\CommandDelegate.cs" />
     <Compile Include="ServerCommand\GodCommand.cs" />
     <Compile Include="ServerCommand\TPHereCommand.cs" />
     <Compile Include="ServerCommand\SummonCommand.cs" />
@@ -90,7 +92,6 @@
     <Compile Include="PacketType.cs" />
     <Compile Include="SaveInfo.cs" />
     <Compile Include="ServerCommand\CommandBoardcast.cs" />
-    <Compile Include="ServerCommand\CommandDelegate.cs" />
     <Compile Include="ServerCommand\ButcherCommand.cs" />
     <Compile Include="ServerCommand\AuthCommand.cs" />
     <Compile Include="ServerCommand\FindCommand.cs" />

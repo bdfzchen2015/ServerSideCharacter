@@ -25,7 +25,10 @@ namespace ServerSideCharacter.GroupManage
 			};
 			AddToGroup(crminalGroup);
 
-			Group defaultGroup = new Group("default");
+			Group defaultGroup = new Group("default")
+			{
+				ChatPrefix = "Default"
+			};
 			defaultGroup.permissions.Add(new PermissionInfo("tp", "Teleport player"));
 			defaultGroup.permissions.Add(new PermissionInfo("ls", "List online player's info"));
 			defaultGroup.permissions.Add(new PermissionInfo("auth", "Authorize as super admin"));
@@ -56,7 +59,7 @@ namespace ServerSideCharacter.GroupManage
 			{
 				ChatColor = Color.Cyan,
 				ChatPrefix = "Super Admin",
-				permissions = new List<PermissionInfo>(admin.permissions) {new PermissionInfo("group", "Manage group")}
+				permissions = new List<PermissionInfo>(admin.permissions)
 			};
 			AddToGroup(superAdmin);
 		}

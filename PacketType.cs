@@ -26,5 +26,6 @@
 		TeleportPalyer,
 		ToggleGodMode,
 		SetGodMode,
+		ServerSideCharacter
 	}
 }
