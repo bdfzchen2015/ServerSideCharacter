@@ -208,5 +208,11 @@ namespace ServerSideCharacter
 			region = null;
 			return false;
 		}
+
+		public void SavePlayer()
+		{
+			this.CopyFrom(this.PrototypePlayer);
+			ServerSideCharacter.MainWriter.Write(this);
+		}
 	}
 }

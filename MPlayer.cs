@@ -2,6 +2,7 @@
 using Terraria;
 using Microsoft.Xna.Framework;
 using Terraria.DataStructures;
+using System;
 
 namespace ServerSideCharacter
 {
@@ -61,8 +62,8 @@ namespace ServerSideCharacter
 
 		public override void PostUpdate()
 		{
-
 			playerCounter++;
 		}
+
 	}
 }

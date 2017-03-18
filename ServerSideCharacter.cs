@@ -36,8 +36,6 @@ namespace ServerSideCharacter
 
 		public static RegionManager RegionManager = new RegionManager();
 
-		//private static ConcurrentDictionary<int, SaveInfo> PlayerActiveTable = new ConcurrentDictionary<int, SaveInfo>();
-
 		public static TextLog Logger;
 
 		public static string AuthCode = "";
@@ -428,6 +426,10 @@ namespace ServerSideCharacter
 
 				});
 				CheckDisconnect.Start();
+			}
+			else
+			{
+				Main.ServerSideCharacter = true;
 			}
 		}
 
@@ -1065,40 +1067,40 @@ namespace ServerSideCharacter
 			}
 		}
 
-		public override void ChatInput(string text, ref bool broadcast)
-		{
-			if (text[0] == '/')
-			{
-				if (Main.netMode != 0)
-				{
-					text = text.Substring(1);
-					int index = text.IndexOf(' ');
-					string command;
-					string[] args;
-					if (index < 0)
-					{
-						command = text;
-						args = new string[0];
-					}
-					else
-					{
-						command = text.Substring(0, index);
-						args = text.Substring(index + 1).Split(' ');
-					}
-					broadcast = false;
-					int cmdIndex = Commands.FindIndex(cmd => cmd.Name == command);
-					if (cmdIndex != -1)
-					{
-						Command cmd = Commands[cmdIndex];
-						cmd.CommandAction(args);
-					}
-					else
-					{
-						Main.NewText("Command not found!", 255, 25, 0);
-					}
-				}
-			}
-		}
+		//public override void ChatInput(string text, ref bool broadcast)
+		//{
+		//	if (text[0] == '/')
+		//	{
+		//		if (Main.netMode != 0)
+		//		{
+		//			text = text.Substring(1);
+		//			int index = text.IndexOf(' ');
+		//			string command;
+		//			string[] args;
+		//			if (index < 0)
+		//			{
+		//				command = text;
+		//				args = new string[0];
+		//			}
+		//			else
+		//			{
+		//				command = text.Substring(0, index);
+		//				args = text.Substring(index + 1).Split(' ');
+		//			}
+		//			broadcast = false;
+		//			int cmdIndex = Commands.FindIndex(cmd => cmd.Name == command);
+		//			if (cmdIndex != -1)
+		//			{
+		//				Command cmd = Commands[cmdIndex];
+		//				cmd.CommandAction(args);
+		//			}
+		//			else
+		//			{
+		//				Main.NewText("Command not found!", 255, 25, 0);
+		//			}
+		//		}
+		//	}
+		//}
 
 		private static void SetupDefaults()
 		{
@@ -1178,6 +1180,7 @@ namespace ServerSideCharacter
 				if (!player.IsLogin) return;
 				if (player.PermissionGroup.HasPermission("sm"))
 				{
+					if (number > 200) number = 200;
 					if (type >= 1 && type < Main.npcName.Length && type != 113)
 					{
 						for (int i = 0; i < number; i++)

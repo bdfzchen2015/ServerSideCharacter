@@ -54,8 +54,8 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TerrariaMod">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Terraria\TerrariaMod.exe</HintPath>
+    <Reference Include="Terraria">
+      <HintPath>F:\Program Files (x86)\Steam\steamapps\common\Terraria\Terraria.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +80,9 @@
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
+    <Compile Include="ServerCommand\GodCommand.cs" />
+    <Compile Include="ServerCommand\TPHereCommand.cs" />
+    <Compile Include="ServerCommand\SummonCommand.cs" />
     <Compile Include="ServerCommand\Command.cs" />
     <Compile Include="MPlayer.cs" />
     <Compile Include="MWorld.cs" />
@@ -88,6 +91,20 @@
     <Compile Include="SaveInfo.cs" />
     <Compile Include="ServerCommand\CommandBoardcast.cs" />
     <Compile Include="ServerCommand\CommandDelegate.cs" />
+    <Compile Include="ServerCommand\ButcherCommand.cs" />
+    <Compile Include="ServerCommand\AuthCommand.cs" />
+    <Compile Include="ServerCommand\FindCommand.cs" />
+    <Compile Include="ServerCommand\ItemCommand.cs" />
+    <Compile Include="ServerCommand\TeleportCommand.cs" />
+    <Compile Include="ServerCommand\RegionCommand.cs" />
+    <Compile Include="ServerCommand\TimeCommand.cs" />
+    <Compile Include="ServerCommand\LockCommand.cs" />
+    <Compile Include="ServerCommand\LoginCommand.cs" />
+    <Compile Include="ServerCommand\KillCommand.cs" />
+    <Compile Include="ServerCommand\ListCommand.cs" />
+    <Compile Include="ServerCommand\GroupCommand.cs" />
+    <Compile Include="ServerCommand\RegisterCommand.cs" />
+    <Compile Include="ServerCommand\SaveCommand.cs" />
     <Compile Include="TextLog.cs" />
     <Compile Include="PlayerData.cs" />
     <Compile Include="ServerPlayer.cs" />
