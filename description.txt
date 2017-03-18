@@ -1,1 +1,1 @@
-﻿None
+People can use /help to discover the commands they can use in the server
