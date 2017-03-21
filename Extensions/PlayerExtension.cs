@@ -11,7 +11,14 @@ namespace ServerSideCharacter
 	{
 		public static ServerPlayer GetServerPlayer(this Player p)
 		{
-			return ServerSideCharacter.XmlData.Data[p.name];
+			if (ServerSideCharacter.XmlData.Data.ContainsKey(p.name))
+			{
+				return ServerSideCharacter.XmlData.Data[p.name];
+			}
+			else
+			{
+				throw new ArgumentException("Player name not found!");
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace ServerSideCharacter.ServerCommand
 	public static class CommandBoardcast
 	{ 
 
-		public static void ShowSaveInfo()
+		public static void ConsoleSaveInfo()
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			string info = string.Format("[SSC {0}] Saved all player data", ServerSideCharacter.APIVersion);
@@ -20,7 +20,7 @@ namespace ServerSideCharacter.ServerCommand
 			Console.ResetColor();
 		}
 
-		public static void ShowSavePlayer(ServerPlayer p)
+		public static void ConsoleSavePlayer(ServerPlayer p)
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			string info = string.Format("[SSC {0}] Saved {1}'s data", ServerSideCharacter.APIVersion, p.Name);
@@ -28,13 +28,13 @@ namespace ServerSideCharacter.ServerCommand
 			LogInfo(info);
 			Console.ResetColor();
 		}
-		public static void ShowNormalText(string msg)
+		public static void ConsoleNormalText(string msg)
 		{
 			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);
 			Console.WriteLine(info);
 			LogInfo(info);
 		}
-		public static void ShowMessage(string msg)
+		public static void ConsoleMessage(string msg)
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);
@@ -42,7 +42,7 @@ namespace ServerSideCharacter.ServerCommand
 			LogInfo(info);
 			Console.ResetColor();
 		}
-		public static void ShowError(Exception ex)
+		public static void ConsoleError(Exception ex)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, ex);
@@ -50,7 +50,7 @@ namespace ServerSideCharacter.ServerCommand
 			LogInfo(info);
 			Console.ResetColor();
 		}
-		public static void ShowError(string msg)
+		public static void ConsoleError(string msg)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			string info = string.Format("[SSC {0}] {1}", ServerSideCharacter.APIVersion, msg);

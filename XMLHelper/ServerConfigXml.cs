@@ -33,8 +33,10 @@ namespace ServerSideCharacter.XMLHelper
 			}
 			else
 			{
-				XmlReaderSettings settings = new XmlReaderSettings();
-				settings.IgnoreComments = true;                         //忽略文档里面的注释
+				XmlReaderSettings settings = new XmlReaderSettings()
+				{
+					IgnoreComments = true                         //忽略文档里面的注释
+				};
 				XmlDocument xmlDoc = new XmlDocument();
 				XmlReader reader = XmlReader.Create("SSC/config.xml", settings);
 				xmlDoc.Load(reader);
@@ -59,7 +61,7 @@ namespace ServerSideCharacter.XMLHelper
 				}
 				else
 				{
-					throw  new NullReferenceException("XMLNode is null");
+					throw new NullReferenceException("XMLNode is null");
 				}
 			}
 
@@ -69,6 +71,8 @@ namespace ServerSideCharacter.XMLHelper
 				AddToStartInv(thorium.First().ItemType("FamilyHeirloom"));
 			}
 		}
+
+
 		private static void AddToStartInv(int type, int prefex = 0)
 		{
 			Item item1 = new Item();

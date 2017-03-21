@@ -1,9 +1,8 @@
 displayName = ServerSideCharacter
-author = Test
-version = 9.9
+author = DXTsT
+version = 0.3
 hideResources = false
 hideCode = true
 includeSource = false
-includePDB= true
 homepage = http://shizi.square7.ch/description.php
 buildIgnore = *.csproj, *.sln, BHR.OpenCover.Settings, obj\*, bin\*, .git\*, .vs\*

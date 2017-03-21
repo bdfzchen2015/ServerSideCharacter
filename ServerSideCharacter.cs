@@ -32,19 +32,21 @@ namespace ServerSideCharacter
 
 		public static Thread CheckDisconnect;
 
-		public static string APIVersion = "V1.0.2";
+		public static string APIVersion = "V0.2.1";
 
 		public static List<Command> Commands = new List<Command>();
 
 		public static RegionManager RegionManager = new RegionManager();
 
-		public static TextLog Logger;
+		public static ErrorLogger Logger;
 
 		public static string AuthCode = "";
 
 		public static Vector2 TilePos1 = new Vector2();
 
 		public static Vector2 TilePos2 = new Vector2();
+
+
 
 		public ServerSideCharacter()
 		{
@@ -181,7 +183,7 @@ namespace ServerSideCharacter
 					}
 					catch(Exception ex)
 					{
-						CommandBoardcast.ShowError(ex);
+						CommandBoardcast.ConsoleError(ex);
 					}
 
 				}
@@ -393,9 +395,9 @@ namespace ServerSideCharacter
 
 				XmlData = new PlayerData("SSC/datas.xml");
 				RegionManager.ReadRegionInfo();
-				Logger = new TextLog("ServerLog.txt", false);
-				CommandBoardcast.ShowMessage("Data loaded!");
-				CommandBoardcast.ShowMessage("You can type /auth " + AuthCode + " to become super admin");
+				Logger = new ErrorLogger("ServerLog.txt", false);
+				CommandBoardcast.ConsoleMessage("Data loaded!");
+				CommandBoardcast.ConsoleMessage("You can type /auth " + AuthCode + " to become super admin");
 
 				CheckDisconnect = new Thread(() =>
 				{
@@ -418,7 +420,7 @@ namespace ServerSideCharacter
 							}
 
 						}
-						CommandBoardcast.ShowMessage("\nOn Server Close: Saved all datas!");
+						CommandBoardcast.ConsoleMessage("\nOn Server Close: Saved all datas!");
 						Logger.Dispose();
 						RegionManager.WriteRegionInfo();
 					}
@@ -526,7 +528,7 @@ namespace ServerSideCharacter
 					}
 
 #if DEBUGMODE
-					CommandBoardcast.ShowSavePlayer(player);
+					CommandBoardcast.ConsoleSavePlayer(player);
 #endif
 				}
 				else if (msgType == SSCMessageType.RequestRegister)
@@ -566,8 +568,7 @@ namespace ServerSideCharacter
 					else
 					{
 						password = MD5Crypto.ComputeMD5(password);
-						bool isPasswordCorrrect = password.Equals(player.Password);
-						if (isPasswordCorrrect)
+						if (password.Equals(player.Password))
 						{
 							player.IsLogin = true;
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
@@ -661,7 +662,7 @@ namespace ServerSideCharacter
 						}
 						catch (Exception ex)
 						{
-							CommandBoardcast.ShowError(ex);
+							CommandBoardcast.ConsoleError(ex);
 						}
 					}
 					else if (!all && player.PermissionGroup.HasPermission("ls"))
@@ -707,7 +708,7 @@ namespace ServerSideCharacter
 						}
 						catch (Exception ex)
 						{
-							CommandBoardcast.ShowError(ex);
+							CommandBoardcast.ConsoleError(ex);
 						}
 					}
 					else
@@ -923,7 +924,7 @@ namespace ServerSideCharacter
 					int plr = reader.ReadByte();
 					string code = reader.ReadString();
 					Player p = Main.player[plr];
-					CommandBoardcast.ShowMessage(p.name + " has tried to auth with code " + code);
+					CommandBoardcast.ConsoleMessage(p.name + " has tried to auth with code " + code);
 					if(code.Equals(AuthCode))
 					{
 						ServerPlayer targetPlayer = p.GetServerPlayer();
@@ -966,7 +967,7 @@ namespace ServerSideCharacter
 			}
 			catch(Exception ex)
 			{
-				CommandBoardcast.ShowError(ex);
+				CommandBoardcast.ConsoleError(ex);
 			}
 		}
 
@@ -1163,7 +1164,7 @@ namespace ServerSideCharacter
 			}
 			catch(Exception ex)
 			{
-				CommandBoardcast.ShowError(ex);
+				CommandBoardcast.ConsoleError(ex);
 			}
 		}
 		private static void GetRandomClearTileWithInRange(int startTileX, int startTileY, int tileXRange, int tileYRange,

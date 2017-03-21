@@ -106,7 +106,7 @@
     <Compile Include="ServerCommand\GroupCommand.cs" />
     <Compile Include="ServerCommand\RegisterCommand.cs" />
     <Compile Include="ServerCommand\SaveCommand.cs" />
-    <Compile Include="TextLog.cs" />
+    <Compile Include="ErrorLogger.cs" />
     <Compile Include="PlayerData.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />

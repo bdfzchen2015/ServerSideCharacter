@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
+using Terraria.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -19,85 +19,85 @@ namespace ServerSideCharacter
 		public static bool ServerStarted = false;
 
 
-		public override void PreUpdate()
+		public override void PostUpdate()
 		{
-
-			//Item g = new Item();
-			//g.SetDefaults(100);
-			//MessageBox.Show((g.modItem == null).ToString());
-
-			//foreach (var othermod in ModLoader.LoadedMods)
-			//{
-			//	//string modName = othermod.FullName.Substring(0, item.FullName.IndexOf('.'));
-			//		MessageBox.Show(othermod.Name);
-			//}
 			if (Main.netMode == 2)
 			{
-				ServerStarted = true;
-				if (Main.time % 120 < 1)
+				try
 				{
-					for (int i = 0; i < 255; i++)
+					ServerStarted = true;
+					if (Main.time % 120 < 1)
 					{
-						if (Main.player[i].active)
+						for (int i = 0; i < 255; i++)
 						{
-							ServerPlayer player = ServerSideCharacter.XmlData.Data[Main.player[i].name];
-							player.CopyFrom(Main.player[i]);
-						}
-					}
-				}
-				if (Main.time % 180 < 1)
-				{
-					foreach (var player in ServerSideCharacter.XmlData.Data)
-					{
-						if (player.Value.PrototypePlayer != null)
-						{
-							int playerID = player.Value.PrototypePlayer.whoAmI;
-							if (!player.Value.HasPassword)
+							if (Main.player[i].active)
 							{
-								player.Value.ApplyLockBuffs();
-								NetMessage.SendData(MessageID.ChatText, playerID, -1,
-								"Welcome! You are new to here. Please use /register <password> to register an account!",
-								255, 255, 30, 30);
-								continue;
-							}
-							if (!player.Value.IsLogin)
-							{
-								player.Value.ApplyLockBuffs();
-								NetMessage.SendData(MessageID.ChatText, playerID, -1,
-								"Welcome! You have already created an account. Please type /login <password> to login!",
-								255, 255, 30, 30);
+								ServerPlayer player = ServerSideCharacter.XmlData.Data[Main.player[i].name];
+								player.CopyFrom(Main.player[i]);
 							}
 						}
 					}
-				}
-				if (Main.time % 3600 < 1)
-				{
-					ThreadPool.QueueUserWorkItem(Do_Save);
-				}
-				foreach (var player in Main.player)
-				{
-					if (player.active && player.GetServerPlayer().EnteredRegion == null)
+					if (Main.time % 180 < 1)
 					{
-						var serverPlayer = player.GetServerPlayer();
-						RegionInfo region;
-						if (serverPlayer.InAnyRegion(out region))
+						foreach (var player in ServerSideCharacter.XmlData.Data)
 						{
-							serverPlayer.EnteredRegion = region;
-							serverPlayer.SendInfo(region.WelcomeInfo());
+							if (player.Value.PrototypePlayer != null)
+							{
+								int playerID = player.Value.PrototypePlayer.whoAmI;
+								if (!player.Value.HasPassword)
+								{
+									player.Value.ApplyLockBuffs();
+									NetMessage.SendData(MessageID.ChatText, playerID, -1,
+									"Welcome! You are new to here. Please use /register <password> to register an account!",
+									255, 255, 30, 30);
+								}
+								if (player.Value.HasPassword && !player.Value.IsLogin)
+								{
+									player.Value.ApplyLockBuffs();
+									NetMessage.SendData(MessageID.ChatText, playerID, -1,
+									"Welcome! You have already created an account. Please type /login <password> to login!",
+									255, 255, 30, 30);
+								}
+							}
 						}
 					}
-					else if (player.GetServerPlayer().EnteredRegion != null)
+					if (Main.time % 3600 < 1)
 					{
-						var serverPlayer = player.GetServerPlayer();
-						RegionInfo region;
-						if (!serverPlayer.InAnyRegion(out region))
+						ThreadPool.QueueUserWorkItem(Do_Save);
+					}
+					foreach (var player in Main.player.Where(p => p.active))
+					{
+						if (player.GetServerPlayer().EnteredRegion == null)
 						{
-							serverPlayer.SendInfo(serverPlayer.EnteredRegion.LeaveInfo());
-							serverPlayer.EnteredRegion = null;
+							var serverPlayer = player.GetServerPlayer();
+							RegionInfo region;
+							if (serverPlayer.InAnyRegion(out region))
+							{
+								serverPlayer.EnteredRegion = region;
+								serverPlayer.SendInfo(region.WelcomeInfo());
+							}
+						}
+						else if (player.GetServerPlayer().EnteredRegion != null)
+						{
+							var serverPlayer = player.GetServerPlayer();
+							RegionInfo region;
+							if (!serverPlayer.InAnyRegion(out region))
+							{
+								serverPlayer.SendInfo(serverPlayer.EnteredRegion.LeaveInfo());
+								serverPlayer.EnteredRegion = null;
+							}
 						}
 					}
+				}
+				catch (Exception ex)
+				{
+					CommandBoardcast.ConsoleError(ex);
+					WorldFile.saveWorld();
+					Netplay.disconnect = true;
+					Terraria.Social.SocialAPI.Shutdown();
 				}
 			}
+
 		}
 
 		private void Do_Save(object state)
@@ -110,10 +110,10 @@ namespace ServerSideCharacter
 				}
 				catch (Exception ex)
 				{
-					CommandBoardcast.ShowError(ex);
+					CommandBoardcast.ConsoleError(ex);
 				}
 			}
-			CommandBoardcast.ShowSaveInfo();
+			CommandBoardcast.ConsoleSaveInfo();
 		}
 
 	}
