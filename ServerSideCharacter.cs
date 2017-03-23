@@ -609,114 +609,8 @@ namespace ServerSideCharacter
 				}
 				else if (msgType == SSCMessageType.ListCommand)
 				{
-					int plr = reader.ReadByte();
-					ListType type = (ListType)reader.ReadByte();
-					bool all = reader.ReadBoolean();
-					Player p = Main.player[plr];
-					ServerPlayer player = XmlData.Data[p.name];
-					if (!player.IsLogin) return;
-					if (all && player.PermissionGroup.HasPermission("ls -al"))
-					{
-						try
-						{
-							StringBuilder sb = new StringBuilder();
-							if (type == ListType.ListPlayers)
-							{
-								sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
-								foreach (var pla in XmlData.Data)
-								{
-									Player player1 = pla.Value.PrototypePlayer;
-									string line = string.Concat(
-										player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
-										"    ",
-										pla.Value.Name,
-										"    ",
-										pla.Value.Hash,
-										"    ",
-										pla.Value.PermissionGroup.GroupName,
-										"    ",
-										pla.Value.LifeMax,
-										"    "
-										);
-									sb.AppendLine(line);
-								}
-							}
-							else if (type == ListType.ListRegions)
-							{
-								sb.AppendLine("RegionName    Owner    Region Area");
-								foreach (var region in RegionManager.ServerRegions)
-								{
-									string line = string.Concat(
-										region.Name,
-										"    ",
-										region.Owner.Name,
-										"    ",
-										region.Area.ToString()
-										);
-									sb.AppendLine(line);
-								}
-							}
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-									sb.ToString(),
-									255, 255, 255, 0);
-						}
-						catch (Exception ex)
-						{
-							CommandBoardcast.ConsoleError(ex);
-						}
-					}
-					else if (!all && player.PermissionGroup.HasPermission("ls"))
-					{
-						try
-						{
-							
-							StringBuilder sb = new StringBuilder();
-							if (type == ListType.ListPlayers)
-							{
-								sb.AppendLine("Player ID    Name    Permission Group");
-								foreach (var pla in Main.player)
-								{
-									if (pla.active)
-									{
-										string line = string.Concat(
-											pla.whoAmI,
-											"    ",
-											pla.name,
-											"    ",
-											pla.GetServerPlayer().PermissionGroup.GroupName
-											);
-										sb.AppendLine(line);
-									}
-								}
-							}
-							else if(type == ListType.ListRegions)
-							{
-								sb.AppendLine("Region Name    Region Area");
-								foreach (var region in RegionManager.ServerRegions)
-								{
-									string line = string.Concat(
-										region.Name,
-										"    ",
-										region.Area.ToString()
-										);
-									sb.AppendLine(line);
-								}
-							}
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-									sb.ToString(),
-									255, 255, 255, 0);
-						}
-						catch (Exception ex)
-						{
-							CommandBoardcast.ConsoleError(ex);
-						}
-					}
-					else
-					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"You don't have the permission to this command.",
-								255, 255, 20, 0);
-					}
+					List(reader, whoAmI);
+					
 				}
 				else if (msgType == SSCMessageType.RequestSetGroup)
 				{
@@ -960,6 +854,18 @@ namespace ServerSideCharacter
 				{
 					Main.ServerSideCharacter = true;
 				}
+				else if(msgType == SSCMessageType.ToggleExpert)
+				{
+					ToggleExpert(reader, whoAmI);
+				}
+				else if(msgType == SSCMessageType.ToggleHardMode)
+				{
+					ToggleHardmode(reader, whoAmI);
+				}
+				//else if(msgType == SSCMessageType.ToggleXmas)
+				//{
+				//	ToggleXmas(reader, whoAmI);
+				//}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -968,6 +874,194 @@ namespace ServerSideCharacter
 			catch(Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
+			}
+		}
+
+		//private void ToggleXmas(BinaryReader reader, int whoAmI)
+		//{
+		//	int plr = reader.ReadByte();
+		//	Player p = Main.player[plr];
+		//	ServerPlayer player = p.GetServerPlayer();
+		//	if (!player.IsLogin) return;
+		//	if (player.PermissionGroup.HasPermission("xmas"))
+		//	{
+		//		Main.checkXMas();
+		//	}
+		//}
+
+		private void List(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			ListType type = (ListType)reader.ReadByte();
+			bool all = reader.ReadBoolean();
+			Player p = Main.player[plr];
+			ServerPlayer player = XmlData.Data[p.name];
+			if (!player.IsLogin) return;
+			if (all && player.PermissionGroup.HasPermission("ls -al"))
+			{
+				try
+				{
+					StringBuilder sb = new StringBuilder();
+					if (type == ListType.ListPlayers)
+					{
+						sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
+						foreach (var pla in XmlData.Data)
+						{
+							Player player1 = pla.Value.PrototypePlayer;
+							string line = string.Concat(
+								player1 != null && player1.active ? player1.whoAmI.ToString() : "N/A",
+								"    ",
+								pla.Value.Name,
+								"    ",
+								pla.Value.Hash,
+								"    ",
+								pla.Value.PermissionGroup.GroupName,
+								"    ",
+								pla.Value.LifeMax,
+								"    "
+								);
+							sb.AppendLine(line);
+						}
+					}
+					else if (type == ListType.ListRegions)
+					{
+						sb.AppendLine("RegionName    Owner    Region Area");
+						foreach (var region in RegionManager.ServerRegions)
+						{
+							string line = string.Concat(
+								region.Name,
+								"    ",
+								region.Owner.Name,
+								"    ",
+								region.Area.ToString()
+								);
+							sb.AppendLine(line);
+						}
+					}
+					else if(type == ListType.ListGroups)
+					{
+						sb.AppendLine("Group Name      Permissions     ChatPrefix");
+						foreach (var group in GroupType.Groups)
+						{
+							StringBuilder sb2 = new StringBuilder();
+							foreach(var info in group.Value.permissions)
+							{
+								sb2.Append(info.Name + " ");
+							}
+							string line = string.Concat(
+								group.Key,
+								"    ",
+								sb2.ToString(),
+								"    ",
+								group.Value.ChatPrefix
+								);
+							sb.AppendLine(line);
+						}
+					}
+					NetMessage.SendData(MessageID.ChatText, plr, -1,
+							sb.ToString(),
+							255, 255, 255, 0);
+				}
+
+				catch (Exception ex)
+				{
+					CommandBoardcast.ConsoleError(ex);
+				}
+			}
+			else if (!all && player.PermissionGroup.HasPermission("ls"))
+			{
+				StringBuilder sb = new StringBuilder();
+				if (type == ListType.ListPlayers)
+				{
+					sb.AppendLine("Player ID    Name    Permission Group");
+					foreach (var pla in Main.player)
+					{
+						if (pla.active)
+						{
+							string line = string.Concat(
+								pla.whoAmI,
+								"    ",
+								pla.name,
+								"    ",
+								pla.GetServerPlayer().PermissionGroup.GroupName
+								);
+							sb.AppendLine(line);
+						}
+					}
+				}
+				else if (type == ListType.ListRegions)
+				{
+					sb.AppendLine("Region Name    Region Area");
+					foreach (var region in RegionManager.ServerRegions)
+					{
+						string line = string.Concat(
+							region.Name,
+							"    ",
+							region.Area.ToString()
+							);
+						sb.AppendLine(line);
+					}
+				}
+				else if(type == ListType.ListGroups)
+				{
+					sb.AppendLine("Your Permissions: ");
+					foreach (var permission in player.PermissionGroup.permissions)
+					{
+						string line = string.Concat(
+							permission.Name,
+							"    ",
+							permission.Description
+							);
+						sb.AppendLine(line);
+					}
+				}
+				NetMessage.SendData(MessageID.ChatText, plr, -1,
+						sb.ToString(),
+						255, 255, 255, 0);
+			}
+			else
+			{
+				NetMessage.SendData(MessageID.ChatText, plr, -1,
+						"You don't have the permission to this command.",
+						255, 255, 20, 0);
+			}
+		}
+
+
+
+		private void ToggleHardmode(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			Player p = Main.player[plr];
+			ServerPlayer player = p.GetServerPlayer();
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("hardmode"))
+			{
+				if (Main.hardMode)
+				{
+					Main.hardMode = false;
+					NetMessage.SendData(MessageID.WorldInfo);
+					CommandBoardcast.SendInfoToAll("Hardmode is now off.");
+				}
+				else
+				{
+					WorldGen.StartHardmode();
+					CommandBoardcast.SendInfoToAll("Hardmode is now on.");
+				}
+			}
+		}
+
+		private void ToggleExpert(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			Player p = Main.player[plr];
+			ServerPlayer player = p.GetServerPlayer();
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("expert"))
+			{
+				Main.expertMode = !Main.expertMode;
+				NetMessage.SendData(MessageID.WorldInfo);
+				CommandBoardcast.SendInfoToAll("Server " + (Main.expertMode ? "now" : "no longer") + " in Expert Mode");
 			}
 		}
 

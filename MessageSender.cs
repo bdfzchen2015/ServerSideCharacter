@@ -249,5 +249,29 @@ namespace ServerSideCharacter
 			p.Write((int)SSCMessageType.ServerSideCharacter);
 			p.Send();
 		}
+
+		public static void SendToggleExpert()
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.ToggleExpert);
+			p.Write((byte)Main.myPlayer);
+			p.Send();
+		}
+
+		public static void SendToggleHardmode()
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.ToggleHardMode);
+			p.Write((byte)Main.myPlayer);
+			p.Send();
+		}
+
+		public static void SendToggleXmas()
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.ToggleHardMode);
+			p.Write((byte)Main.myPlayer);
+			p.Send();
+		}
 	}
 }

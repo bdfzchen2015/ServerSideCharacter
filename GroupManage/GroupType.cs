@@ -49,7 +49,9 @@ namespace ServerSideCharacter.GroupManage
 					new PermissionInfo("tphere", "Force teleport a player to your place"),
 					new PermissionInfo("region", "Manage regions"),
 					new PermissionInfo("region-create", "Create region"),
-					new PermissionInfo("region-remove", "Remove regions")
+					new PermissionInfo("region-remove", "Remove regions"),
+					new PermissionInfo("expert", "toggle expert"),
+					new PermissionInfo("hardmode", "toggle hardmode")
 				}
 			};
 			AddToGroup(admin);
@@ -59,8 +61,8 @@ namespace ServerSideCharacter.GroupManage
 			{
 				ChatColor = Color.Cyan,
 				ChatPrefix = "Super Admin",
-				permissions = new List<PermissionInfo>(admin.permissions)
 			};
+			superAdmin.permissions.Add(new PermissionInfo("all", "all commands"));
 			AddToGroup(superAdmin);
 		}
 

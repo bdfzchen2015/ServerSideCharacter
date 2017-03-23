@@ -11,6 +11,7 @@ namespace ServerSideCharacter.ServerCommand
 	public enum ListType
 	{
 		ListPlayers,
-		ListRegions
+		ListRegions,
+		ListGroups
 	}
 }

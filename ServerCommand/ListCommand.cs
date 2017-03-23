@@ -26,7 +26,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/ls [-al] [-rg]"; }
+			get { return "/ls [-al] [-rg / -gp]"; }
 		}
 
 		public override void Action(CommandCaller caller, string input, string[] args)
@@ -42,6 +42,10 @@ namespace ServerSideCharacter.ServerCommand
 				if (args[0] == "-rg")
 				{
 					type = ListType.ListRegions;
+				}
+				else if(args[0] == "-gp")
+				{
+					type = ListType.ListGroups;
 				}
 			}
 			MessageSender.SendListCommand(Main.myPlayer, type, all);
