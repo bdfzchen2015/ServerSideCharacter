@@ -82,6 +82,7 @@
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
     <Compile Include="ServerCommand\CommandDelegate.cs" />
+    <Compile Include="ServerCommand\ResetCommand.cs" />
     <Compile Include="ServerCommand\HardmodeCommand.cs" />
     <Compile Include="ServerCommand\GodCommand.cs" />
     <Compile Include="ServerCommand\ExpertCommand.cs" />

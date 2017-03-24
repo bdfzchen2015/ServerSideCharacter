@@ -10,6 +10,7 @@
 		RequestSetGroup,
 		RequestItem,
 		RequestAuth,
+		ResetPassword,
 		SendLoginPassword,
 		SendTimeSet,
 		HelpCommand,

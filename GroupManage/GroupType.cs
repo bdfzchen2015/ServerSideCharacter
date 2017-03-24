@@ -65,6 +65,5 @@ namespace ServerSideCharacter.GroupManage
 			superAdmin.permissions.Add(new PermissionInfo("all", "all commands"));
 			AddToGroup(superAdmin);
 		}
-
 	}
 }

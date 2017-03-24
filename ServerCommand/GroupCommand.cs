@@ -26,7 +26,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/group set <$hash> <permission group>"; }
+			get { return "/group [set | append] <$hash> <permission group | permission name>"; }
 		}
 
 		public override void Action(CommandCaller caller, string input, string[] args)
@@ -35,6 +35,12 @@ namespace ServerSideCharacter.ServerCommand
 			{
 				string hash = args[1];
 				MessageSender.SendSetGroup(Main.myPlayer, hash, args[2]);
+			}
+			else if(args[0] == "append")
+			{
+				string name = args[1];
+				string perm = args[2];
+				throw new NotImplementedException();
 			}
 		}
 	}

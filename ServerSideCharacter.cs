@@ -940,29 +940,24 @@ namespace ServerSideCharacter
 					}
 					else if(type == ListType.ListGroups)
 					{
-						sb.AppendLine("Group Name      Permissions     ChatPrefix");
+						int i = 1;
 						foreach (var group in GroupType.Groups)
 						{
-							StringBuilder sb2 = new StringBuilder();
-							foreach(var info in group.Value.permissions)
+							sb.AppendLine(string.Format("{0}. Group Name: {1}  Chat Prefix: {2}\n   Permissions:",
+								i, group.Key, group.Value.ChatPrefix));
+							sb.AppendLine("{");
+							foreach(var perm in group.Value.permissions)
 							{
-								sb2.Append(info.Name + " ");
+								sb.AppendLine("  " + perm.Name);
 							}
-							string line = string.Concat(
-								group.Key,
-								"    ",
-								sb2.ToString(),
-								"    ",
-								group.Value.ChatPrefix
-								);
-							sb.AppendLine(line);
+							sb.AppendLine("}");
+							i++;
 						}
 					}
 					NetMessage.SendData(MessageID.ChatText, plr, -1,
 							sb.ToString(),
 							255, 255, 255, 0);
 				}
-
 				catch (Exception ex)
 				{
 					CommandBoardcast.ConsoleError(ex);
@@ -1005,15 +1000,12 @@ namespace ServerSideCharacter
 				else if(type == ListType.ListGroups)
 				{
 					sb.AppendLine("Your Permissions: ");
+					sb.AppendLine("{");
 					foreach (var permission in player.PermissionGroup.permissions)
 					{
-						string line = string.Concat(
-							permission.Name,
-							"    ",
-							permission.Description
-							);
-						sb.AppendLine(line);
+						sb.AppendLine("   " + permission.Name);
 					}
+					sb.AppendLine("}");
 				}
 				NetMessage.SendData(MessageID.ChatText, plr, -1,
 						sb.ToString(),
