@@ -151,7 +151,7 @@ namespace ServerSideCharacter.Region
 				Vector2 tilePos = new Vector2(X, Y);
 				foreach (var regions in ServerRegions)
 				{
-					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player))
+					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player.Hash))
 					{
 						return true;
 					}
@@ -163,6 +163,20 @@ namespace ServerSideCharacter.Region
 		public bool CheckRegionSize(ServerPlayer player, Rectangle area)
 		{
 			return player.PermissionGroup.IsSuperAdmin() || (area.Width < 35 && area.Height < 35);
+		}
+
+		public void ShareRegion(ServerPlayer p, ServerPlayer target, string name)
+		{
+			int index = ServerRegions.FindIndex(region => region.Name == name);
+			if (index == -1)
+			{
+				p.SendErrorInfo("Cannot find this region!");
+				return;
+			}
+			var reg = ServerRegions[index];
+			reg.SharedOwner.Add(target.Hash);
+			p.SendSuccessInfo("Successfully shared " + reg.Name + " to " + target.Name);
+			target.SendSuccessInfo(p.Name + " shared region " + reg.Name + " with you!");
 		}
 
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)

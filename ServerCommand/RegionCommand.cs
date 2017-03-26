@@ -27,14 +27,14 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/region <create/info/delete> [region name]"; }
+			get { return "/region <create/share/delete> [region name]\nIf using 'share' you should provide player's id"; }
 		}
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
 			if (args[0] == "create")
 			{
-				if ((ServerSideCharacter.TilePos1 == Vector2.Zero) || (ServerSideCharacter.TilePos2 == Vector2.Zero))
+				if ((ServerSideCharacter.TilePos1 != Vector2.Zero) && (ServerSideCharacter.TilePos2 != Vector2.Zero))
 				{
 					string name = args[1];
 					MessageSender.SendRegionCreate(Main.myPlayer, name);
@@ -42,12 +42,21 @@ namespace ServerSideCharacter.ServerCommand
 				}
 				else
 				{
-					Main.NewText("This is an invalid region", 255, 255, 0);
+					Main.NewText("Region position is invalid or you haven't select any region", 255, 255, 0);
 				}
 			}
-			else if (args[0] == "info")
+			else if (args[0] == "share")
 			{
-
+				string name = args[1];
+				int id = Convert.ToByte(args[2]);
+				if (id != Main.myPlayer)
+				{
+					MessageSender.SendRegionShare(Main.myPlayer, name, id);
+				}
+				else
+				{
+					Main.NewText("You cannot share region with yourself", 255, 255, 0);
+				}
 			}
 			else if (args[0] == "delete")
 			{

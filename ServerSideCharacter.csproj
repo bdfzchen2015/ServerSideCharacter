@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Config\RegionConfig.cs" />
     <Compile Include="Extensions\MD5Crypto.cs" />
     <Compile Include="Extensions\PlayerExtension.cs" />
     <Compile Include="GroupManage\Group.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
+    <Compile Include="ServerCommand\KeyCommand.cs" />
     <Compile Include="ServerCommand\CommandDelegate.cs" />
     <Compile Include="ServerCommand\ResetCommand.cs" />
     <Compile Include="ServerCommand\HardmodeCommand.cs" />
@@ -113,7 +115,7 @@
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />
     <Compile Include="XMLHelper\NodeHelper.cs" />
-    <Compile Include="XMLHelper\ServerConfigXml.cs" />
+    <Compile Include="XMLHelper\ServerConfig.cs" />
     <Compile Include="XMLWriter.cs" />
   </ItemGroup>
   <ItemGroup>

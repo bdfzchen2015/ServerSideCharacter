@@ -26,6 +26,7 @@
 		ToggleXmas,
 		RegionCreateCommand,
 		RegionRemoveCommand,
+		RegionShareCommand,
 		LockPlayer,
 		TeleportPalyer,
 		ToggleGodMode,

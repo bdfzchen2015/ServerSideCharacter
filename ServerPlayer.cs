@@ -54,8 +54,6 @@ namespace ServerSideCharacter
 
 		public List<RegionInfo> ownedregion = new List<RegionInfo>();
 
-		public static List<Item> StartUpItems = new List<Item>();
-
 
 		private void SetupPlayer()
 		{
@@ -164,7 +162,7 @@ namespace ServerSideCharacter
 		{
 			ServerPlayer player = new ServerPlayer(p);
 			int i = 0;
-			foreach(var item in StartUpItems)
+			foreach(var item in ServerSideCharacter.Config.StartUpItems)
 			{
 				player.inventroy[i++] = item;
 			}

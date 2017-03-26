@@ -32,7 +32,7 @@ namespace ServerSideCharacter
 
 		public static Thread CheckDisconnect;
 
-		public static string APIVersion = "V0.2.1";
+		public static string APIVersion = "V0.2.2";
 
 		public static List<Command> Commands = new List<Command>();
 
@@ -45,6 +45,8 @@ namespace ServerSideCharacter
 		public static Vector2 TilePos1 = new Vector2();
 
 		public static Vector2 TilePos2 = new Vector2();
+
+		public static ServerConfig Config;
 
 
 
@@ -210,6 +212,7 @@ namespace ServerSideCharacter
 			SendAnglerQuest(plr);
 			EnsureLocalPlayerIsPresent();
 		}
+
 		private static void SyncOnePlayer(int plr, int toWho, int fromWho)
 		{
 			int num = 0;
@@ -363,6 +366,7 @@ namespace ServerSideCharacter
 				Netplay.disconnect = true;
 			}
 		}
+
 
 		public override void PostSetupContent()
 		{
@@ -862,6 +866,10 @@ namespace ServerSideCharacter
 				{
 					ToggleHardmode(reader, whoAmI);
 				}
+				else if(msgType == SSCMessageType.RegionShareCommand)
+				{
+					RegionShare(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -873,6 +881,24 @@ namespace ServerSideCharacter
 			}
 		}
 
+		private void RegionShare(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			int target = reader.ReadByte();
+			string name = reader.ReadString();
+			Player p = Main.player[plr];
+			ServerPlayer player = XmlData.Data[p.name];
+			ServerPlayer targetplayer = XmlData.Data[Main.player[target].name];
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("region-share"))
+			{
+				RegionManager.ShareRegion(player, targetplayer, name);
+			}
+			else
+			{
+				player.SendErrorInfo("You don't have the permission to this command.");
+			}
+		}
 
 		private void List(BinaryReader reader, int whoAmI)
 		{
@@ -1170,7 +1196,8 @@ namespace ServerSideCharacter
 				MainWriter = writer;
 				Console.WriteLine("Saved data: " + save);
 			}
-			ServerConfigXml.SetUpStartInv();
+			Config = new ServerConfig();
+			Config.CreateConfig();
 		}
 
 

@@ -243,6 +243,16 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
+		public static void SendRegionShare(int plr, string name, int target)
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.RegionShareCommand);
+			p.Write((byte)plr);
+			p.Write((byte)target);
+			p.Write(name);
+			p.Send();
+		}
+
 		public static void SendSSC()
 		{
 			ModPacket p = ServerSideCharacter.Instance.GetPacket();

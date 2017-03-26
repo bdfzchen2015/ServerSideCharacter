@@ -51,7 +51,8 @@ namespace ServerSideCharacter.GroupManage
 					new PermissionInfo("region-create", "Create region"),
 					new PermissionInfo("region-remove", "Remove regions"),
 					new PermissionInfo("expert", "toggle expert"),
-					new PermissionInfo("hardmode", "toggle hardmode")
+					new PermissionInfo("hardmode", "toggle hardmode"),
+					new PermissionInfo("region-share", "Share regions")
 				}
 			};
 			AddToGroup(admin);
