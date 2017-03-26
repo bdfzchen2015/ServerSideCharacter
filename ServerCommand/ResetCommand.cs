@@ -41,7 +41,7 @@ namespace ServerSideCharacter.ServerCommand
 				player.SavePlayer();
 				if (player.PrototypePlayer != null)
 				{
-					CommandBoardcast.SendInfoToPlayer(player.PrototypePlayer.whoAmI, "Your password has been reseted! Please register with another password");
+					player.SendSuccessInfo("Your password has been reseted! Please register with another password");
 				}
 			}
 			catch(Exception ex)

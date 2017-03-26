@@ -164,19 +164,19 @@ namespace ServerSideCharacter
 						int style = reader.ReadByte();
 						if (CheckSpawn(X, Y) && player.PermissionGroup.GroupName != "spadmin")
 						{
-							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Spawn is protected from change");
+							player.SendErrorInfo("Warning: Spawn is protected from change");
 							NetMessage.SendTileSquare(-1, X, Y, 4);
 							return true;
 						}
 						else if (RegionManager.CheckRegion(X, Y, player))
 						{
-							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: You don't have permission to change this tile");
+							player.SendErrorInfo("Warning: You don't have permission to change this tile");
 							NetMessage.SendTileSquare(-1, X, Y, 4);
 							return true;
 						}
 						else if (player.PermissionGroup.GroupName == "criminal")
 						{
-							CommandBoardcast.SendErrorToPlayer(playerNumber, "Warning: Criminals cannot change tiles");
+							player.SendErrorInfo("Warning: Criminals cannot change tiles");
 							NetMessage.SendTileSquare(-1, X, Y, 4);
 							return true;
 						}
@@ -687,11 +687,11 @@ namespace ServerSideCharacter
 								kills++;
 							}
 						}
-						CommandBoardcast.SendInfoToAll(string.Format("{0} butchered {1} NPCs.", player.Name, kills));
+						ServerPlayer.SendInfoToAll(string.Format("{0} butchered {1} NPCs.", player.Name, kills));
 					}
 					else
 					{
-						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+						player.SendErrorInfo("You don't have the permission to this command.");
 					}
 				}
 				else if (msgType == SSCMessageType.TPCommand)
@@ -708,17 +708,17 @@ namespace ServerSideCharacter
 						{
 							p.Teleport(Main.player[target].position);
 							MessageSender.SendTeleport(plr, Main.player[target].position);
-							CommandBoardcast.SendInfoToPlayer(plr, "You have teleproted to " + targetPlayer.Name);
-							CommandBoardcast.SendInfoToPlayer(target, player.Name + " has teleproted to you!");
+							player.SendInfo("You have teleproted to " + targetPlayer.Name);
+							targetPlayer.SendInfo(player.Name + " has teleproted to you!");
 						}
 						else
 						{
-							CommandBoardcast.SendErrorToPlayer(plr, "Cannot find this player");
+							player.SendErrorInfo("Cannot find this player");
 						}
 					}
 					else
 					{
-						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+						player.SendErrorInfo("You don't have the permission to this command.");
 					}
 				}
 				else if (msgType == SSCMessageType.TimeCommand)
@@ -735,7 +735,7 @@ namespace ServerSideCharacter
 						if (!set)
 						{
 							double time1 = GetTime();
-							CommandBoardcast.SendInfoToPlayer(plr, string.Format("The current time is {0}:{1:D2}.", 
+							player.SendInfo(string.Format("The current time is {0}:{1:D2}.", 
 								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
 						}
 						else
@@ -744,13 +744,13 @@ namespace ServerSideCharacter
 							Main.dayTime = day;
 							MessageSender.SendTimeSet(Main.time, Main.dayTime);
 							double time1 = GetTime();
-							CommandBoardcast.SendInfoToAll(string.Format("{0} set the time to {1}:{2:D2}.", player.Name,
+							player.SendInfo(string.Format("{0} set the time to {1}:{2:D2}.", player.Name,
 								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
 						}
 					}
 					else
 					{
-						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+						player.SendErrorInfo("You don't have the permission to this command.");
 					}
 
 				}
@@ -783,7 +783,7 @@ namespace ServerSideCharacter
 							sb.AppendLine("/" + command.Name + " [" + command.Description + "]  ");
 						}
 					}
-					CommandBoardcast.SendInfoToPlayer(plr, sb.ToString());
+					player.SendInfo(sb.ToString());
 				}
 				else if(msgType == SSCMessageType.RequestItem)
 				{
@@ -797,11 +797,11 @@ namespace ServerSideCharacter
 						Item item = new Item();
 						item.netDefaults(type);
 						Item.NewItem(p.position, Vector2.Zero, type, item.maxStack);
-						CommandBoardcast.SendInfoToPlayer(plr, string.Format("Sever has give you {0} {1}", item.maxStack, Main.itemName[type]));
+						player.SendInfo(string.Format("Sever has give you {0} {1}", item.maxStack, Main.itemName[type]));
 					}
 					else
 					{
-						CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+						player.SendErrorInfo("You don't have the permission to this command.");
 					}
 				}
 				else if (msgType == SSCMessageType.TeleportPalyer)
@@ -823,7 +823,7 @@ namespace ServerSideCharacter
 					{
 						ServerPlayer targetPlayer = p.GetServerPlayer();
 						targetPlayer.PermissionGroup = GroupType.Groups["spadmin"];
-						CommandBoardcast.SendInfoToPlayer(plr, "You have successfully auth as SuperAdmin");
+						targetPlayer.SendSuccessInfo("You have successfully auth as SuperAdmin");
 					}
 				}
 				else if(msgType == SSCMessageType.SummonCommand)
@@ -862,10 +862,6 @@ namespace ServerSideCharacter
 				{
 					ToggleHardmode(reader, whoAmI);
 				}
-				//else if(msgType == SSCMessageType.ToggleXmas)
-				//{
-				//	ToggleXmas(reader, whoAmI);
-				//}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -877,17 +873,6 @@ namespace ServerSideCharacter
 			}
 		}
 
-		//private void ToggleXmas(BinaryReader reader, int whoAmI)
-		//{
-		//	int plr = reader.ReadByte();
-		//	Player p = Main.player[plr];
-		//	ServerPlayer player = p.GetServerPlayer();
-		//	if (!player.IsLogin) return;
-		//	if (player.PermissionGroup.HasPermission("xmas"))
-		//	{
-		//		Main.checkXMas();
-		//	}
-		//}
 
 		private void List(BinaryReader reader, int whoAmI)
 		{
@@ -1033,12 +1018,12 @@ namespace ServerSideCharacter
 				{
 					Main.hardMode = false;
 					NetMessage.SendData(MessageID.WorldInfo);
-					CommandBoardcast.SendInfoToAll("Hardmode is now off.");
+					ServerPlayer.SendInfoToAll("Hardmode is now off.");
 				}
 				else
 				{
 					WorldGen.StartHardmode();
-					CommandBoardcast.SendInfoToAll("Hardmode is now on.");
+					ServerPlayer.SendInfoToAll("Hardmode is now on.");
 				}
 			}
 		}
@@ -1053,7 +1038,7 @@ namespace ServerSideCharacter
 			{
 				Main.expertMode = !Main.expertMode;
 				NetMessage.SendData(MessageID.WorldInfo);
-				CommandBoardcast.SendInfoToAll("Server " + (Main.expertMode ? "now" : "no longer") + " in Expert Mode");
+				ServerPlayer.SendInfoToAll("Server " + (Main.expertMode ? "now" : "no longer") + " in Expert Mode");
 			}
 		}
 
@@ -1096,16 +1081,16 @@ namespace ServerSideCharacter
 				{
 					RegionManager.CreateNewRegion(regionArea, name, player);
 					RegionManager.WriteRegionInfo();
-					CommandBoardcast.SendInfoToPlayer(plr, "You have successfully created a region named: " + name);
+					player.SendSuccessInfo("You have successfully created a region named: " + name);
 				}
 				else
 				{
-					CommandBoardcast.SendErrorToPlayer(plr, "Sorry, but this name has been occupied or you have too many regions!");
+					player.SendErrorInfo("Sorry, but this name has been occupied or you have too many regions!");
 				}
 			}
 			else
 			{
-				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+				player.SendErrorInfo("You don't have the permission to this command.");
 			}
 		}
 
@@ -1120,12 +1105,12 @@ namespace ServerSideCharacter
 			if (player.PermissionGroup.HasPermission("tphere"))
 			{
 				MessageSender.SendTeleport(t, p.position);
-				CommandBoardcast.SendInfoToPlayer(plr, "You have teleported " + tar.Name + " to your position");
-				CommandBoardcast.SendInfoToPlayer(t, "You have been forced teleport to " + player.Name);
+				player.SendInfo("You have teleported " + tar.Name + " to your position");
+				player.SendInfo("You have been forced teleport to " + player.Name);
 			}
 			else
 			{
-				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+				player.SendErrorInfo("You don't have the permission to this command.");
 			}
 		}
 
@@ -1141,11 +1126,11 @@ namespace ServerSideCharacter
 				pack.Write((int)SSCMessageType.SetGodMode);
 				pack.Write(p.GetModPlayer<MPlayer>(this).GodMode);
 				pack.Send(plr, -1);
-				CommandBoardcast.SendInfoToPlayer(plr, "God mode is " + (p.GetModPlayer<MPlayer>(this).GodMode ? "actived!" : "disactived!"));
+				player.SendInfo("God mode is " + (p.GetModPlayer<MPlayer>(this).GodMode ? "actived!" : "disactived!"));
 			}
 			else
 			{
-				CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+				player.SendErrorInfo("You don't have the permission to this command.");
 			}
 		}
 
@@ -1235,17 +1220,17 @@ namespace ServerSideCharacter
 							// This is for special slimes
 							Main.npc[npcid].netDefaults(type);
 						}
-						CommandBoardcast.SendInfoToAll(string.Format("{0} summoned {1} {2}(s)",
+						ServerPlayer.SendInfoToAll(string.Format("{0} summoned {1} {2}(s)",
 						player.Name, number, Main.npcName[type]));
 					}
 					else
 					{
-						CommandBoardcast.SendErrorToPlayer(plr, "Invalid mob type!");
+						player.SendErrorInfo("Invalid mob type!");
 					}
 				}
 				else
 				{
-					CommandBoardcast.SendErrorToPlayer(plr, "You don't have the permission to this command.");
+					player.SendErrorInfo("You don't have the permission to this command.");
 				}
 			}
 			catch(Exception ex)

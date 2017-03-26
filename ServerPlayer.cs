@@ -181,6 +181,13 @@ namespace ServerSideCharacter
 			return player;
 		}
 
+		public static void SendInfoToAll(string msg)
+		{
+			NetMessage.SendData(MessageID.ChatText, -1, -1,
+							msg,
+							255, 255, 255);
+		}
+
 		public static ServerPlayer FindPlayer(string hash)
 		{
 			foreach (var pair in ServerSideCharacter.XmlData.Data)
@@ -193,6 +200,11 @@ namespace ServerSideCharacter
 			throw new Exception("Cannot find the player!");
 		}
 
+		/// <summary>
+		/// 如果玩家在任何领地内
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
 		public bool InAnyRegion(out RegionInfo region)
 		{
 			foreach (var reg in ServerSideCharacter.RegionManager.ServerRegions)

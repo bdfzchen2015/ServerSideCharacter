@@ -19,6 +19,7 @@ namespace ServerSideCharacter
 			ItemExtraInfoTable.Add(key, write);
 			InterpretStringTable.Add(key, read);
 		}
+
 		public static void BuildPlayerDataHook(string key, Func<ServerPlayer, string> write, Action<string, ServerPlayer> read)
 		{
 			PlayerExtraInfoTable.Add(key, write);
