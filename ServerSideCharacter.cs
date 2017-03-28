@@ -61,7 +61,17 @@ namespace ServerSideCharacter
 		}
 
 
-
+		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, string text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
+		{
+			if(msgType == MessageID.ChatText)
+			{
+				if(text[0] == '/')
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 
 		public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
 		{
@@ -192,10 +202,6 @@ namespace ServerSideCharacter
 			}
 			return false;
 		}
-
-
-
-
 
 
 		public static void SyncConnectedPlayer(int plr)
@@ -550,11 +556,14 @@ namespace ServerSideCharacter
 					}
 					else
 					{
-						player.HasPassword = true;
-						player.Password = MD5Crypto.ComputeMD5(password);
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-							string.Format("You have successfully set your password as {0}. Remember it!", password),
-							255, 50, 255, 50);
+						lock (XmlData.Data)
+						{
+							player.HasPassword = true;
+							player.Password = MD5Crypto.ComputeMD5(password);
+							NetMessage.SendData(MessageID.ChatText, plr, -1,
+								string.Format("You have successfully set your password as {0}. Remember it!", password),
+								255, 50, 255, 50);
+						}
 					}
 				}
 				else if (msgType == SSCMessageType.SendLoginPassword)
@@ -1295,7 +1304,5 @@ namespace ServerSideCharacter
 				!Main.tile[tileX, tileY].inActive() && !Main.tile[tileX, tileY].halfBrick() &&
 				Main.tile[tileX, tileY].slope() == 0 && Main.tile[tileX, tileY].type != TileID.Bubble;
 		}
-
-		
 	}
 }
