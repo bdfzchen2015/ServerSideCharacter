@@ -61,6 +61,7 @@
   <ItemGroup>
     <Content Include="Buffs\Locked.png" />
     <Content Include="build.txt" />
+    <Content Include="ChangeLog.txt" />
     <Content Include="description.txt" />
     <Content Include="Items\RegionItem.png" />
     <Content Include="Items\TestItem.png" />

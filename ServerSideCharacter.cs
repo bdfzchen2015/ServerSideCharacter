@@ -228,14 +228,15 @@ namespace ServerSideCharacter
 			}
 			if (Netplay.Clients[plr].State == 10)
 			{
-				NetMessage.SendData(MessageID.PlayerActive, toWho, fromWho, "", plr, num, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.SyncPlayer, toWho, fromWho, Main.player[plr].name, plr, 0f, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.PlayerControls, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerActive, -1, -1, "", plr, num, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.SyncPlayer, -1, -1, Main.player[plr].name, plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerControls, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				MessageSender.SyncPlayerHealth(plr, -1, -1);
-				NetMessage.SendData(MessageID.PlayerPvP, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.PlayerTeam, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerPvP, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerTeam, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
 				MessageSender.SyncPlayerMana(plr, -1, -1);
-				NetMessage.SendData(MessageID.PlayerBuffs, toWho, fromWho, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerBuffs, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
+
 				string name = Main.player[plr].name;
 				ServerPlayer player = XmlData.Data[name];
 				player.inventroy.CopyTo(Main.player[plr].inventory, 0);
@@ -245,6 +246,8 @@ namespace ServerSideCharacter
 				player.miscDye.CopyTo(Main.player[plr].miscDyes, 0);
 				Main.player[plr].trashItem = new Item();
 				player.PrototypePlayer = Main.player[plr];
+
+
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
@@ -272,9 +275,11 @@ namespace ServerSideCharacter
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
 				}
+				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].trashItem.name, 
+					plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + 
+					Main.player[plr].miscEquips.Length + 7, Main.player[plr].trashItem.prefix);
 				MessageSender.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
-				//PlayerActiveTable[plr] = new SaveInfo() { Name = Main.player[plr].name, Active = true };
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = true;

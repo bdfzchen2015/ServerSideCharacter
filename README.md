@@ -4,8 +4,8 @@
 ServerSideCharacter(SSC) is a server management tool for tModLoader, it gives the player ability to play form beginning in mod world.
 
 ## Version Compatibility
-* TmodLoader v0.9.2.1	V0.2X
-* TmodLoader v0.9.1		V0.1X
+* TmodLoader v0.9.2.1	V0.2.X
+* TmodLoader v0.9.1		V0.1.X
 
 
 ## Current Command List
@@ -27,3 +27,5 @@ ServerSideCharacter(SSC) is a server management tool for tModLoader, it gives th
 * /tp		Teleport to a player
 * /tphere	Teleport a player to your position
 * /time		Tell and change the time of the world
+* /reset	Reset a player's password [Only works in console mode]
+* /key		Use this command to fetch weapons according to the keys player held

@@ -26,15 +26,12 @@ namespace ServerSideCharacter
 				try
 				{
 					ServerStarted = true;
-					if (Main.time % 120 < 1)
+					for (int i = 0; i < 255; i++)
 					{
-						for (int i = 0; i < 255; i++)
+						if (Main.player[i].active)
 						{
-							if (Main.player[i].active)
-							{
-								ServerPlayer player = ServerSideCharacter.XmlData.Data[Main.player[i].name];
-								player.CopyFrom(Main.player[i]);
-							}
+							ServerPlayer player = ServerSideCharacter.XmlData.Data[Main.player[i].name];
+							player.CopyFrom(Main.player[i]);
 						}
 					}
 					if (Main.time % 180 < 1)
