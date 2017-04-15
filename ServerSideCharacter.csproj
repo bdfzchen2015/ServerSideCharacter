@@ -65,6 +65,7 @@
     <Content Include="description.txt" />
     <Content Include="Items\RegionItem.png" />
     <Content Include="Items\TestItem.png" />
+    <Content Include="lib\System.XML.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
@@ -119,9 +120,7 @@
     <Compile Include="XMLHelper\ServerConfig.cs" />
     <Compile Include="XMLWriter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="lib\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>

@@ -5,4 +5,5 @@ hideResources = false
 hideCode = true
 includeSource = false
 homepage = http://shizi.square7.ch/description.php
+dllReferences = System.XML
 buildIgnore = *.csproj, *.sln, BHR.OpenCover.Settings, obj\*, bin\*, .git\*, .vs\*
