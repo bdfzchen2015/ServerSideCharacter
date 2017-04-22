@@ -33,8 +33,8 @@ namespace ServerSideCharacter.ServerCommand
 		{
 			if (args[0] == "set")
 			{
-				string hash = args[1];
-				MessageSender.SendSetGroup(Main.myPlayer, hash, args[2]);
+				int uuid = int.Parse(args[1]);
+				MessageSender.SendSetGroup(Main.myPlayer, uuid, args[2]);
 			}
 			else if(args[0] == "append")
 			{

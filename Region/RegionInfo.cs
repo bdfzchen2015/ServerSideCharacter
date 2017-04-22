@@ -10,7 +10,7 @@ namespace ServerSideCharacter.Region
 	{
 		public string Name { get; set; }
 		public ServerPlayer Owner { get; set; }
-		public List<string> SharedOwner = new List<string>();
+		public List<int> SharedOwner = new List<int>();
 		public Rectangle Area { get; set; }
 		public List<RegionPermission> Permissions { get; set; }
 

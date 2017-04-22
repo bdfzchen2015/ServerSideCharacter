@@ -104,7 +104,7 @@ namespace ServerSideCharacter.Region
 				{
 					XmlElement regionData = (XmlElement)node;
 
-					string hash = regionData.GetAttribute("hash");
+					int uuid = int.Parse(regionData.GetAttribute("uuid"));
 					var info = regionData.ChildNodes;
 					Rectangle area = new Rectangle();
 					string name = info.Item(0).InnerText;
@@ -112,7 +112,7 @@ namespace ServerSideCharacter.Region
 					area.Y = Convert.ToInt32(info.Item(2).InnerText);
 					area.Width = Convert.ToInt32(info.Item(3).InnerText);
 					area.Height = Convert.ToInt32(info.Item(4).InnerText);
-					ServerPlayer player = ServerPlayer.FindPlayer(hash);
+					ServerPlayer player = ServerPlayer.FindPlayer(uuid);
 					ServerSideCharacter.RegionManager.CreateNewRegion(area, name, player);
 				}
 			}
@@ -130,7 +130,7 @@ namespace ServerSideCharacter.Region
 				foreach (var region in ServerRegions)
 				{
 					XmlElement xe = (XmlElement) xmlDoc.CreateNode(XmlNodeType.Element, "Region", null);
-					xe.SetAttribute("hash", region.Owner.Hash);
+					xe.SetAttribute("hash", region.Owner.UUID.ToString());
 					NodeHelper.CreateNode(xmlDoc, xe, "Name", region.Name);
 					NodeHelper.CreateNode(xmlDoc, xe, "X", region.Area.X.ToString());
 					NodeHelper.CreateNode(xmlDoc, xe, "Y", region.Area.Y.ToString());
@@ -151,7 +151,7 @@ namespace ServerSideCharacter.Region
 				Vector2 tilePos = new Vector2(X, Y);
 				foreach (var regions in ServerRegions)
 				{
-					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player.Hash))
+					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player.UUID))
 					{
 						return true;
 					}
@@ -174,7 +174,7 @@ namespace ServerSideCharacter.Region
 				return;
 			}
 			var reg = ServerRegions[index];
-			reg.SharedOwner.Add(target.Hash);
+			reg.SharedOwner.Add(target.UUID);
 			p.SendSuccessInfo("Successfully shared " + reg.Name + " to " + target.Name);
 			target.SendSuccessInfo(p.Name + " shared region " + reg.Name + " with you!");
 		}

@@ -10,7 +10,7 @@ namespace ServerSideCharacter
 {
 	public class ServerPlayer
 	{
-
+		private static int NextID = 0;
 		
 		public bool HasPassword { get; set; }
 
@@ -20,7 +20,7 @@ namespace ServerSideCharacter
 
 		public string Password { get; set; }
 
-		public string Hash { get; set; }
+		public int UUID { get; set; }
 
 		public Group PermissionGroup { get; set; }
 
@@ -150,24 +150,24 @@ namespace ServerSideCharacter
                             255, 255, 20, 0);
         }
 
-        public static string GenHashCode(string name)
-		{
-			long hash = name.GetHashCode();
-			hash += DateTime.Now.ToLongTimeString().GetHashCode() * 233;
-			short res = (short)(hash % 65536);
-			return Convert.ToString(res, 16);
-		}
+  //      public static string GenHashCode(string name)
+		//{
+		//	long hash = name.GetHashCode();
+		//	hash += DateTime.Now.ToLongTimeString().GetHashCode() * 233;
+		//	short res = (short)(hash % 65536);
+		//	return Convert.ToString(res, 16);
+		//}
 
 		public static ServerPlayer CreateNewPlayer(Player p)
 		{
 			ServerPlayer player = new ServerPlayer(p);
 			int i = 0;
-			foreach(var item in ServerSideCharacter.Config.StartUpItems)
+			foreach(var item in ServerSideCharacter.Config.StartupItems)
 			{
-				player.inventroy[i++] = item;
+				player.inventroy[i++] = Utils.GetItemFromNet(item);
 			}
 			player.Name = p.name;
-			player.Hash = GenHashCode(p.name);
+			player.UUID = GetNextID();
 			player.HasPassword = false;
 			player.PermissionGroup = GroupType.Groups["default"];
 			player.IsLogin = false;
@@ -186,11 +186,11 @@ namespace ServerSideCharacter
 							255, 255, 255);
 		}
 
-		public static ServerPlayer FindPlayer(string hash)
+		public static ServerPlayer FindPlayer(int uuid)
 		{
 			foreach (var pair in ServerSideCharacter.XmlData.Data)
 			{
-				if (pair.Value.Hash == hash)
+				if (pair.Value.UUID == uuid)
 				{
 					return pair.Value;
 				}
@@ -224,5 +224,21 @@ namespace ServerSideCharacter
 			this.CopyFrom(this.PrototypePlayer);
 			ServerSideCharacter.MainWriter.Write(this);
 		}
+
+		private static int GetNextID()
+		{
+			return NextID++;
+		}
+
+		internal static void IncreaseUUID()
+		{
+			NextID++;
+		}
+
+		internal static void ResetUUID()
+		{
+			NextID = 0;
+		}
+
 	}
 }

@@ -88,6 +88,7 @@ namespace ServerSideCharacter
 
 		public PlayerData(string path)
 		{
+			ServerPlayer.ResetUUID();
 			if (File.Exists(path))
 			{
 				XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
@@ -109,7 +110,7 @@ namespace ServerSideCharacter
 					var info = pData.ChildNodes;
 					int i = 0;
 					player.Name = pData.GetAttribute("name");
-					player.Hash = pData.GetAttribute("hash");
+					player.UUID = int.Parse(pData.GetAttribute("uuid"));
 					try
 					{
 						player.PermissionGroup = GroupType.Groups[pData.GetAttribute("group")];
@@ -165,6 +166,7 @@ namespace ServerSideCharacter
 					}
 
 					Data.Add(player.Name, player);
+					ServerPlayer.IncreaseUUID();
 				}
 				ServerSideCharacter.MainWriter = new XMLWriter(path);
 				reader.Close();

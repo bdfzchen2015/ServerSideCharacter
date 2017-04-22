@@ -178,7 +178,7 @@ namespace ServerSideCharacter
 			XmlNode playerNode = XMLDoc.CreateNode(XmlNodeType.Element, "Player", null);
 			XmlElement element = playerNode as XmlElement;
 			element.SetAttribute("name", player.Name);
-			element.SetAttribute("hash", ServerPlayer.GenHashCode(player.Name));
+			element.SetAttribute("uuid", player.UUID.ToString());
 			element.SetAttribute("group", player.PermissionGroup.GroupName);
 			foreach(var pair in ModDataHooks.PlayerExtraInfoTable)
 			{

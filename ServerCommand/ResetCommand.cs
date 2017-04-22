@@ -32,10 +32,10 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
-			string hash = args[0];
 			try
 			{
-				ServerPlayer player = ServerPlayer.FindPlayer(hash);
+				int uuid = int.Parse(args[0]);
+				ServerPlayer player = ServerPlayer.FindPlayer(uuid);
 				player.HasPassword = false;
 				player.IsLogin = false;
 				player.SavePlayer();

@@ -76,7 +76,6 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
-			bool all = false;
 			try
 			{
 				StringBuilder sb = new StringBuilder();
@@ -120,7 +119,7 @@ namespace ServerSideCharacter.ServerCommand
 				}
 				else
 				{
-					sb.AppendLine("Player ID\tName\tHash\tPermission\tGroup\tLifeMax");
+					sb.AppendLine("Player ID\tName\tUUID\tPermission\tGroup\tLifeMax");
 					foreach (var pla in ServerSideCharacter.XmlData.Data)
 					{
 						Player player1 = pla.Value.PrototypePlayer;
@@ -129,7 +128,7 @@ namespace ServerSideCharacter.ServerCommand
 							"\t",
 							pla.Value.Name,
 							"\t",
-							pla.Value.Hash,
+							pla.Value.UUID,
 							"\t",
 							pla.Value.PermissionGroup.GroupName,
 							"\t",

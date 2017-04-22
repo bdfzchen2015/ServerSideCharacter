@@ -212,13 +212,13 @@ namespace ServerSideCharacter
 		}
 
 
-		public static void SendSetGroup(int plr, string hash, string group)
+		public static void SendSetGroup(int plr, int uuid, string group)
 		{
 			string name = Main.player[plr].name;
 			ModPacket p = ServerSideCharacter.Instance.GetPacket();
 			p.Write((int)SSCMessageType.RequestSetGroup);
 			p.Write((byte)plr);
-			p.Write(hash);
+			p.Write(uuid);
 			p.Write(group);
 			p.Send();
 		}

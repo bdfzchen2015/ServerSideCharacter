@@ -4,7 +4,7 @@ using ServerSideCharacter.Extensions;
 using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
-using ServerSideCharacter.XMLHelper;
+using ServerSideCharacter.Config;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -46,7 +46,7 @@ namespace ServerSideCharacter
 
 		public static Vector2 TilePos2 = new Vector2();
 
-		public static ServerConfig Config;
+		public static ServerConfigManager Config;
 
 
 
@@ -410,7 +410,6 @@ namespace ServerSideCharacter
 
 				XmlData = new PlayerData("SSC/datas.xml");
 				RegionManager.ReadRegionInfo();
-				Logger = new ErrorLogger("ServerLog.txt", false);
 				CommandBoardcast.ConsoleMessage("Data loaded!");
 				CommandBoardcast.ConsoleMessage("You can type /auth " + AuthCode + " to become super admin");
 
@@ -633,7 +632,7 @@ namespace ServerSideCharacter
 				else if (msgType == SSCMessageType.RequestSetGroup)
 				{
 					int plr = reader.ReadByte();
-					string hash = reader.ReadString();
+					int uuid = reader.ReadInt32();
 					string group = reader.ReadString();
 					Player p = Main.player[plr];
 					ServerPlayer player = XmlData.Data[p.name];
@@ -642,7 +641,7 @@ namespace ServerSideCharacter
 					{
 						try
 						{
-							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(hash);
+							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(uuid);
 							targetPlayer.PermissionGroup = GroupType.Groups[group];
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
 								string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group),
@@ -929,7 +928,7 @@ namespace ServerSideCharacter
 					StringBuilder sb = new StringBuilder();
 					if (type == ListType.ListPlayers)
 					{
-						sb.AppendLine("Player ID    Name    Hash    Permission Group    LifeMax");
+						sb.AppendLine("Player ID    Name    UUID    Permission Group    LifeMax");
 						foreach (var pla in XmlData.Data)
 						{
 							Player player1 = pla.Value.PrototypePlayer;
@@ -938,7 +937,7 @@ namespace ServerSideCharacter
 								"    ",
 								pla.Value.Name,
 								"    ",
-								pla.Value.Hash,
+								pla.Value.UUID,
 								"    ",
 								pla.Value.PermissionGroup.GroupName,
 								"    ",
@@ -1176,8 +1175,9 @@ namespace ServerSideCharacter
 
 		private static void SetupDefaults()
 		{
-
+			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
+			Config = new ServerConfigManager();
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",
@@ -1201,17 +1201,18 @@ namespace ServerSideCharacter
 			if (!Directory.Exists("SSC"))
 			{
 				Directory.CreateDirectory("SSC");
+			}
+			if (!System.IO.File.Exists("SSC/datas.xml"))
+			{
 				string save = Path.Combine("SSC", "datas.xml");
 				XMLWriter writer = new XMLWriter(save);
 				writer.Create();
-				Player tmp = new Player {name = "DXTsT"};
+				Player tmp = new Player { name = "DXTsT" };
 				ServerPlayer newPlayer = ServerPlayer.CreateNewPlayer(tmp);
 				writer.Write(newPlayer);
 				MainWriter = writer;
 				Console.WriteLine("Saved data: " + save);
 			}
-			Config = new ServerConfig();
-			Config.CreateConfig();
 		}
 
 

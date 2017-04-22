@@ -48,8 +48,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Xact\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Xact.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>D:\搜狗高速下载\TShock-4.3.11\prebuilts\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>F:\Program Files (x86)\Steam\steamapps\common\Terraria\Content\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -69,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Config\NetItem.cs" />
     <Compile Include="Config\RegionConfig.cs" />
     <Compile Include="Extensions\MD5Crypto.cs" />
     <Compile Include="Extensions\PlayerExtension.cs" />
@@ -116,8 +124,9 @@
     <Compile Include="PlayerData.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerSideCharacter.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="XMLHelper\NodeHelper.cs" />
-    <Compile Include="XMLHelper\ServerConfig.cs" />
+    <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="XMLWriter.cs" />
   </ItemGroup>
   <ItemGroup />
