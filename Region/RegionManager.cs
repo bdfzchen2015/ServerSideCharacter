@@ -6,32 +6,40 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Newtonsoft.Json;
 using Terraria;
+using System.Collections;
 
 namespace ServerSideCharacter.Region
 {
-	public class RegionManager
+	public class RegionInfoData
 	{
 		public List<RegionInfo> ServerRegions = new List<RegionInfo>();
+	}
+
+	public class RegionManager
+	{
+		private RegionInfoData _regions = new RegionInfoData();
+		private static string _filePath = "SSC/regions.json";
 
 		public void CreateNewRegion(Rectangle rect, string name, ServerPlayer player)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
 				RegionInfo playerRegion = new RegionInfo(name, player, rect);
-				ServerRegions.Add(playerRegion);
+				_regions.ServerRegions.Add(playerRegion);
 				player.ownedregion.Add(playerRegion);
 			}
 		}
 
 		public bool RemoveRegionWithName(string name)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
-				int index = ServerRegions.FindIndex(region => region.Name == name);
+				int index = _regions.ServerRegions.FindIndex(region => region.Name == name);
 				if (index != -1)
 				{
-					ServerRegions.RemoveAt(index);
+					_regions.ServerRegions.RemoveAt(index);
 					foreach (var player in ServerSideCharacter.XmlData.Data)
 					{
 						int id = player.Value.ownedregion.FindIndex(region => region.Name == name);
@@ -51,9 +59,9 @@ namespace ServerSideCharacter.Region
 
 		public bool HasNameConflect(string name)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
-				foreach (var region in ServerRegions)
+				foreach (var region in _regions.ServerRegions)
 				{
 					if (name.Equals(region.Name))
 					{
@@ -66,90 +74,78 @@ namespace ServerSideCharacter.Region
 
 		public bool CheckPlayerRegionMax(ServerPlayer player)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
-				return ServerRegions.Count(info => info.Owner.Equals(player)) < 3;
+				return _regions.ServerRegions.Count(info => info.Owner.Equals(player)) < ServerSideCharacter.Config.PlayerMaxRegions;
 			}
 		}
 
 		public bool CheckRegionConflict(Rectangle rect)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
-				return ServerRegions.All(region => !region.Area.Intersects(rect));
+				return _regions.ServerRegions.All(region => !region.Area.Intersects(rect));
 			}
 		}
 
 		public void ReadRegionInfo()
 		{
-			if (!File.Exists("SSC/regions.xml"))
+			if (!File.Exists(_filePath))
 			{
-				XmlDocument xmlDoc = new XmlDocument();
-				XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
-				xmlDoc.AppendChild(node);
-				XmlNode root = xmlDoc.CreateElement("Regions");
-				xmlDoc.AppendChild(root);
-				xmlDoc.Save("SSC/regions.xml");
+				string json = JsonConvert.SerializeObject(_regions);
+				using (StreamWriter sw = new StreamWriter(_filePath))
+				{
+					sw.Write(json);
+				}
 			}
 			else
 			{
-				XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
-				//忽略文档里面的注释
-				XmlDocument xmlDoc = new XmlDocument();
-				XmlReader reader = XmlReader.Create("SSC/regions.xml", settings);
-				xmlDoc.Load(reader);
-				XmlNode xn = xmlDoc.SelectSingleNode("Regions");
-				var list = xn.ChildNodes;
-				foreach (var node in list)
-				{
-					XmlElement regionData = (XmlElement)node;
+				string json = File.ReadAllText(_filePath);
+				_regions = JsonConvert.DeserializeObject<RegionInfoData>(json);
+				//XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
+				////忽略文档里面的注释
+				//XmlDocument xmlDoc = new XmlDocument();
+				//XmlReader reader = XmlReader.Create("SSC/regions.xml", settings);
+				//xmlDoc.Load(reader);
+				//XmlNode xn = xmlDoc.SelectSingleNode("Regions");
+				//var list = xn.ChildNodes;
+				//foreach (var node in list)
+				//{
+				//	XmlElement regionData = (XmlElement)node;
 
-					int uuid = int.Parse(regionData.GetAttribute("uuid"));
-					var info = regionData.ChildNodes;
-					Rectangle area = new Rectangle();
-					string name = info.Item(0).InnerText;
-					area.X = Convert.ToInt32(info.Item(1).InnerText);
-					area.Y = Convert.ToInt32(info.Item(2).InnerText);
-					area.Width = Convert.ToInt32(info.Item(3).InnerText);
-					area.Height = Convert.ToInt32(info.Item(4).InnerText);
-					ServerPlayer player = ServerPlayer.FindPlayer(uuid);
-					ServerSideCharacter.RegionManager.CreateNewRegion(area, name, player);
-				}
+				//	int uuid = int.Parse(regionData.GetAttribute("uuid"));
+				//	var info = regionData.ChildNodes;
+				//	Rectangle area = new Rectangle();
+				//	string name = info.Item(0).InnerText;
+				//	area.X = Convert.ToInt32(info.Item(1).InnerText);
+				//	area.Y = Convert.ToInt32(info.Item(2).InnerText);
+				//	area.Width = Convert.ToInt32(info.Item(3).InnerText);
+				//	area.Height = Convert.ToInt32(info.Item(4).InnerText);
+				//	ServerPlayer player = ServerPlayer.FindPlayer(uuid);
+				//	ServerSideCharacter.RegionManager.CreateNewRegion(area, name, player);
+				//}
 			}
 		}
 
 		public void WriteRegionInfo()
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
-				XmlDocument xmlDoc = new XmlDocument();
-				XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
-				xmlDoc.AppendChild(node);
-				XmlNode root = xmlDoc.CreateElement("Regions");
-				xmlDoc.AppendChild(root);
-				foreach (var region in ServerRegions)
+				string json = JsonConvert.SerializeObject(_regions, Newtonsoft.Json.Formatting.Indented);
+				using (StreamWriter sw = new StreamWriter(_filePath))
 				{
-					XmlElement xe = (XmlElement) xmlDoc.CreateNode(XmlNodeType.Element, "Region", null);
-					xe.SetAttribute("hash", region.Owner.UUID.ToString());
-					NodeHelper.CreateNode(xmlDoc, xe, "Name", region.Name);
-					NodeHelper.CreateNode(xmlDoc, xe, "X", region.Area.X.ToString());
-					NodeHelper.CreateNode(xmlDoc, xe, "Y", region.Area.Y.ToString());
-					NodeHelper.CreateNode(xmlDoc, xe, "W", region.Area.Width.ToString());
-					NodeHelper.CreateNode(xmlDoc, xe, "H", region.Area.Height.ToString());
-					root.AppendChild(xe);
+					sw.Write(json);
 				}
-
-				xmlDoc.Save("SSC/regions.xml");
 			}
 
 		}
 
 		public bool CheckRegion(int X, int Y, ServerPlayer player)
 		{
-			lock (ServerRegions)
+			lock (_regions)
 			{
 				Vector2 tilePos = new Vector2(X, Y);
-				foreach (var regions in ServerRegions)
+				foreach (var regions in _regions.ServerRegions)
 				{
 					if (regions.Area.Contains(X, Y) && !regions.Owner.Equals(player) && !regions.SharedOwner.Contains(player.UUID))
 					{
@@ -162,18 +158,19 @@ namespace ServerSideCharacter.Region
 
 		public bool CheckRegionSize(ServerPlayer player, Rectangle area)
 		{
-			return player.PermissionGroup.IsSuperAdmin() || (area.Width < 35 && area.Height < 35);
+			return player.PermissionGroup.IsSuperAdmin() || (area.Width < ServerSideCharacter.Config.MaxRegionWidth
+				&& area.Height < ServerSideCharacter.Config.MaxRegionHeigth);
 		}
 
 		public void ShareRegion(ServerPlayer p, ServerPlayer target, string name)
 		{
-			int index = ServerRegions.FindIndex(region => region.Name == name);
+			int index = _regions.ServerRegions.FindIndex(region => region.Name == name);
 			if (index == -1)
 			{
 				p.SendErrorInfo("Cannot find this region!");
 				return;
 			}
-			var reg = ServerRegions[index];
+			var reg = _regions.ServerRegions[index];
 			reg.SharedOwner.Add(target.UUID);
 			p.SendSuccessInfo("Successfully shared " + reg.Name + " to " + target.Name);
 			target.SendSuccessInfo(p.Name + " shared region " + reg.Name + " with you!");
@@ -181,10 +178,17 @@ namespace ServerSideCharacter.Region
 
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
 		{
-			return !HasNameConflect(name) && ServerRegions.Count < 512
+			return !HasNameConflect(name) && _regions.ServerRegions.Count < ServerSideCharacter.Config.MaxRegions
 			       && CheckPlayerRegionMax(player) && CheckRegionConflict(area)
 			       && CheckRegionSize(player, area);
 
 		}
+
+		public List<RegionInfo> GetList()
+		{
+			return _regions.ServerRegions;
+		}
+
+		
 	}
 }

@@ -85,10 +85,12 @@
     <Compile Include="GroupManage\PermissionInfo.cs" />
     <Compile Include="Items\RegionItem.cs" />
     <Compile Include="Items\TestItem.cs" />
+    <Compile Include="MessageChecker.cs" />
     <Compile Include="ModDataHooks.cs" />
     <Compile Include="Plugin\ModExtraIO.cs" />
     <Compile Include="Plugin\IPluginBase.cs" />
     <Compile Include="Plugin\PluginLoader.cs" />
+    <Compile Include="Region\ChestInfo.cs" />
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />

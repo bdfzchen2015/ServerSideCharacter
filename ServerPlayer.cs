@@ -205,7 +205,7 @@ namespace ServerSideCharacter
 		/// <returns></returns>
 		public bool InAnyRegion(out RegionInfo region)
 		{
-			foreach (var reg in ServerSideCharacter.RegionManager.ServerRegions)
+			foreach (var reg in ServerSideCharacter.RegionManager.GetList())
 			{
 				Rectangle worldArea = new Rectangle(reg.Area.X * 16, reg.Area.Y * 16,
 					reg.Area.Width * 16, reg.Area.Height * 16);

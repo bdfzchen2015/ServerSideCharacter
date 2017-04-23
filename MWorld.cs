@@ -110,6 +110,7 @@ namespace ServerSideCharacter
 					CommandBoardcast.ConsoleError(ex);
 				}
 			}
+			ServerSideCharacter.Config.Save();
 			CommandBoardcast.ConsoleSaveInfo();
 		}
 

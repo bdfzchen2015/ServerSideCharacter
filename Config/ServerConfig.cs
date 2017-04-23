@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using ServerSideCharacter.ServerCommand;
+using ServerSideCharacter.Region;
 
 namespace ServerSideCharacter.Config
 {
@@ -16,6 +17,10 @@ namespace ServerSideCharacter.Config
 	/// </summary>
 	public class ConfigData
 	{
+		public int MaxRegions = 255;
+		public int MaxRegionWidth = 35;
+		public int MaxRegionHeigth = 35;
+		public int PlayerMaxRegions = 3;
 		public List<NetItem> StartUpItems;
 		public List<NetItem> BannedItems;
 
@@ -42,6 +47,39 @@ namespace ServerSideCharacter.Config
 			get
 			{
 				return _configData.StartUpItems;
+			}
+		}
+
+		public int MaxRegionWidth
+		{
+			get
+			{
+				return _configData.MaxRegionWidth;
+			}
+		}
+
+
+		public int MaxRegionHeigth
+		{
+			get
+			{
+				return _configData.MaxRegionHeigth;
+			}
+		}
+
+		public int MaxRegions
+		{
+			get
+			{
+				return _configData.MaxRegions;
+			}
+		}
+
+		public int PlayerMaxRegions
+		{
+			get
+			{
+				return _configData.PlayerMaxRegions;
 			}
 		}
 
@@ -115,7 +153,7 @@ namespace ServerSideCharacter.Config
 			string data = JsonConvert.SerializeObject(_configData, Formatting.Indented);
 			using (StreamWriter sw = new StreamWriter(_configPath))
 			{
-				sw.Write(sw);
+				sw.Write(data);
 			}
 		}
 

@@ -84,7 +84,7 @@ namespace ServerSideCharacter.ServerCommand
 					if (args[0] == "rg")
 					{
 						sb.AppendLine("RegionName\tOwner\tRegion Area");
-						foreach (var region in ServerSideCharacter.RegionManager.ServerRegions)
+						foreach (var region in ServerSideCharacter.RegionManager.GetList())
 						{
 							string line = string.Concat(
 								region.Name,

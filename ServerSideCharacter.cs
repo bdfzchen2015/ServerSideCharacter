@@ -48,6 +48,10 @@ namespace ServerSideCharacter
 
 		public static ServerConfigManager Config;
 
+		public static MessageChecker MessageChecker;
+
+		public static ChestManager ChestManager;
+
 
 
 		public ServerSideCharacter()
@@ -75,161 +79,10 @@ namespace ServerSideCharacter
 
 		public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
 		{
-
-			if (messageType == MessageID.SpawnPlayer)
-			{
-				int id = reader.ReadByte();
-				if (Main.netMode == 2)
-				{
-					id = playerNumber;
-				}
-				Player player = Main.player[id];
-				player.SpawnX = reader.ReadInt16();
-				player.SpawnY = reader.ReadInt16();
-				player.Spawn();
-				if (id == Main.myPlayer && Main.netMode != 2)
-				{
-					Main.ActivePlayerFileData.StartPlayTimer();
-					Player.Hooks.EnterWorld(Main.myPlayer);
-				}
-				if (Main.netMode != 2 || Netplay.Clients[playerNumber].State < 3)
-				{
-					return true;
-				}
-				//如果数据中没有玩家的信息
-				if (!XmlData.Data.ContainsKey(Main.player[playerNumber].name))
-				{
-					try
-					{
-						//创建新的玩家数据
-						ServerPlayer serverPlayer = ServerPlayer.CreateNewPlayer(Main.player[playerNumber]);
-						serverPlayer.PrototypePlayer = Main.player[playerNumber];
-						XmlData.Data.Add(Main.player[playerNumber].name, serverPlayer);
-					}
-					catch (Exception ex)
-					{
-						Console.WriteLine(ex);
-					}
-				}
-				if (Netplay.Clients[playerNumber].State == 3)
-				{
-					Netplay.Clients[playerNumber].State = 10;
-					NetMessage.greetPlayer(playerNumber);
-					NetMessage.buffer[playerNumber].broadcast = true;
-					SyncConnectedPlayer(playerNumber);
-					NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
-					NetMessage.SendData(MessageID.AnglerQuest, playerNumber, -1, Main.player[playerNumber].name, Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
-					return true;
-				}
-				NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
-				return true;
-			}
-			else if (messageType == MessageID.ChatText)
-			{
-				int playerID = reader.ReadByte();
-				if (Main.netMode == 2)
-				{
-					playerID = playerNumber;
-				}
-				Color c = reader.ReadRGB();
-				if (Main.netMode == 2)
-				{
-					c = new Color(255, 255, 255);
-				}
-				string text = reader.ReadString();
-				if (Main.netMode == 1)
-				{
-					string text2 = text.Substring(text.IndexOf('>') + 1);
-					if (playerID < 255)
-					{
-						Main.player[playerID].chatOverhead.NewMessage(text2, Main.chatLength / 2);
-					}
-					Main.NewTextMultiline(text, false, c, -1);
-				}
-				else
-				{
-					Player p = Main.player[playerID];
-					ServerPlayer player = p.GetServerPlayer();
-					Group group = player.PermissionGroup;
-					string prefix = "[" + group.ChatPrefix + "] ";
-					c = group.ChatColor;
-					NetMessage.SendData(25, -1, -1, prefix + "<" + p.name + "> " + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
-					if (Main.dedServ)
-					{
-						Console.WriteLine("{0}<" + Main.player[playerID].name + "> " + text, prefix);
-					}
-				}
-				return true;
-			}
-			else if(messageType == MessageID.TileChange)
-			{
-				if (Main.netMode == 2)
-				{
-					try
-					{
-						Player p = Main.player[playerNumber];
-						ServerPlayer player = p.GetServerPlayer();
-						int action = reader.ReadByte();
-						short X = reader.ReadInt16();
-						short Y = reader.ReadInt16();
-						short type = reader.ReadInt16();
-						int style = reader.ReadByte();
-						if (CheckSpawn(X, Y) && player.PermissionGroup.GroupName != "spadmin")
-						{
-							player.SendErrorInfo("Warning: Spawn is protected from change");
-							NetMessage.SendTileSquare(-1, X, Y, 4);
-							return true;
-						}
-						else if (RegionManager.CheckRegion(X, Y, player))
-						{
-							player.SendErrorInfo("Warning: You don't have permission to change this tile");
-							NetMessage.SendTileSquare(-1, X, Y, 4);
-							return true;
-						}
-						else if (player.PermissionGroup.GroupName == "criminal")
-						{
-							player.SendErrorInfo("Warning: Criminals cannot change tiles");
-							NetMessage.SendTileSquare(-1, X, Y, 4);
-							return true;
-						}
-					}
-					catch(Exception ex)
-					{
-						CommandBoardcast.ConsoleError(ex);
-					}
-
-				}
-			}
-			else if(messageType == MessageID.PlayerControls)
-			{
-				return HandlePlayerItem(reader, playerNumber);
-			}
-			return false;
+			return MessageChecker.CheckMessage(ref messageType, ref reader, playerNumber);
 		}
 
-		private bool HandlePlayerItem(BinaryReader reader, int playerNumber)
-		{
-			if (Main.netMode == 2)
-			{
-				byte plr = reader.ReadByte();
-				BitsByte control = reader.ReadByte();
-				BitsByte pulley = reader.ReadByte();
-				byte item = reader.ReadByte();
-				var pos = reader.ReadVector2();
-				if (pulley[2])
-				{
-					var vel = reader.ReadVector2();
-				}
-				Player player = Main.player[playerNumber];
-				ServerPlayer sPlayer = player.GetServerPlayer();
-				if (Config.IsItemBanned(player.inventory[item], sPlayer))
-				{
-					sPlayer.ApplyLockBuffs();
-					sPlayer.SendErrorInfo("You used a banned item");
-				}
-			}
-			return false;
-		}
+
 
 		public static void SyncConnectedPlayer(int plr)
 		{
@@ -408,14 +261,13 @@ namespace ServerSideCharacter
 
 		public override void PostSetupContent()
 		{
+			MessageChecker = new MessageChecker();
 			if (Main.dedServ)
 			{
 				SetupDefaults();
-				
 				//尝试在tml做插件，但是失败了QaQ
 				//等待你们来修复 /(ㄒoㄒ)/~~
 				//PluginLoader.LoadPlugins();
-
 
 				if (!System.IO.File.Exists("SSC/authcode"))
 				{
@@ -462,9 +314,11 @@ namespace ServerSideCharacter
 							}
 
 						}
+						RegionManager.WriteRegionInfo();
+						Config.Save();
+						Utils.SaveChestInfo();
 						CommandBoardcast.ConsoleMessage("\nOn Server Close: Saved all datas!");
 						Logger.Dispose();
-						RegionManager.WriteRegionInfo();
 					}
 				});
 				CheckDisconnect.Start();
@@ -999,7 +853,7 @@ namespace ServerSideCharacter
 					else if (type == ListType.ListRegions)
 					{
 						sb.AppendLine("RegionName    Owner    Region Area");
-						foreach (var region in RegionManager.ServerRegions)
+						foreach (var region in RegionManager.GetList())
 						{
 							string line = string.Concat(
 								region.Name,
@@ -1060,7 +914,7 @@ namespace ServerSideCharacter
 				else if (type == ListType.ListRegions)
 				{
 					sb.AppendLine("Region Name    Region Area");
-					foreach (var region in RegionManager.ServerRegions)
+					foreach (var region in RegionManager.GetList())
 					{
 						string line = string.Concat(
 							region.Name,
@@ -1226,7 +1080,6 @@ namespace ServerSideCharacter
 		{
 			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
-			Config = new ServerConfigManager();
 
 			//物品信息读取方式添加
 			ModDataHooks.BuildItemDataHook("prefix",
@@ -1251,6 +1104,8 @@ namespace ServerSideCharacter
 			{
 				Directory.CreateDirectory("SSC");
 			}
+			Config = new ServerConfigManager();
+			ChestManager = Utils.LoadChestInfo();
 			if (!System.IO.File.Exists("SSC/datas.xml"))
 			{
 				string save = Path.Combine("SSC", "datas.xml");

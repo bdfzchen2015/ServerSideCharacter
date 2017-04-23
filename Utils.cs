@@ -1,10 +1,13 @@
 ﻿using ServerSideCharacter.Config;
+using ServerSideCharacter.Region;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Terraria;
 using Terraria.ModLoader;
+using Newtonsoft.Json;
 
 namespace ServerSideCharacter
 {
@@ -63,6 +66,29 @@ namespace ServerSideCharacter
 				item.prefix = (byte)netItem.Prefix;
 				return item;
 			}
+		}
+
+		public static ChestManager LoadChestInfo()
+		{
+			if (!File.Exists("SSC/chest.json"))
+			{
+				return new ChestManager().Initialize();
+			}
+			else
+			{
+				ChestManager manager;
+				using(StreamReader sr = new StreamReader("SSC/chest.json"))
+				{
+					string data = sr.ReadToEnd();
+					manager = JsonConvert.DeserializeObject<ChestManager>(data);
+				}
+				return manager;
+			}
+		}
+		public static void SaveChestInfo()
+		{
+			string data = JsonConvert.SerializeObject(ServerSideCharacter.ChestManager, Formatting.None);
+			File.WriteAllText("SSC/chest.json", data);
 		}
 	}
 }
