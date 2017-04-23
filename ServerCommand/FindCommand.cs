@@ -27,7 +27,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/find <type(-n/-i)> <string>"; }
+			get { return "/find <type(-n/-i/-p)> <string>"; }
 		}
 
 		public override void Action(CommandCaller caller, string input, string[] args)
@@ -64,9 +64,18 @@ namespace ServerSideCharacter.ServerCommand
 				}
 				Main.NewText("Total Find: " + enumerable.Count());
 			}
+			else if(type == "-p")
+			{ 
+				var players = Main.player.Where(p => p.active && 
+					p.name.ToLower().Contains(tryToFind.ToLower())).ToList();
+				foreach(var player in players)
+				{
+					Main.NewText(player.name + " -> ID: " + player.whoAmI, 255, 255, 50);
+				}
+			}
 			else
 			{
-				Main.NewText("Invalid Sytanx! Usage: /find <type(-n/-i)> <string>", 255, 25, 0);
+				Main.NewText("Invalid Sytanx! Usage: /find <type(-n/-i/-p)> <string>", 255, 25, 0);
 			}
 		}
 	}

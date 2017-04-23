@@ -17,10 +17,12 @@ namespace ServerSideCharacter.Config
 	public class ConfigData
 	{
 		public List<NetItem> StartUpItems;
+		public List<NetItem> BannedItems;
 
 		public ConfigData()
 		{
 			StartUpItems = new List<NetItem>();
+			BannedItems = new List<NetItem>();
 		}
 	}
 
@@ -65,6 +67,7 @@ namespace ServerSideCharacter.Config
 				AddToStartInv(ItemID.ShadewoodSword, 82);
 				AddToStartInv(ItemID.IronPickaxe, 83);
 				AddToStartInv(ItemID.IronAxe, 81);
+				AddToBannedItem(ItemID.IronAxe);
 				string data = JsonConvert.SerializeObject(_configData, Formatting.Indented);
 				using(StreamWriter sw = new StreamWriter(_configPath))
 				{
@@ -102,12 +105,47 @@ namespace ServerSideCharacter.Config
 			_configData.StartUpItems.Add(Utils.ToNetItem(item));
 		}
 
+		private void AddToBannedItem(int type)
+		{
+			_configData.BannedItems.Add(Utils.ToNetItem(type));
+		}
+
 		public void Save()
 		{
 			string data = JsonConvert.SerializeObject(_configData, Formatting.Indented);
 			using (StreamWriter sw = new StreamWriter(_configPath))
 			{
 				sw.Write(sw);
+			}
+		}
+
+		public bool IsItemBanned(Item item, ServerPlayer player)
+		{
+			if(player.PermissionGroup.GroupName == "spadmin")
+			{
+				return false;
+			}
+			bool banned = false;
+			if(_configData.BannedItems.Any(nitem => nitem.TheSameItem(item)))
+			{
+				banned = true;
+			}
+			return banned;
+		}
+
+		public void ToggleItemBan(int type, ServerPlayer player)
+		{
+			Item item = new Item();
+			item.netDefaults(type);
+			if (_configData.BannedItems.Any(nitem => nitem.TheSameItem(item)))
+			{
+				_configData.BannedItems.RemoveAll(nitem => nitem.TheSameItem(item));
+				player.SendSuccessInfo("Now the item " + item.name + " is unbanned!");
+			}
+			else
+			{
+				_configData.BannedItems.Add(Utils.ToNetItem(item));
+				player.SendSuccessInfo("You have successfully banned " + item.name + ".");
 			}
 		}
 	}

@@ -19,6 +19,7 @@
 		SummonCommand,
 		TPHereCommand,
 		ButcherCommand,
+		BanItemCommand,
 		TPCommand,
 		TimeCommand,
 		ToggleExpert,

@@ -154,6 +154,15 @@ namespace ServerSideCharacter
 			p.Send();
 		}
 
+		public static void SendBanItemCommand(int type)
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.BanItemCommand);
+			p.Write((byte)Main.myPlayer);
+			p.Write(type);
+			p.Send();
+		}
+
 		public static void SendTeleportCommand(int plr, int target)
 		{
 			string name = Main.player[plr].name;

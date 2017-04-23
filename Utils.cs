@@ -35,6 +35,13 @@ namespace ServerSideCharacter
 			}
 		}
 
+		public static NetItem ToNetItem(int type)
+		{
+			Item item = new Item();
+			item.netDefaults(type);
+			return ToNetItem(item);
+		}
+
 		public static Item GetItemFromNet(NetItem netItem)
 		{
 			if(netItem.IsModItem)

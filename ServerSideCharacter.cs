@@ -32,7 +32,7 @@ namespace ServerSideCharacter
 
 		public static Thread CheckDisconnect;
 
-		public static string APIVersion = "V0.2.2";
+		public static string APIVersion = "V0.3";
 
 		public static List<Command> Commands = new List<Command>();
 
@@ -200,9 +200,36 @@ namespace ServerSideCharacter
 
 				}
 			}
+			else if(messageType == MessageID.PlayerControls)
+			{
+				return HandlePlayerItem(reader, playerNumber);
+			}
 			return false;
 		}
 
+		private bool HandlePlayerItem(BinaryReader reader, int playerNumber)
+		{
+			if (Main.netMode == 2)
+			{
+				byte plr = reader.ReadByte();
+				BitsByte control = reader.ReadByte();
+				BitsByte pulley = reader.ReadByte();
+				byte item = reader.ReadByte();
+				var pos = reader.ReadVector2();
+				if (pulley[2])
+				{
+					var vel = reader.ReadVector2();
+				}
+				Player player = Main.player[playerNumber];
+				ServerPlayer sPlayer = player.GetServerPlayer();
+				if (Config.IsItemBanned(player.inventory[item], sPlayer))
+				{
+					sPlayer.ApplyLockBuffs();
+					sPlayer.SendErrorInfo("You used a banned item");
+				}
+			}
+			return false;
+		}
 
 		public static void SyncConnectedPlayer(int plr)
 		{
@@ -384,6 +411,7 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				SetupDefaults();
+				
 				//尝试在tml做插件，但是失败了QaQ
 				//等待你们来修复 /(ㄒoㄒ)/~~
 				//PluginLoader.LoadPlugins();
@@ -883,6 +911,10 @@ namespace ServerSideCharacter
 				{
 					RegionShare(reader, whoAmI);
 				}
+				else if (msgType == SSCMessageType.BanItemCommand)
+				{
+					BanItem(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -891,6 +923,23 @@ namespace ServerSideCharacter
 			catch(Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
+			}
+		}
+
+		private void BanItem(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			int type = reader.ReadInt32();
+			Player p = Main.player[plr];
+			ServerPlayer player = XmlData.Data[p.name];
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("ban-item"))
+			{
+				Config.ToggleItemBan(type, player);
+			}
+			else
+			{
+				player.SendErrorInfo("You don't have the permission to access this command.");
 			}
 		}
 

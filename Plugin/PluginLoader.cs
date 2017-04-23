@@ -34,7 +34,7 @@ namespace ServerSideCharacter.Plugin
 			}
 			catch (Exception ex)
 			{
-				Console.Write(ex.Message);
+				Console.Write(ex);
 			}
 		}
 

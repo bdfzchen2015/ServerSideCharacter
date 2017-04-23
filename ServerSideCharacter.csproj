@@ -87,11 +87,13 @@
     <Compile Include="Items\TestItem.cs" />
     <Compile Include="ModDataHooks.cs" />
     <Compile Include="Plugin\ModExtraIO.cs" />
-    <Compile Include="Plugin\PluginBase.cs" />
+    <Compile Include="Plugin\IPluginBase.cs" />
     <Compile Include="Plugin\PluginLoader.cs" />
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
+    <Compile Include="ServerCommand\ItemBanCommand.cs" />
+    <Compile Include="ServerCommand\InfoCommand.cs" />
     <Compile Include="ServerCommand\KeyCommand.cs" />
     <Compile Include="ServerCommand\CommandDelegate.cs" />
     <Compile Include="ServerCommand\ResetCommand.cs" />
