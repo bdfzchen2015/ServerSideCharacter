@@ -25,6 +25,7 @@ namespace ServerSideCharacter
 				toRet.Prefix = item.prefix;
 				toRet.ModName = nameSpace;
 				toRet.ItemName = itemName;
+				toRet.IsFavorite = item.favorited;
 				return toRet;
 			}
 			else
@@ -34,6 +35,7 @@ namespace ServerSideCharacter
 				toRet.Prefix = item.prefix;
 				toRet.ModName = "";
 				toRet.ItemName = "";
+				toRet.IsFavorite = item.favorited;
 				return toRet;
 			}
 		}
@@ -57,6 +59,7 @@ namespace ServerSideCharacter
 				Item item = new Item();
 				item.netDefaults(target_mod.First().ItemType(netItem.ItemName));
 				item.prefix = (byte)netItem.Prefix;
+				item.favorited = netItem.IsFavorite;
 				return item;
 			}
 			else
@@ -64,6 +67,7 @@ namespace ServerSideCharacter
 				Item item = new Item();
 				item.netDefaults(netItem.ItemID);
 				item.prefix = (byte)netItem.Prefix;
+				item.favorited = netItem.IsFavorite;
 				return item;
 			}
 		}

@@ -769,6 +769,10 @@ namespace ServerSideCharacter
 				{
 					BanItem(reader, whoAmI);
 				}
+				else if (msgType == SSCMessageType.GenResources)
+				{
+					GenResources(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -777,6 +781,37 @@ namespace ServerSideCharacter
 			catch(Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
+			}
+		}
+
+		private void GenResources(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			GenerationType type = (GenerationType)reader.ReadByte();
+			Player p = Main.player[plr];
+			ServerPlayer player = XmlData.Data[p.name];
+			if (!player.IsLogin) return;
+			if (player.PermissionGroup.HasPermission("gen-res"))
+			{
+				switch (type)
+				{
+					case GenerationType.Tree:
+						WorldGen.AddTrees();
+						player.SendSuccessInfo("Generated trees!");
+						break;
+					case GenerationType.Chest:
+						break;
+					case GenerationType.Ore:
+						break;
+					case GenerationType.Trap:
+						break;
+					default:
+						break;
+				}
+			}
+			else
+			{
+				player.SendErrorInfo("You don't have the permission to access this command.");
 			}
 		}
 

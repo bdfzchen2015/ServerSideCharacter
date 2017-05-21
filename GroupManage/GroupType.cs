@@ -54,7 +54,8 @@ namespace ServerSideCharacter.GroupManage
 					new PermissionInfo("hardmode", "toggle hardmode"),
 					new PermissionInfo("region-share", "Share regions"),
 					new PermissionInfo("ban-item", "Ban certain item"),
-					new PermissionInfo("chest", "Open locked chest")
+					new PermissionInfo("chest", "Open locked chest"),
+					new PermissionInfo("gen-res", "Generate world resources")
 				}
 			};
 			AddToGroup(admin);

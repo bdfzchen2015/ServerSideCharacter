@@ -32,6 +32,15 @@
 		TeleportPalyer,
 		ToggleGodMode,
 		SetGodMode,
-		ServerSideCharacter
+		ServerSideCharacter,
+		GenResources
+	}
+
+	public enum GenerationType
+	{
+		Tree,
+		Chest,
+		Ore,
+		Trap
 	}
 }

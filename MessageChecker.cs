@@ -43,7 +43,7 @@ namespace ServerSideCharacter
 				{ MessageID.ChatText, ChatText },
 				{ MessageID.TileChange, TileChange },
 				{ MessageID.PlayerControls, PlayerControls },
-				{ MessageID.RequestChestOpen, RequestChestOpen }
+				//{ MessageID.RequestChestOpen, RequestChestOpen }
 			};
 		}
 

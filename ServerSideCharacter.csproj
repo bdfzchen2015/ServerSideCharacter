@@ -94,6 +94,7 @@
     <Compile Include="Region\RegionInfo.cs" />
     <Compile Include="Region\RegionPermission.cs" />
     <Compile Include="Region\RegionManager.cs" />
+    <Compile Include="ServerCommand\GenCommand.cs" />
     <Compile Include="ServerCommand\ItemBanCommand.cs" />
     <Compile Include="ServerCommand\InfoCommand.cs" />
     <Compile Include="ServerCommand\KeyCommand.cs" />

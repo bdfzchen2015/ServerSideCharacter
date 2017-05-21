@@ -12,6 +12,7 @@ namespace ServerSideCharacter.Config
 		public int ItemID;
 		public int Prefix;
 		public bool IsModItem;
+		public bool IsFavorite;
 		public string ModName;
 		public string ItemName;
 

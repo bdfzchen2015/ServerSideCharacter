@@ -292,5 +292,14 @@ namespace ServerSideCharacter
 			p.Write((byte)Main.myPlayer);
 			p.Send();
 		}
+
+		public static void SendGeneration(GenerationType type)
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.GenResources);
+			p.Write((byte)Main.myPlayer);
+			p.Write((byte)type);
+			p.Send();
+		}
 	}
 }
