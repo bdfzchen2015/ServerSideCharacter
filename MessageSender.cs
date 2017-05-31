@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
 using Terraria;
 using Terraria.ModLoader;
@@ -301,5 +302,32 @@ namespace ServerSideCharacter
 			p.Write((byte)type);
 			p.Send();
 		}
-	}
+        public static void SendChestCommand(ChestManager.Pending pending, int plr, string friendName = null)
+        {
+            try
+            {
+                ModPacket pack = ServerSideCharacter.Instance.GetPacket();
+                pack.Write((int)SSCMessageType.ChestCommand);
+                pack.Write((byte)plr);
+                pack.Write((int)pending);
+                if (pending.HasFlag(ChestManager.Pending.AddFriend) || pending.HasFlag(ChestManager.Pending.RemoveFriend))
+                {
+                    Player friend = Utils.TryGetPlayer(friendName);
+                    if (friend == null || !friend.active)
+                    {
+                        Main.NewText("Player not found", Color.Red);
+                        return;
+                    }
+                    pack.Write((byte)friend.whoAmI);
+
+                }
+                pack.Send();
+            }
+            catch (System.Exception ex)
+            {
+                Main.NewText(ex.ToString(), Color.Cyan);
+                throw ex;
+            }
+        }
+    }
 }

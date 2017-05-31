@@ -13,7 +13,18 @@ namespace ServerSideCharacter
 {
 	public static class Utils
 	{
-		public static NetItem ToNetItem(Item item)
+        public static Player TryGetPlayer(string name)
+        {
+            try
+            {
+                return Main.player.ToList().Find(player => player != null && player.active && player.name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        public static NetItem ToNetItem(Item item)
 		{
 			NetItem toRet = new NetItem();
 			if (item.modItem != null)

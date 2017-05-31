@@ -773,7 +773,53 @@ namespace ServerSideCharacter
 				{
 					GenResources(reader, whoAmI);
 				}
-				else
+                else if (msgType == SSCMessageType.ChestCommand)
+                {
+                    int plr = reader.ReadByte();
+                    ServerPlayer player = Main.player[plr].GetServerPlayer();
+
+                    ChestManager.Pending pending = (ChestManager.Pending)reader.ReadInt32();
+                    ServerPlayer friend = null;
+                    switch (pending)
+                    {
+                        case ChestManager.Pending.AddFriend:
+                            friend = Main.player[reader.ReadByte()].GetServerPlayer();
+                            try
+                            {
+                                player.SendInfo(friend.Name);
+                            }
+                            catch (Exception ex)
+                            {
+
+                                player.SendErrorInfo(ex.ToString());
+                            }
+
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.AddFriend, friend);
+                            break;
+                        case ChestManager.Pending.RemoveFriend:
+                            friend = Main.player[reader.ReadByte()].GetServerPlayer();
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.RemoveFriend, friend);
+                            break;
+                        case ChestManager.Pending.Public:
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.Public);
+                            break;
+                        case ChestManager.Pending.UnPublic:
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.UnPublic);
+                            break;
+                        case ChestManager.Pending.Protect:
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.Protect);
+                            break;
+                        case ChestManager.Pending.DeProtect:
+                            ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.DeProtect);
+                            break;
+                        default:
+                            Console.WriteLine($"[ChestCommand] Invalid argument!");
+                            return;
+                    }
+                    player.SendSuccessInfo("Open a chest do apply the changes");
+
+                }
+                else
 				{
 					Console.WriteLine("Unexpected message type!");
 				}
