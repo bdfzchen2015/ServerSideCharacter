@@ -42,15 +42,6 @@ namespace ServerSideCharacter.Region
 		public ServerPlayer GetFriendP(ServerPlayer player)
 		{
 			int uuid = friendPendings.ContainsKey(player.UUID) == true ? friendPendings[player.UUID] : -1;
-			try
-			{
-				player.SendInfo(uuid.ToString());
-			}
-			catch (Exception ex)
-			{
-				player.SendErrorInfo(ex.ToString());
-			}
-			Console.WriteLine(uuid);
 			return ServerPlayer.FindPlayer(uuid);
 
 		}

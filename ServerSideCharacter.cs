@@ -131,7 +131,7 @@ namespace ServerSideCharacter
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
-					//增加限制性debuff
+					//����������debuff
 					player.ApplyLockBuffs();
 				}
 
@@ -265,8 +265,8 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				SetupDefaults();
-				//尝试在tml做插件，但是失败了QaQ
-				//等待你们来修复 /(ㄒoㄒ)/~~
+				//������tml�����������ʧ����QaQ
+				//�ȴ��������޸� /(��o��)/~~
 				//PluginLoader.LoadPlugins();
 
 				if (!System.IO.File.Exists("SSC/authcode"))
@@ -785,16 +785,6 @@ namespace ServerSideCharacter
 					{
 						case ChestManager.Pending.AddFriend:
 							friend = Main.player[reader.ReadByte()].GetServerPlayer();
-							try
-							{
-								player.SendInfo(friend.Name);
-							}
-							catch (Exception ex)
-							{
-
-								player.SendErrorInfo(ex.ToString());
-							}
-
 							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.AddFriend, friend);
 							break;
 						case ChestManager.Pending.RemoveFriend:
@@ -1163,7 +1153,7 @@ namespace ServerSideCharacter
 			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
 
-			//物品信息读取方式添加
+			//��Ʒ��Ϣ��ȡ��ʽ���
 			ModDataHooks.BuildItemDataHook("prefix",
 				(item) => item.prefix.ToString(),
 				(str, item) =>
