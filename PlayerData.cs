@@ -162,7 +162,7 @@ namespace ServerSideCharacter
 					}
 					for (int id = 0; id < player.bank3.item.Length; id++)
 					{
-						TryReadItemInfo(modTable, info, player, ref i, id, ref player.bank2.item);
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.bank3.item);
 					}
 
 					Data.Add(player.Name, player);

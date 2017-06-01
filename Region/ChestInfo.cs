@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -105,7 +105,7 @@ namespace ServerSideCharacter.Region
 		public bool IsOwner(int chestID, ServerPlayer player)
 		{
 			var id = ChestInfo[chestID].OwnerID;
-			return id == player.UUID;
+			return id == player.UUID || player.PermissionGroup.HasPermission("chest");
 		}
 		public bool IsPublic(int chestID)
 		{

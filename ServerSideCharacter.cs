@@ -1153,7 +1153,7 @@ namespace ServerSideCharacter
 			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
 
-			//��Ʒ��Ϣ��ȡ��ʽ���
+			//��Ʒ��Ϣ��ȡ��ʽ���?
 			ModDataHooks.BuildItemDataHook("prefix",
 				(item) => item.prefix.ToString(),
 				(str, item) =>
