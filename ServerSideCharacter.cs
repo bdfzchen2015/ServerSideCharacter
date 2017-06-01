@@ -131,7 +131,7 @@ namespace ServerSideCharacter
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
-					//Ôö¼ÓÏÞÖÆÐÔdebuff
+					//å¢žåŠ é™åˆ¶æ€§debuff
 					player.ApplyLockBuffs();
 				}
 
@@ -265,8 +265,8 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				SetupDefaults();
-				//³¢ÊÔÔÚtml×ö²å¼þ£¬µ«ÊÇÊ§°ÜÁËQaQ
-				//µÈ´ýÄãÃÇÀ´ÐÞ¸´ /(¨Òo¨Ò)/~~
+				//å°è¯•åœ¨tmlåšæ’ä»¶ï¼Œä½†æ˜¯å¤±è´¥äº†QaQ
+				//ç­‰å¾…ä½ ä»¬æ¥ä¿®å¤ /(ã„’oã„’)/~~
 				//PluginLoader.LoadPlugins();
 
 				if (!System.IO.File.Exists("SSC/authcode"))
@@ -1163,7 +1163,7 @@ namespace ServerSideCharacter
 			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
 
-			//ÎïÆ·ÐÅÏ¢¶ÁÈ¡·½Ê½Ìí¼Ó
+			//ç‰©å“ä¿¡æ¯è¯»å–æ–¹å¼æ·»åŠ 
 			ModDataHooks.BuildItemDataHook("prefix",
 				(item) => item.prefix.ToString(),
 				(str, item) =>

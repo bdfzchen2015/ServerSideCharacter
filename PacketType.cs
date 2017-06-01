@@ -34,8 +34,8 @@
 		SetGodMode,
 		ServerSideCharacter,
 		GenResources,
-        ChestCommand
-    }
+		ChestCommand
+	}
 
 	public enum GenerationType
 	{
