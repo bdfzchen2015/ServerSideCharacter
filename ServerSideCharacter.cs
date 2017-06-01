@@ -67,9 +67,9 @@ namespace ServerSideCharacter
 
 		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, string text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
 		{
-			if(msgType == MessageID.ChatText)
+			if (msgType == MessageID.ChatText)
 			{
-				if(text[0] == '/')
+				if (text[0] == '/')
 				{
 					return true;
 				}
@@ -131,7 +131,7 @@ namespace ServerSideCharacter
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
-					//Ôö¼ÓÏÞÖÆÐÔdebuff
+					//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½debuff
 					player.ApplyLockBuffs();
 				}
 
@@ -155,8 +155,8 @@ namespace ServerSideCharacter
 				{
 					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
 				}
-				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].trashItem.name, 
-					plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + 
+				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].trashItem.name,
+					plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length +
 					Main.player[plr].miscEquips.Length + 7, Main.player[plr].trashItem.prefix);
 				MessageSender.SyncPlayerBanks(plr, -1, -1);
 				PlayerHooks.SyncPlayer(Main.player[plr], toWho, fromWho, false);
@@ -265,8 +265,8 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				SetupDefaults();
-				//³¢ÊÔÔÚtml×ö²å¼þ£¬µ«ÊÇÊ§°ÜÁËQaQ
-				//µÈ´ýÄãÃÇÀ´ÐÞ¸´ /(¨Òo¨Ò)/~~
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tmlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½ï¿½ï¿½QaQ
+				//ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ /(ï¿½ï¿½oï¿½ï¿½)/~~
 				//PluginLoader.LoadPlugins();
 
 				if (!System.IO.File.Exists("SSC/authcode"))
@@ -509,7 +509,7 @@ namespace ServerSideCharacter
 				else if (msgType == SSCMessageType.ListCommand)
 				{
 					List(reader, whoAmI);
-					
+
 				}
 				else if (msgType == SSCMessageType.RequestSetGroup)
 				{
@@ -634,7 +634,7 @@ namespace ServerSideCharacter
 						if (!set)
 						{
 							double time1 = GetTime();
-							player.SendInfo(string.Format("The current time is {0}:{1:D2}.", 
+							player.SendInfo(string.Format("The current time is {0}:{1:D2}.",
 								(int)Math.Floor(time1), (int)Math.Round((time1 % 1.0) * 60.0)));
 						}
 						else
@@ -653,13 +653,13 @@ namespace ServerSideCharacter
 					}
 
 				}
-				else if(msgType == SSCMessageType.SendTimeSet)
+				else if (msgType == SSCMessageType.SendTimeSet)
 				{
 					double time = reader.ReadDouble();
 					bool day = reader.ReadBoolean();
 					short sunY = reader.ReadInt16();
 					short moonY = reader.ReadInt16();
-					if(Main.netMode == 1)
+					if (Main.netMode == 1)
 					{
 						Main.time = time;
 						Main.dayTime = day;
@@ -667,7 +667,7 @@ namespace ServerSideCharacter
 						Main.moonModY = moonY;
 					}
 				}
-				else if(msgType == SSCMessageType.HelpCommand)
+				else if (msgType == SSCMessageType.HelpCommand)
 				{
 					int plr = reader.ReadByte();
 					StringBuilder sb = new StringBuilder();
@@ -675,7 +675,7 @@ namespace ServerSideCharacter
 					Player p = Main.player[plr];
 					ServerPlayer player = XmlData.Data[p.name];
 
-					foreach(var command in Commands)
+					foreach (var command in Commands)
 					{
 						if (player.PermissionGroup.HasPermission(command.Name))
 						{
@@ -684,7 +684,7 @@ namespace ServerSideCharacter
 					}
 					player.SendInfo(sb.ToString());
 				}
-				else if(msgType == SSCMessageType.RequestItem)
+				else if (msgType == SSCMessageType.RequestItem)
 				{
 					int plr = reader.ReadByte();
 					int type = reader.ReadInt32();
@@ -712,36 +712,36 @@ namespace ServerSideCharacter
 						Main.LocalPlayer.Teleport(dest);
 					}
 				}
-				else if(msgType == SSCMessageType.RequestAuth)
+				else if (msgType == SSCMessageType.RequestAuth)
 				{
 					int plr = reader.ReadByte();
 					string code = reader.ReadString();
 					Player p = Main.player[plr];
 					CommandBoardcast.ConsoleMessage(p.name + " has tried to auth with code " + code);
-					if(code.Equals(AuthCode))
+					if (code.Equals(AuthCode))
 					{
 						ServerPlayer targetPlayer = p.GetServerPlayer();
 						targetPlayer.PermissionGroup = GroupType.Groups["spadmin"];
 						targetPlayer.SendSuccessInfo("You have successfully auth as SuperAdmin");
 					}
 				}
-				else if(msgType == SSCMessageType.SummonCommand)
+				else if (msgType == SSCMessageType.SummonCommand)
 				{
 					SummonNPC(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.ToggleGodMode)
+				else if (msgType == SSCMessageType.ToggleGodMode)
 				{
 					ToggleGodMode(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.SetGodMode)
+				else if (msgType == SSCMessageType.SetGodMode)
 				{
 					Main.LocalPlayer.GetModPlayer<MPlayer>(this).GodMode = reader.ReadBoolean();
 				}
-				else if(msgType == SSCMessageType.TPHereCommand)
+				else if (msgType == SSCMessageType.TPHereCommand)
 				{
 					TPHere(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.RegionCreateCommand)
+				else if (msgType == SSCMessageType.RegionCreateCommand)
 				{
 					RegionCreate(reader, whoAmI);
 				}
@@ -749,19 +749,19 @@ namespace ServerSideCharacter
 				{
 					RegionRemove(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.ServerSideCharacter)
+				else if (msgType == SSCMessageType.ServerSideCharacter)
 				{
 					Main.ServerSideCharacter = true;
 				}
-				else if(msgType == SSCMessageType.ToggleExpert)
+				else if (msgType == SSCMessageType.ToggleExpert)
 				{
 					ToggleExpert(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.ToggleHardMode)
+				else if (msgType == SSCMessageType.ToggleHardMode)
 				{
 					ToggleHardmode(reader, whoAmI);
 				}
-				else if(msgType == SSCMessageType.RegionShareCommand)
+				else if (msgType == SSCMessageType.RegionShareCommand)
 				{
 					RegionShare(reader, whoAmI);
 				}
@@ -773,12 +773,49 @@ namespace ServerSideCharacter
 				{
 					GenResources(reader, whoAmI);
 				}
+				else if (msgType == SSCMessageType.ChestCommand)
+				{
+					int plr = reader.ReadByte();
+					ServerPlayer player = Main.player[plr].GetServerPlayer();
+					if (!player.IsLogin)
+						return;
+					ChestManager.Pending pending = (ChestManager.Pending)reader.ReadInt32();
+					ServerPlayer friend = null;
+					switch (pending)
+					{
+						case ChestManager.Pending.AddFriend:
+							friend = Main.player[reader.ReadByte()].GetServerPlayer();
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.AddFriend, friend);
+							break;
+						case ChestManager.Pending.RemoveFriend:
+							friend = Main.player[reader.ReadByte()].GetServerPlayer();
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.RemoveFriend, friend);
+							break;
+						case ChestManager.Pending.Public:
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.Public);
+							break;
+						case ChestManager.Pending.UnPublic:
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.UnPublic);
+							break;
+						case ChestManager.Pending.Protect:
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.Protect);
+							break;
+						case ChestManager.Pending.DeProtect:
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.DeProtect);
+							break;
+						default:
+							Console.WriteLine($"[ChestCommand] Invalid argument!");
+							return;
+					}
+					player.SendSuccessInfo("Open a chest do apply the changes");
+
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
 			}
@@ -900,7 +937,7 @@ namespace ServerSideCharacter
 							sb.AppendLine(line);
 						}
 					}
-					else if(type == ListType.ListGroups)
+					else if (type == ListType.ListGroups)
 					{
 						int i = 1;
 						foreach (var group in GroupType.Groups)
@@ -908,7 +945,7 @@ namespace ServerSideCharacter
 							sb.AppendLine(string.Format("{0}. Group Name: {1}  Chat Prefix: {2}\n   Permissions:",
 								i, group.Key, group.Value.ChatPrefix));
 							sb.AppendLine("{");
-							foreach(var perm in group.Value.permissions)
+							foreach (var perm in group.Value.permissions)
 							{
 								sb.AppendLine("  " + perm.Name);
 							}
@@ -959,7 +996,7 @@ namespace ServerSideCharacter
 						sb.AppendLine(line);
 					}
 				}
-				else if(type == ListType.ListGroups)
+				else if (type == ListType.ListGroups)
 				{
 					sb.AppendLine("Your Permissions: ");
 					sb.AppendLine("{");
@@ -1116,7 +1153,7 @@ namespace ServerSideCharacter
 			Logger = new ErrorLogger("ServerLog.txt", false);
 			GroupType.SetupGroups();
 
-			//ÎïÆ·ÐÅÏ¢¶ÁÈ¡·½Ê½Ìí¼Ó
+			//ï¿½ï¿½Æ·ï¿½ï¿½Ï¢ï¿½ï¿½È¡ï¿½ï¿½Ê½ï¿½ï¿½ï¿½
 			ModDataHooks.BuildItemDataHook("prefix",
 				(item) => item.prefix.ToString(),
 				(str, item) =>
@@ -1177,7 +1214,7 @@ namespace ServerSideCharacter
 
 		public static void SummonNPC(BinaryReader reader, int whoAmI)
 		{
-			
+
 			int plr = reader.ReadByte();
 			int type = reader.ReadInt32();
 			int number = reader.ReadInt32();
@@ -1214,7 +1251,7 @@ namespace ServerSideCharacter
 					player.SendErrorInfo("You don't have the permission to this command.");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
 			}

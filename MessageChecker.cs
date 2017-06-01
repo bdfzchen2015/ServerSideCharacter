@@ -43,7 +43,7 @@ namespace ServerSideCharacter
 				{ MessageID.ChatText, ChatText },
 				{ MessageID.TileChange, TileChange },
 				{ MessageID.PlayerControls, PlayerControls },
-				//{ MessageID.RequestChestOpen, RequestChestOpen }
+				{ MessageID.RequestChestOpen, RequestChestOpen }
 			};
 		}
 
@@ -56,18 +56,98 @@ namespace ServerSideCharacter
 				int id = Chest.FindChest(x, y);
 				Player player = Main.player[playerNumber];
 				ServerPlayer sPlayer = player.GetServerPlayer();
-				if (ServerSideCharacter.ChestManager.IsNull(id))
+				ChestManager.Pending pending = ServerSideCharacter.ChestManager.GetPendings(sPlayer);
+				switch (pending)
 				{
-					ServerSideCharacter.ChestManager.SetOwner(id, playerNumber);
+					case ChestManager.Pending.AddFriend:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							ServerPlayer friend = ServerSideCharacter.ChestManager.GetFriendP(sPlayer);
+							ServerSideCharacter.ChestManager.AddFriend(id, friend);
+							sPlayer.SendSuccessInfo($"{friend.Name} can open this chest now");
+						}
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
+					case ChestManager.Pending.RemoveFriend:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							ServerPlayer friend = ServerSideCharacter.ChestManager.GetFriendP(sPlayer);
+							ServerSideCharacter.ChestManager.RemoveFriend(id, friend);
+							sPlayer.SendSuccessInfo($"{friend.Name} can't open this chest now");
+						}
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
+					case ChestManager.Pending.Public:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							if (!ServerSideCharacter.ChestManager.IsPublic(id))
+							{
+								ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, true);
+								sPlayer.SendSuccessInfo("This chest is now Public");
+							}
+							else
+								sPlayer.SendErrorInfo("This chest is already public");
+
+						}
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
+					case ChestManager.Pending.UnPublic:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							if (ServerSideCharacter.ChestManager.IsPublic(id))
+							{
+								ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, false);
+								sPlayer.SendSuccessInfo("This chest is not Public anymore");
+							}
+							else
+								sPlayer.SendErrorInfo("This chest is not public");
+						}
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
+					case ChestManager.Pending.Protect:
+						if (ServerSideCharacter.ChestManager.IsNull(id))
+						{
+							ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, false);
+							sPlayer.SendSuccessInfo("You now own this chest");
+						}
+						else if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+							sPlayer.SendErrorInfo("You already protected this chest");
+						else
+							sPlayer.SendErrorInfo("This chest as already been protected by other player");
+						break;
+					case ChestManager.Pending.DeProtect:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							ServerSideCharacter.ChestManager.SetOwner(id, -1, false);
+							sPlayer.SendSuccessInfo("This chest is no longer yours");
+						}
+						else if (ServerSideCharacter.ChestManager.IsNull(id))
+							sPlayer.SendErrorInfo("This chest don't have a owner");
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
+					default:
+						if (ServerSideCharacter.ChestManager.IsNull(id))
+						{
+							ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, false);
+							sPlayer.SendSuccessInfo("You now own this chest");
+						}
+						else if (ServerSideCharacter.ChestManager.CanOpen(id, sPlayer))
+						{
+							return false;
+						}
+						else
+						{
+							sPlayer.SendErrorInfo("You cannot open this chest");
+						}
+						break;
 				}
-				else if (ServerSideCharacter.ChestManager.CanOpen(id, sPlayer))
-				{
-					return false;
-				}
-				else
-				{
-					sPlayer.SendErrorInfo("You cannot open this chest");
-				}
+				ServerSideCharacter.ChestManager.RemovePending(sPlayer, pending);
+
 			}
 			return true;
 		}

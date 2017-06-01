@@ -49,8 +49,8 @@ namespace ServerSideCharacter
 		public Chest bank3 = new Chest(true);
 
 		public Player PrototypePlayer { get; set; }
-        
-        public RegionInfo EnteredRegion { get; set; }
+		
+		public RegionInfo EnteredRegion { get; set; }
 
 		public List<RegionInfo> ownedregion = new List<RegionInfo>();
 
@@ -131,24 +131,24 @@ namespace ServerSideCharacter
 				BuffID.Frozen, time, 0f, 0, 0, 0);
 		}
 
-        public void SendSuccessInfo(string msg)
-        {
-            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-                            msg,
-                            255, 50, 255, 50);
-        }
-        public void SendInfo(string msg)
-        {
-            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-                            msg,
-                            255, 255, 255, 0);
-        }
-        public void SendErrorInfo(string msg)
-        {
-            NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-                            msg,
-                            255, 255, 20, 0);
-        }
+		public void SendSuccessInfo(string msg)
+		{
+			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
+							msg,
+							255, 50, 255, 50);
+		}
+		public void SendInfo(string msg)
+		{
+			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
+							msg,
+							255, 255, 255, 0);
+		}
+		public void SendErrorInfo(string msg)
+		{
+			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
+							msg,
+							255, 255, 20, 0);
+		}
 
   //      public static string GenHashCode(string name)
 		//{

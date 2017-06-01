@@ -33,7 +33,8 @@
 		ToggleGodMode,
 		SetGodMode,
 		ServerSideCharacter,
-		GenResources
+		GenResources,
+		ChestCommand
 	}
 
 	public enum GenerationType
