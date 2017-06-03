@@ -21,6 +21,8 @@ namespace ServerSideCharacter.Config
 		public int MaxRegionWidth = 35;
 		public int MaxRegionHeigth = 35;
 		public int PlayerMaxRegions = 3;
+		public bool EnableChestProtection = true;
+		public bool AutoProtectChests = true;
 		public List<NetItem> StartUpItems;
 		public List<NetItem> BannedItems;
 
@@ -82,7 +84,14 @@ namespace ServerSideCharacter.Config
 				return _configData.PlayerMaxRegions;
 			}
 		}
-
+		public bool EnableChestProtection
+		{
+			get { return _configData.EnableChestProtection; }
+		}
+		public bool AutoProtectChests
+		{
+			get { return _configData.AutoProtectChests; }
+		}
 		private static string _configPath = "SSC/config.json";
 
 		private ConfigData _configData;
@@ -107,7 +116,7 @@ namespace ServerSideCharacter.Config
 				AddToStartInv(ItemID.IronAxe, 81);
 				AddToBannedItem(ItemID.IronAxe);
 				string data = JsonConvert.SerializeObject(_configData, Formatting.Indented);
-				using(StreamWriter sw = new StreamWriter(_configPath))
+				using (StreamWriter sw = new StreamWriter(_configPath))
 				{
 					sw.Write(data);
 				}
@@ -115,7 +124,7 @@ namespace ServerSideCharacter.Config
 			}
 			else
 			{
-				using(StreamReader sr = new StreamReader(_configPath))
+				using (StreamReader sr = new StreamReader(_configPath))
 				{
 					string data = sr.ReadToEnd();
 					_configData = JsonConvert.DeserializeObject<ConfigData>(data);
@@ -159,12 +168,12 @@ namespace ServerSideCharacter.Config
 
 		public bool IsItemBanned(Item item, ServerPlayer player)
 		{
-			if(player.PermissionGroup.GroupName == "spadmin")
+			if (player.PermissionGroup.GroupName == "spadmin")
 			{
 				return false;
 			}
 			bool banned = false;
-			if(_configData.BannedItems.Any(nitem => nitem.TheSameItem(item)))
+			if (_configData.BannedItems.Any(nitem => nitem.TheSameItem(item)))
 			{
 				banned = true;
 			}

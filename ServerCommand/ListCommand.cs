@@ -99,7 +99,7 @@ namespace ServerSideCharacter.ServerCommand
 					else if (args[0] == "gp")
 					{
 						int i = 1;
-						foreach (var group in GroupType.Groups)
+						foreach (var group in ServerSideCharacter.GroupManager.Groups)
 						{
 							sb.AppendLine(string.Format("{0}. Group Name: {1}  Chat Prefix: {2}\n   Permissions:",
 								i, group.Key, group.Value.ChatPrefix));

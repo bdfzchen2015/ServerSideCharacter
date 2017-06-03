@@ -28,7 +28,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/chest <addfriend|removefriend> <name>\n/chest <public|unpublic>\n/chest <protect|deprotect>"; }
+			get { return "/chest <addfriend|removefriend> <name>\n/chest <public|unpublic>\n/chest <protect|deprotect>\n/chest info"; }
 		}
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{

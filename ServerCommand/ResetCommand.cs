@@ -44,7 +44,7 @@ namespace ServerSideCharacter.ServerCommand
 					player.SendSuccessInfo("Your password has been reseted! Please register with another password");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Console.WriteLine(ex);
 			}

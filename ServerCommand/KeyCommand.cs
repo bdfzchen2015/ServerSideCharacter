@@ -43,11 +43,11 @@ namespace ServerSideCharacter.ServerCommand
 
 		private int GetKeyItem(int id)
 		{
-			if(id == ItemID.JungleKey)
+			if (id == ItemID.JungleKey)
 			{
 				return ItemID.PiranhaGun;
 			}
-			else if(id == ItemID.HallowedKey)
+			else if (id == ItemID.HallowedKey)
 			{
 				return ItemID.RainbowGun;
 			}
@@ -63,7 +63,7 @@ namespace ServerSideCharacter.ServerCommand
 			{
 				return ItemID.StaffoftheFrostHydra;
 			}
-			else if(id == ItemID.GoldenKey)
+			else if (id == ItemID.GoldenKey)
 			{
 				int i = Main.rand.Next(5);
 				if (i == 0) return ItemID.Handgun;

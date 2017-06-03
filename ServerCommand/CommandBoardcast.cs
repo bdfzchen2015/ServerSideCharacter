@@ -9,7 +9,7 @@ using Terraria.ID;
 namespace ServerSideCharacter.ServerCommand
 {
 	public static class CommandBoardcast
-	{ 
+	{
 
 		public static void ConsoleSaveInfo()
 		{

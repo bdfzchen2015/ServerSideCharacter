@@ -27,7 +27,7 @@ namespace ServerSideCharacter
 		}
 
 
-		private void TryReadItemInfo(Dictionary<string, Mod> modTable, XmlNodeList info, 
+		private void TryReadItemInfo(Dictionary<string, Mod> modTable, XmlNodeList info,
 			ServerPlayer player, ref int i, int id, ref Item[] slots)
 		{
 			int type;
@@ -91,7 +91,7 @@ namespace ServerSideCharacter
 			ServerPlayer.ResetUUID();
 			if (File.Exists(path))
 			{
-				XmlReaderSettings settings = new XmlReaderSettings {IgnoreComments = true};
+				XmlReaderSettings settings = new XmlReaderSettings { IgnoreComments = true };
 				//忽略文档里面的注释
 				XmlDocument xmlDoc = new XmlDocument();
 				XmlReader reader = XmlReader.Create(path, settings);
@@ -99,7 +99,7 @@ namespace ServerSideCharacter
 				XmlNode xn = xmlDoc.SelectSingleNode("Players");
 				var list = xn.ChildNodes;
 				Dictionary<string, Mod> modTable = new Dictionary<string, Mod>();
-				foreach(var mod in ModLoader.LoadedMods)
+				foreach (var mod in ModLoader.LoadedMods)
 				{
 					modTable.Add(mod.Name, mod);
 				}
@@ -113,13 +113,13 @@ namespace ServerSideCharacter
 					player.UUID = int.Parse(pData.GetAttribute("uuid"));
 					try
 					{
-						player.PermissionGroup = GroupType.Groups[pData.GetAttribute("group")];
+						player.PermissionGroup = ServerSideCharacter.GroupManager.Groups[pData.GetAttribute("group")];
 					}
 					catch
 					{
-						player.PermissionGroup = GroupType.Groups["default"];
+						player.PermissionGroup = ServerSideCharacter.GroupManager.Groups["default"];
 					}
-					foreach(var pair in ModDataHooks.InterpretPlayerStringTable)
+					foreach (var pair in ModDataHooks.InterpretPlayerStringTable)
 					{
 						pair.Value(pData.GetAttribute(pair.Key), player);
 					}
@@ -129,11 +129,11 @@ namespace ServerSideCharacter
 					player.StatLife = Convert.ToInt32(ReadNext(info, ref i));
 					player.ManaMax = Convert.ToInt32(ReadNext(info, ref i));
 					player.StatMana = Convert.ToInt32(ReadNext(info, ref i));
-					for (int id = 0; id < player.inventroy.Length; id++)
+					for (int id = 0; id < player.inventory.Length; id++)
 					{
-						TryReadItemInfo(modTable, info, player, ref i, id, ref player.inventroy);
-						//player.inventroy[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
-						//player.inventroy[id].stack =
+						TryReadItemInfo(modTable, info, player, ref i, id, ref player.inventory);
+						//player.inventory[id].Prefix(Convert.ToByte((info.Item(i - 1) as XmlElement).GetAttribute("prefix")));
+						//player.inventory[id].stack =
 						//	Convert.ToInt32((info.Item(i - 1) as XmlElement).GetAttribute("stack"));
 					}
 					for (int id = 0; id < player.armor.Length; id++)

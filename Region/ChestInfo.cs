@@ -16,7 +16,8 @@ namespace ServerSideCharacter.Region
 			Public = 4,
 			UnPublic = 8,
 			AddFriend = 16,
-			RemoveFriend = 32
+			RemoveFriend = 32,
+			Info = 64
 		}
 		public List<ChestInfo> ChestInfo = new List<ChestInfo>();
 		public Dictionary<int, Pending> Pendings = new Dictionary<int, Pending>();
@@ -105,7 +106,7 @@ namespace ServerSideCharacter.Region
 		public bool IsOwner(int chestID, ServerPlayer player)
 		{
 			var id = ChestInfo[chestID].OwnerID;
-			return id == player.UUID || player.PermissionGroup.HasPermission("chest");
+			return id == player.UUID || player.PermissionGroup.HasPermission("chest") && id != -1;
 		}
 		public bool IsPublic(int chestID)
 		{
@@ -131,12 +132,12 @@ namespace ServerSideCharacter.Region
 		}
 		public void AddFriend(ServerPlayer player)
 		{
-			if (!friends.Contains(player.UUID))
+			if (!friends.Contains(player.UUID) && ownerID > -1 && player.UUID != ownerID)
 				friends.Add(player.UUID);
 		}
 		public void RemoveFriend(ServerPlayer player)
 		{
-			if (friends.Contains(player.UUID))
+			if (friends.Contains(player.UUID) && ownerID > -1)
 				friends.RemoveAll(id => id == player.UUID);
 		}
 		public int OwnerID
@@ -144,10 +145,11 @@ namespace ServerSideCharacter.Region
 			get { return ownerID; }
 			set
 			{
-				if (value == -1)
+				if (value <= -1)
 				{
 					isPublic = false;
 					friends.Clear();
+					value = -1; //Just in case if value is < -1
 				}
 				ownerID = value;
 			}

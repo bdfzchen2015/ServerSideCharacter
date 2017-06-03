@@ -23,7 +23,7 @@ namespace ServerSideCharacter
 			_logWriter.WriteLine(msg);
 			_logWriter.Flush();
 		}
-		
+
 		public void Dispose()
 		{
 			_logWriter.Dispose();

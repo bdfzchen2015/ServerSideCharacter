@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace ServerSideCharacter.GroupManage
 {
 	public class Group
 	{
+		[JsonIgnore]
 		public string GroupName { get; set; }
 		public List<PermissionInfo> permissions = new List<PermissionInfo>();
 		public Color ChatColor = new Color();
@@ -19,10 +21,10 @@ namespace ServerSideCharacter.GroupManage
 			ChatColor = Color.White;
 		}
 
-        public bool IsSuperAdmin()
-        {
-            return GroupName == "spadmin";
-        }
+		public bool IsSuperAdmin()
+		{
+			return GroupName == "spadmin";
+		}
 
 		public bool HasPermission(string name)
 		{

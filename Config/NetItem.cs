@@ -18,7 +18,7 @@ namespace ServerSideCharacter.Config
 
 		public bool TheSameItem(Item item)
 		{
-			if(item.modItem != null)
+			if (item.modItem != null)
 			{
 				NetItem tmp = Utils.ToNetItem(item);
 				return tmp.ModName == this.ModName && tmp.ItemName == this.ItemName;

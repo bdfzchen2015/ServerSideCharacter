@@ -36,7 +36,7 @@ namespace ServerSideCharacter.ServerCommand
 				int uuid = int.Parse(args[1]);
 				MessageSender.SendSetGroup(Main.myPlayer, uuid, args[2]);
 			}
-			else if(args[0] == "append")
+			else if (args[0] == "append")
 			{
 				string name = args[1];
 				string perm = args[2];

@@ -179,8 +179,8 @@ namespace ServerSideCharacter.Region
 		internal bool ValidRegion(ServerPlayer player, string name, Rectangle area)
 		{
 			return !HasNameConflect(name) && _regions.ServerRegions.Count < ServerSideCharacter.Config.MaxRegions
-			       && CheckPlayerRegionMax(player) && CheckRegionConflict(area)
-			       && CheckRegionSize(player, area);
+				   && CheckPlayerRegionMax(player) && CheckRegionConflict(area)
+				   && CheckRegionSize(player, area);
 
 		}
 
@@ -189,6 +189,6 @@ namespace ServerSideCharacter.Region
 			return _regions.ServerRegions;
 		}
 
-		
+
 	}
 }
