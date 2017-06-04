@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Terraria.ModLoader;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace ServerSideCharacter.ServerCommand
 {
@@ -26,12 +27,23 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override string Usage
 		{
-			get { return "/tp <player id>"; }
+			get { return "/tp <player id|player name>"; }
 		}
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
-			MessageSender.SendTeleportCommand(Main.myPlayer, Convert.ToInt32(args[0]));
+			int who;
+			if (!int.TryParse(args[0], out who))
+			{
+				Player player = Utils.TryGetPlayer(args[0]);
+				if (player == null || !player.active)
+				{
+					Main.NewText("Player not found", Color.Red);
+					return;
+				}
+				who = player.whoAmI;
+			}
+			MessageSender.SendTeleportCommand(Main.myPlayer, who);
 		}
 	}
 }

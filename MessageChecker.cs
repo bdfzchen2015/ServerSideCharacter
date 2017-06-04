@@ -27,7 +27,7 @@ namespace ServerSideCharacter
 					return _method[messageType](ref reader, playerNumber);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				CommandBoardcast.ConsoleError(ex);
 			}
@@ -49,6 +49,8 @@ namespace ServerSideCharacter
 
 		private bool RequestChestOpen(ref BinaryReader reader, int playerNumber)
 		{
+			if (!ServerSideCharacter.Config.EnableChestProtection)
+				return false;
 			if (Main.netMode == 2)
 			{
 				int x = reader.ReadInt16();
@@ -130,11 +132,33 @@ namespace ServerSideCharacter
 						else
 							sPlayer.SendErrorInfo("You are not the owner of this chest");
 						break;
+					case ChestManager.Pending.Info:
+						if (ServerSideCharacter.ChestManager.IsOwner(id, sPlayer))
+						{
+							ChestInfo chest = ServerSideCharacter.ChestManager.ChestInfo[id];
+							StringBuilder info = new StringBuilder();
+							if (sPlayer.PermissionGroup.HasPermission("chest"))
+								info.AppendLine($"Owner: {ServerPlayer.FindPlayer(chest.OwnerID).Name}"); //For Admins
+							info.AppendLine($"Public Chest: {chest.IsPublic.ToString().ToUpper()}");
+							info.AppendLine($"Friends ({chest.Friends.Count.ToString()}): {string.Join(", ", chest.Friends.ToArray().Take(10).Select(uuid => ServerPlayer.FindPlayer(uuid).Name))}");
+							sPlayer.SendInfo(info.ToString());
+						}
+						else if (ServerSideCharacter.ChestManager.IsNull(id))
+							sPlayer.SendErrorInfo("This chest don't have a owner");
+						else
+							sPlayer.SendErrorInfo("You are not the owner of this chest");
+						break;
 					default:
 						if (ServerSideCharacter.ChestManager.IsNull(id))
 						{
-							ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, false);
-							sPlayer.SendSuccessInfo("You now own this chest");
+							if (ServerSideCharacter.Config.AutoProtectChests)
+							{
+								ServerSideCharacter.ChestManager.SetOwner(id, sPlayer.UUID, false);
+								sPlayer.SendSuccessInfo("You now own this chest");
+							}
+							else
+								sPlayer.SendErrorInfo("Use '/chest protect' to become the owner of this chest");
+							return false;
 						}
 						else if (ServerSideCharacter.ChestManager.CanOpen(id, sPlayer))
 						{

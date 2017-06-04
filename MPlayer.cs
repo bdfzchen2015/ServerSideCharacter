@@ -33,7 +33,7 @@ namespace ServerSideCharacter
 				player.controlThrow = false;
 				player.controlHook = false;
 				player.controlMount = false;
-				player.controlInv = false;
+				//player.controlInv = false; // With this the users will not be abble to exit the server without login first (Exept by pressing ALT + F4). This is not a good thing
 				player.gravDir = 0f;
 				player.position = player.oldPosition;
 			}
@@ -54,7 +54,7 @@ namespace ServerSideCharacter
 
 		public override void OnEnterWorld(Player player)
 		{
-			if(Main.netMode == 1)
+			if (Main.netMode == 1)
 			{
 				player.AddBuff(mod.BuffType("Locked"), 180);
 			}

@@ -7,4 +7,4 @@ includeSource = false
 homepage = http://shizi.square7.ch/description.php
 dllReferences = System.XML
 languageVersion = 6
-buildIgnore = *.csproj, *.sln, obj\*, bin\*, .git\*, .vs\*
+buildIgnore = *.csproj, *.sln, obj\*, bin\*, .git\*, .vs\*, .gitignore

@@ -11,7 +11,7 @@ namespace ServerSideCharacter
 	public class ServerPlayer
 	{
 		private static int NextID = 0;
-		
+
 		public bool HasPassword { get; set; }
 
 		public bool IsLogin { get; set; }
@@ -32,7 +32,7 @@ namespace ServerSideCharacter
 
 		public int StatMana { get; set; }
 
-		public Item[] inventroy = new Item[59];
+		public Item[] inventory = new Item[59];
 
 		public Item[] armor = new Item[20];
 
@@ -49,7 +49,7 @@ namespace ServerSideCharacter
 		public Chest bank3 = new Chest(true);
 
 		public Player PrototypePlayer { get; set; }
-		
+
 		public RegionInfo EnteredRegion { get; set; }
 
 		public List<RegionInfo> ownedregion = new List<RegionInfo>();
@@ -57,9 +57,9 @@ namespace ServerSideCharacter
 
 		private void SetupPlayer()
 		{
-			for (int i = 0; i < inventroy.Length; i++)
+			for (int i = 0; i < inventory.Length; i++)
 			{
-				inventroy[i] = new Item();
+				inventory[i] = new Item();
 			}
 			for (int i = 0; i < armor.Length; i++)
 			{
@@ -108,7 +108,7 @@ namespace ServerSideCharacter
 			StatLife = player.statLife;
 			StatMana = player.statMana;
 			ManaMax = player.statManaMax;
-			player.inventory.CopyTo(inventroy, 0);
+			player.inventory.CopyTo(inventory, 0);
 			player.armor.CopyTo(armor, 0);
 			player.dye.CopyTo(dye, 0);
 			player.miscEquips.CopyTo(miscEquips, 0);
@@ -150,7 +150,7 @@ namespace ServerSideCharacter
 							255, 255, 20, 0);
 		}
 
-  //      public static string GenHashCode(string name)
+		//      public static string GenHashCode(string name)
 		//{
 		//	long hash = name.GetHashCode();
 		//	hash += DateTime.Now.ToLongTimeString().GetHashCode() * 233;
@@ -162,14 +162,14 @@ namespace ServerSideCharacter
 		{
 			ServerPlayer player = new ServerPlayer(p);
 			int i = 0;
-			foreach(var item in ServerSideCharacter.Config.StartupItems)
+			foreach (var item in ServerSideCharacter.Config.StartupItems)
 			{
-				player.inventroy[i++] = Utils.GetItemFromNet(item);
+				player.inventory[i++] = Utils.GetItemFromNet(item);
 			}
 			player.Name = p.name;
 			player.UUID = GetNextID();
 			player.HasPassword = false;
-			player.PermissionGroup = GroupType.Groups["default"];
+			player.PermissionGroup = ServerSideCharacter.GroupManager.Groups["default"];
 			player.IsLogin = false;
 			player.Password = "";
 			player.LifeMax = 100;

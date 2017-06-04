@@ -8,6 +8,8 @@ using System.Text;
 using Terraria;
 using Terraria.ModLoader;
 using Newtonsoft.Json;
+using ServerSideCharacter.Extensions;
+using System.Reflection;
 
 namespace ServerSideCharacter
 {
@@ -17,10 +19,55 @@ namespace ServerSideCharacter
 		{
 			try
 			{
-				return Main.player.ToList().Find(player => player != null && player.active && player.name.Equals(name, StringComparison.OrdinalIgnoreCase));
+				return Main.player.ToList().Find(player => player != null && player.active && player.name.Contains(name, StringComparison.OrdinalIgnoreCase));
 			}
 			catch (Exception)
 			{
+				return null;
+			}
+		}
+		private static Dictionary<int, NPC> npcs = new Dictionary<int, NPC>();
+		private static void SetupNpcs()
+		{
+			Console.WriteLine(Main.NPCLoaded.Length);
+			for (int i = 0; i < Main.NPCLoaded.Length; i++)
+			{
+				NPC npc = new NPC();
+				npc.SetDefaults(i);
+				npcs.Add(i, npc);
+			}
+		}
+		public static NPC TryGetNPC(string name)
+		{
+			try
+			{
+				if (npcs.Count == 0)
+					SetupNpcs();
+
+				NPC[] npcArray = npcs.ToList().FindAll(v => v.Value.displayName.Contains(name, StringComparison.OrdinalIgnoreCase) || v.Value.name.Contains(name, StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
+				NPC best = null;
+				if (npcArray.Length == 1)
+					return npcArray[0];
+				else if (npcArray.Length > 1)
+					foreach (var npc in npcArray)
+					{
+						if (npc.name.EndsWith("body", StringComparison.OrdinalIgnoreCase) || npc.name.EndsWith("tail", StringComparison.OrdinalIgnoreCase) || npc.name.EndsWith("hand", StringComparison.OrdinalIgnoreCase) || npc.type == 396) // Ignore body, tail and hand and the Moon Lord Head (396). We only want the Head (or the Core in case of Moon Lord)
+							continue;
+						if (npc.name.Contains(name, StringComparison.OrdinalIgnoreCase) || npc.displayName.Contains(name, StringComparison.OrdinalIgnoreCase))
+							best = npc;
+						if (npc.name.Equals(name, StringComparison.OrdinalIgnoreCase) || npc.displayName.Equals(name, StringComparison.OrdinalIgnoreCase))
+						{
+							best = npc;
+							break;
+						}
+					}
+				else
+					return null;
+				return best == null ? npcArray[0] : best;
+			}
+			catch (Exception)
+			{
+
 				return null;
 			}
 		}
@@ -60,10 +107,10 @@ namespace ServerSideCharacter
 
 		public static Item GetItemFromNet(NetItem netItem)
 		{
-			if(netItem.IsModItem)
+			if (netItem.IsModItem)
 			{
 				var target_mod = ModLoader.LoadedMods.Where(mod => mod.Name == netItem.ModName);
-				if(target_mod.Count() == 0)
+				if (target_mod.Count() == 0)
 				{
 					return new Item();
 				}
@@ -92,7 +139,7 @@ namespace ServerSideCharacter
 			else
 			{
 				ChestManager manager;
-				using(StreamReader sr = new StreamReader("SSC/chest.json"))
+				using (StreamReader sr = new StreamReader("SSC/chest.json"))
 				{
 					string data = sr.ReadToEnd();
 					manager = JsonConvert.DeserializeObject<ChestManager>(data);

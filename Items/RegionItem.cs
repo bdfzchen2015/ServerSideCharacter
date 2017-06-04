@@ -8,22 +8,22 @@ using Terraria.ID;
 
 namespace ServerSideCharacter.Items
 {
-    public class RegionItem : ModItem
-    {
+	public class RegionItem : ModItem
+	{
 		public string FullName;
 
-        public override void SetDefaults()
-        {
-            item.name = "Region Item";
-            item.height = 32;
-            item.width = 32;
-            item.rare = 10;
-            item.expert = true;
-            item.value = 0;
-            item.useTime = 30;
-            item.useAnimation = 30;
-            item.useStyle = 4;
-        }
+		public override void SetDefaults()
+		{
+			item.name = "Region Item";
+			item.height = 32;
+			item.width = 32;
+			item.rare = 10;
+			item.expert = true;
+			item.value = 0;
+			item.useTime = 30;
+			item.useAnimation = 30;
+			item.useStyle = 4;
+		}
 		public override bool AltFunctionUse(Player player)
 		{
 			return true;

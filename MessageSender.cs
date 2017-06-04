@@ -207,7 +207,7 @@ namespace ServerSideCharacter
 			ModPacket p = ServerSideCharacter.Instance.GetPacket();
 			p.Write((int)SSCMessageType.RequestAuth);
 			p.Write((byte)plr);
-			p.Write(code); 
+			p.Write(code);
 			p.Send();
 		}
 
@@ -304,30 +304,27 @@ namespace ServerSideCharacter
 		}
 		public static void SendChestCommand(ChestManager.Pending pending, int plr, string friendName = null)
 		{
-			try
+			ModPacket pack = ServerSideCharacter.Instance.GetPacket();
+			pack.Write((int)SSCMessageType.ChestCommand);
+			pack.Write((byte)plr);
+			pack.Write((int)pending);
+			if (pending.HasFlag(ChestManager.Pending.AddFriend) || pending.HasFlag(ChestManager.Pending.RemoveFriend))
 			{
-				ModPacket pack = ServerSideCharacter.Instance.GetPacket();
-				pack.Write((int)SSCMessageType.ChestCommand);
-				pack.Write((byte)plr);
-				pack.Write((int)pending);
-				if (pending.HasFlag(ChestManager.Pending.AddFriend) || pending.HasFlag(ChestManager.Pending.RemoveFriend))
+				Player friend = Utils.TryGetPlayer(friendName);
+				if (friend == null || !friend.active)
 				{
-					Player friend = Utils.TryGetPlayer(friendName);
-					if (friend == null || !friend.active)
-					{
-						Main.NewText("Player not found", Color.Red);
-						return;
-					}
-					pack.Write((byte)friend.whoAmI);
-
+					Main.NewText("Player not found", Color.Red);
+					return;
 				}
-				pack.Send();
+				if (friend.whoAmI == plr)
+				{
+					Main.NewText("You cannot add yourself as a friend", Color.Red);
+					return;
+				}
+				pack.Write((byte)friend.whoAmI);
+
 			}
-			catch (System.Exception ex)
-			{
-				Main.NewText(ex.ToString(), Color.Cyan);
-				throw ex;
-			}
+			pack.Send();
 		}
 	}
 }

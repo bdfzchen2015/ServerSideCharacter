@@ -52,7 +52,7 @@ namespace ServerSideCharacter
 
 		public static ChestManager ChestManager;
 
-
+		public static Config.Group.GroupConfigManager GroupManager;
 
 		public ServerSideCharacter()
 		{
@@ -119,7 +119,7 @@ namespace ServerSideCharacter
 
 				string name = Main.player[plr].name;
 				ServerPlayer player = XmlData.Data[name];
-				player.inventroy.CopyTo(Main.player[plr].inventory, 0);
+				player.inventory.CopyTo(Main.player[plr].inventory, 0);
 				player.armor.CopyTo(Main.player[plr].armor, 0);
 				player.dye.CopyTo(Main.player[plr].dye, 0);
 				player.miscEquips.CopyTo(Main.player[plr].miscEquips, 0);
@@ -317,6 +317,7 @@ namespace ServerSideCharacter
 						RegionManager.WriteRegionInfo();
 						Config.Save();
 						Utils.SaveChestInfo();
+						GroupManager.Save();
 						CommandBoardcast.ConsoleMessage("\nOn Server Close: Saved all datas!");
 						Logger.Dispose();
 					}
@@ -524,7 +525,7 @@ namespace ServerSideCharacter
 						try
 						{
 							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(uuid);
-							targetPlayer.PermissionGroup = GroupType.Groups[group];
+							targetPlayer.PermissionGroup = GroupManager.Groups[group];
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
 								string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group),
 								255, 50, 255, 50);
@@ -721,7 +722,7 @@ namespace ServerSideCharacter
 					if (code.Equals(AuthCode))
 					{
 						ServerPlayer targetPlayer = p.GetServerPlayer();
-						targetPlayer.PermissionGroup = GroupType.Groups["spadmin"];
+						targetPlayer.PermissionGroup = GroupManager.Groups["spadmin"];
 						targetPlayer.SendSuccessInfo("You have successfully auth as SuperAdmin");
 					}
 				}
@@ -779,6 +780,11 @@ namespace ServerSideCharacter
 					ServerPlayer player = Main.player[plr].GetServerPlayer();
 					if (!player.IsLogin)
 						return;
+					if (!Config.EnableChestProtection)
+					{
+						player.SendErrorInfo("Chest protection isn't enabled on this server");
+						return;
+					}
 					ChestManager.Pending pending = (ChestManager.Pending)reader.ReadInt32();
 					ServerPlayer friend = null;
 					switch (pending)
@@ -802,6 +808,9 @@ namespace ServerSideCharacter
 							break;
 						case ChestManager.Pending.DeProtect:
 							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.DeProtect);
+							break;
+						case ChestManager.Pending.Info:
+							ServerSideCharacter.ChestManager.AddPending(player, ChestManager.Pending.Info);
 							break;
 						default:
 							Console.WriteLine($"[ChestCommand] Invalid argument!");
@@ -940,7 +949,7 @@ namespace ServerSideCharacter
 					else if (type == ListType.ListGroups)
 					{
 						int i = 1;
-						foreach (var group in GroupType.Groups)
+						foreach (var group in GroupManager.Groups)
 						{
 							sb.AppendLine(string.Format("{0}. Group Name: {1}  Chat Prefix: {2}\n   Permissions:",
 								i, group.Key, group.Value.ChatPrefix));
@@ -1151,7 +1160,7 @@ namespace ServerSideCharacter
 		private static void SetupDefaults()
 		{
 			Logger = new ErrorLogger("ServerLog.txt", false);
-			GroupType.SetupGroups();
+			//GroupType.SetupGroups();
 
 			//��Ʒ��Ϣ��ȡ��ʽ���?
 			ModDataHooks.BuildItemDataHook("prefix",
@@ -1189,6 +1198,7 @@ namespace ServerSideCharacter
 				MainWriter = writer;
 				Console.WriteLine("Saved data: " + save);
 			}
+			GroupManager = new Config.Group.GroupConfigManager();
 		}
 
 

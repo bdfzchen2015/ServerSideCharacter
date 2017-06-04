@@ -5,6 +5,7 @@ using System.Text;
 using Terraria.ModLoader;
 using Terraria;
 using Microsoft.Xna.Framework;
+using ServerSideCharacter.Extensions;
 
 namespace ServerSideCharacter.ServerCommand
 {
@@ -41,7 +42,7 @@ namespace ServerSideCharacter.ServerCommand
 				{
 					numbers.Add(i);
 				}
-				var items = numbers.Where(i => Main.itemName[i].ToLower().Contains(tryToFind.ToLower()));
+				var items = numbers.Where(i => Main.itemName[i].Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
 				var enumerable = items as int[] ?? items.ToArray();
 				foreach (var pair in enumerable)
 				{
@@ -56,7 +57,7 @@ namespace ServerSideCharacter.ServerCommand
 				{
 					numbers.Add(i);
 				}
-				var items = numbers.Where(i => Main.npcName[i].ToLower().Contains(tryToFind.ToLower()));
+				var items = numbers.Where(i => Main.npcName[i].Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
 				var enumerable = items as IList<int> ?? items.ToList();
 				foreach (var pair in enumerable)
 				{
@@ -64,11 +65,11 @@ namespace ServerSideCharacter.ServerCommand
 				}
 				Main.NewText("Total Find: " + enumerable.Count());
 			}
-			else if(type == "-p")
-			{ 
-				var players = Main.player.Where(p => p.active && 
-					p.name.ToLower().Contains(tryToFind.ToLower())).ToList();
-				foreach(var player in players)
+			else if (type == "-p")
+			{
+				var players = Main.player.Where(p => p.active &&
+					p.name.Contains(tryToFind, StringComparison.OrdinalIgnoreCase)).ToList();
+				foreach (var player in players)
 				{
 					Main.NewText(player.name + " -> ID: " + player.whoAmI, 255, 255, 50);
 				}

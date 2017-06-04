@@ -99,7 +99,7 @@ namespace ServerSideCharacter
 		public void SavePlayer(ServerPlayer player)
 		{
 			XmlElement targetNode = null;
-			foreach(var node in PlayerRoot.ChildNodes)
+			foreach (var node in PlayerRoot.ChildNodes)
 			{
 				XmlElement element = node as XmlElement;
 				if (element.GetAttribute("name").Equals(player.Name))
@@ -128,10 +128,10 @@ namespace ServerSideCharacter
 				WriteNext(list, ref j, player.StatLife.ToString());
 				WriteNext(list, ref j, player.ManaMax.ToString());
 				WriteNext(list, ref j, player.StatMana.ToString());
-				for (int i = 0; i < player.inventroy.Length; i++)
+				for (int i = 0; i < player.inventory.Length; i++)
 				{
 					//TODO: Mod Item check
-					var node1 = WriteItemInfo(list, i, ref j, ref player.inventroy);
+					var node1 = WriteItemInfo(list, i, ref j, ref player.inventory);
 					//TODO: Additional mod item info
 				}
 				for (int i = 0; i < player.armor.Length; i++)
@@ -180,7 +180,7 @@ namespace ServerSideCharacter
 			element.SetAttribute("name", player.Name);
 			element.SetAttribute("uuid", player.UUID.ToString());
 			element.SetAttribute("group", player.PermissionGroup.GroupName);
-			foreach(var pair in ModDataHooks.PlayerExtraInfoTable)
+			foreach (var pair in ModDataHooks.PlayerExtraInfoTable)
 			{
 				element.SetAttribute(pair.Key, pair.Value(player));
 			}
@@ -190,10 +190,10 @@ namespace ServerSideCharacter
 			NodeHelper.CreateNode(XMLDoc, playerNode, "statlife", player.StatLife.ToString());
 			NodeHelper.CreateNode(XMLDoc, playerNode, "manaMax", player.ManaMax.ToString());
 			NodeHelper.CreateNode(XMLDoc, playerNode, "statmana", player.StatMana.ToString());
-			for (int i = 0; i < player.inventroy.Length; i++)
+			for (int i = 0; i < player.inventory.Length; i++)
 			{
 				//TODO: Mod Item check
-				var node1 = CreateItemInfo(playerNode, i, ref player.inventroy, "slot");
+				var node1 = CreateItemInfo(playerNode, i, ref player.inventory, "slot");
 				//TODO: Additional mod item info
 			}
 			for (int i = 0; i < player.armor.Length; i++)
@@ -213,7 +213,7 @@ namespace ServerSideCharacter
 			{
 				var node1 = CreateItemInfo(playerNode, i, ref player.miscDye, "miscDye");
 			}
-			for(int i = 0; i < player.bank.item.Length; i++)
+			for (int i = 0; i < player.bank.item.Length; i++)
 			{
 				var node1 = CreateItemInfo(playerNode, i, ref player.bank.item, "bank");
 			}

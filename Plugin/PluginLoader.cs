@@ -40,9 +40,9 @@ namespace ServerSideCharacter.Plugin
 
 		private static void LoadPluginBase(Type type)
 		{
-			
+
 			IPluginBase plugin = (IPluginBase)Activator.CreateInstance(type);
-			if(plugin == null)
+			if (plugin == null)
 			{
 				throw new Exception("Cannot create the instance of plugin: " + type.Name);
 			}

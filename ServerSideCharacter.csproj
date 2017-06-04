@@ -48,11 +48,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Xact\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Xact.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>D:\搜狗高速下载\TShock-4.3.11\prebuilts\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>F:\Program Files (x86)\Steam\steamapps\common\Terraria\Content\Newtonsoft.Json.dll</HintPath>
+      <HintPath>refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,7 +59,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Terraria">
-      <HintPath>F:\Program Files (x86)\Steam\steamapps\common\Terraria\Terraria.exe</HintPath>
+      <HintPath>refs\Terraria.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -76,10 +73,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffs\Locked.cs" />
+    <Compile Include="Config\GroupConfig.cs" />
     <Compile Include="Config\NetItem.cs" />
     <Compile Include="Config\RegionConfig.cs" />
     <Compile Include="Extensions\MD5Crypto.cs" />
     <Compile Include="Extensions\PlayerExtension.cs" />
+    <Compile Include="Extensions\StringExtension.cs" />
     <Compile Include="GroupManage\Group.cs" />
     <Compile Include="GroupManage\GroupType.cs" />
     <Compile Include="GroupManage\PermissionInfo.cs" />
@@ -125,6 +124,7 @@
     <Compile Include="ServerCommand\GroupCommand.cs" />
     <Compile Include="ServerCommand\RegisterCommand.cs" />
     <Compile Include="ServerCommand\SaveCommand.cs" />
+    <Compile Include="ServerCommand\ChestCommand.cs" />
     <Compile Include="ErrorLogger.cs" />
     <Compile Include="PlayerData.cs" />
     <Compile Include="ServerPlayer.cs" />
