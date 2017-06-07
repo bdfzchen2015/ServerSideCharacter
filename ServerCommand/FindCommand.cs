@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Terraria.ModLoader;
 using Terraria;
-using Microsoft.Xna.Framework;
 using ServerSideCharacter.Extensions;
 
 namespace ServerSideCharacter.ServerCommand
@@ -37,31 +35,31 @@ namespace ServerSideCharacter.ServerCommand
 			string tryToFind = args[1];
 			if (type == "-i")
 			{
-				List<int> numbers = new List<int>(Main.itemName.Length);
-				for (int i = 0; i < Main.itemName.Length; i++)
+				List<int> numbers = new List<int>(Main.maxItemTypes);
+				for (int i = 0; i < Main.maxItemTypes; i++)
 				{
 					numbers.Add(i);
 				}
-				var items = numbers.Where(i => Main.itemName[i].Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
+				var items = numbers.Where(i => Lang.GetItemNameValue(i).Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
 				var enumerable = items as int[] ?? items.ToArray();
 				foreach (var pair in enumerable)
 				{
-					Main.NewText(Main.itemName[pair] + " -> ID: " + pair, 255, 255, 50);
+					Main.NewText(Lang.GetItemNameValue(pair) + " -> ID: " + pair, 255, 255, 50);
 				}
-				Main.NewText("Total Find: " + enumerable.Count());
+				Main.NewText("Total Find: " + enumerable.Length);
 			}
 			else if (type == "-n")
 			{
-				List<int> numbers = new List<int>(Main.npcName.Length);
-				for (int i = 0; i < Main.npcName.Length; i++)
+				List<int> numbers = new List<int>(Main.maxNPCTypes);
+				for (int i = 0; i < Main.maxNPCTypes; i++)
 				{
 					numbers.Add(i);
 				}
-				var items = numbers.Where(i => Main.npcName[i].Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
+				var items = numbers.Where(i => Lang.GetNPCNameValue(i).Contains(tryToFind, StringComparison.OrdinalIgnoreCase));
 				var enumerable = items as IList<int> ?? items.ToList();
 				foreach (var pair in enumerable)
 				{
-					Main.NewText(Main.npcName[pair] + " -> ID: " + pair, 255, 255, 50);
+					Main.NewText(Lang.GetNPCNameValue(pair) + " -> ID: " + pair, 255, 255, 50);
 				}
 				Main.NewText("Total Find: " + enumerable.Count());
 			}

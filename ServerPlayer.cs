@@ -5,6 +5,7 @@ using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace ServerSideCharacter
 {
@@ -124,29 +125,29 @@ namespace ServerSideCharacter
 			PrototypePlayer.AddBuff(ServerSideCharacter.Instance.BuffType("Locked"), time * 2, false);
 			PrototypePlayer.AddBuff(BuffID.Frozen, time, false);
 			NetMessage.SendData(MessageID.AddPlayerBuff, PrototypePlayer.whoAmI, -1,
-				"", PrototypePlayer.whoAmI,
+				NetworkText.Empty, PrototypePlayer.whoAmI,
 				ServerSideCharacter.Instance.BuffType("Locked"), time * 2, 0f, 0, 0, 0);
 			NetMessage.SendData(MessageID.AddPlayerBuff, PrototypePlayer.whoAmI, -1,
-				"", PrototypePlayer.whoAmI,
+				NetworkText.Empty, PrototypePlayer.whoAmI,
 				BuffID.Frozen, time, 0f, 0, 0, 0);
 		}
 
 		public void SendSuccessInfo(string msg)
 		{
 			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-							msg,
+							NetworkText.FromLiteral(msg),
 							255, 50, 255, 50);
 		}
 		public void SendInfo(string msg)
 		{
 			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-							msg,
+				NetworkText.FromLiteral(msg),
 							255, 255, 255, 0);
 		}
 		public void SendErrorInfo(string msg)
 		{
 			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-							msg,
+				NetworkText.FromLiteral(msg),
 							255, 255, 20, 0);
 		}
 
@@ -182,7 +183,7 @@ namespace ServerSideCharacter
 		public static void SendInfoToAll(string msg)
 		{
 			NetMessage.SendData(MessageID.ChatText, -1, -1,
-							msg,
+				NetworkText.FromLiteral(msg),
 							255, 255, 255);
 		}
 

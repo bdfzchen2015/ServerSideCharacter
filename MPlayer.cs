@@ -1,8 +1,6 @@
 ﻿using Terraria.ModLoader;
 using Terraria;
-using Microsoft.Xna.Framework;
 using Terraria.DataStructures;
-using System;
 
 namespace ServerSideCharacter
 {

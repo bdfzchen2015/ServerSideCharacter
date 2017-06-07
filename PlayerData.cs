@@ -1,12 +1,10 @@
-﻿using ServerSideCharacter.GroupManage;
-using ServerSideCharacter.Items;
+﻿using ServerSideCharacter.Items;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Default;
 
 namespace ServerSideCharacter
 {

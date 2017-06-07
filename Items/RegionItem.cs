@@ -1,10 +1,6 @@
-using System;
 using Terraria;
 using Terraria.ModLoader;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Terraria.ID;
 
 namespace ServerSideCharacter.Items
 {
@@ -14,7 +10,6 @@ namespace ServerSideCharacter.Items
 
 		public override void SetDefaults()
 		{
-			item.name = "Region Item";
 			item.height = 32;
 			item.width = 32;
 			item.rare = 10;
@@ -24,6 +19,12 @@ namespace ServerSideCharacter.Items
 			item.useAnimation = 30;
 			item.useStyle = 4;
 		}
+
+		public override void SetStaticDefaults()
+		{
+			DisplayName.SetDefault("Region Item");
+		}
+
 		public override bool AltFunctionUse(Player player)
 		{
 			return true;
