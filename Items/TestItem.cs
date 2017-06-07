@@ -1,10 +1,5 @@
 using System;
-using Terraria;
 using Terraria.ModLoader;
-using System.Diagnostics;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Terraria.ID;
 
 namespace ServerSideCharacter.Items
 {
@@ -14,7 +9,6 @@ namespace ServerSideCharacter.Items
 
 		public override void SetDefaults()
 		{
-			item.name = "Unloaded Item";
 			item.height = 32;
 			item.width = 32;
 			item.rare = 10;
@@ -25,12 +19,16 @@ namespace ServerSideCharacter.Items
 			item.useStyle = 4;
 		}
 
+		public override void SetStaticDefaults()
+		{
+			DisplayName.SetDefault("Unloaded Item");
+		}
+
 		public void SetUp(string fullName)
 		{
 			string modName = fullName.Substring(0, fullName.IndexOf('.'));
 			string itemName = fullName.Substring(fullName.LastIndexOf('.') + 1);
-			item.toolTip = "Mod: " + modName;
-			item.toolTip2 = "Name: " + itemName;
+			Tooltip.SetDefault("Mod: " + modName + Environment.NewLine + "Name: " + itemName);
 			FullName = fullName;
 		}
 	}

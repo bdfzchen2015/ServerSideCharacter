@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Terraria;
 using Terraria.ModLoader;
 using Newtonsoft.Json;
 using ServerSideCharacter.Extensions;
-using System.Reflection;
 
 namespace ServerSideCharacter
 {
@@ -44,18 +42,18 @@ namespace ServerSideCharacter
 				if (npcs.Count == 0)
 					SetupNpcs();
 
-				NPC[] npcArray = npcs.ToList().FindAll(v => v.Value.displayName.Contains(name, StringComparison.OrdinalIgnoreCase) || v.Value.name.Contains(name, StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
+				NPC[] npcArray = npcs.ToList().FindAll(v => v.Value.TypeName.Contains(name, StringComparison.OrdinalIgnoreCase) || v.Value.TypeName.Contains(name, StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
 				NPC best = null;
 				if (npcArray.Length == 1)
 					return npcArray[0];
 				else if (npcArray.Length > 1)
 					foreach (var npc in npcArray)
 					{
-						if (npc.name.EndsWith("body", StringComparison.OrdinalIgnoreCase) || npc.name.EndsWith("tail", StringComparison.OrdinalIgnoreCase) || npc.name.EndsWith("hand", StringComparison.OrdinalIgnoreCase) || npc.type == 396) // Ignore body, tail and hand and the Moon Lord Head (396). We only want the Head (or the Core in case of Moon Lord)
+						if (npc.TypeName.EndsWith("body", StringComparison.OrdinalIgnoreCase) || npc.TypeName.EndsWith("tail", StringComparison.OrdinalIgnoreCase) || npc.TypeName.EndsWith("hand", StringComparison.OrdinalIgnoreCase) || npc.type == 396) // Ignore body, tail and hand and the Moon Lord Head (396). We only want the Head (or the Core in case of Moon Lord)
 							continue;
-						if (npc.name.Contains(name, StringComparison.OrdinalIgnoreCase) || npc.displayName.Contains(name, StringComparison.OrdinalIgnoreCase))
+						if (npc.TypeName.Contains(name, StringComparison.OrdinalIgnoreCase) || npc.TypeName.Contains(name, StringComparison.OrdinalIgnoreCase))
 							best = npc;
-						if (npc.name.Equals(name, StringComparison.OrdinalIgnoreCase) || npc.displayName.Equals(name, StringComparison.OrdinalIgnoreCase))
+						if (npc.TypeName.Equals(name, StringComparison.OrdinalIgnoreCase) || npc.TypeName.Equals(name, StringComparison.OrdinalIgnoreCase))
 						{
 							best = npc;
 							break;

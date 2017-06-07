@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ServerSideCharacter.GroupManage
+﻿namespace ServerSideCharacter.GroupManage
 {
 	public class PermissionInfo
 	{

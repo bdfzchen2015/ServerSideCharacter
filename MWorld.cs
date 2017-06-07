@@ -3,13 +3,12 @@
 using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Terraria.IO;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace ServerSideCharacter
@@ -45,14 +44,14 @@ namespace ServerSideCharacter
 								{
 									player.Value.ApplyLockBuffs();
 									NetMessage.SendData(MessageID.ChatText, playerID, -1,
-									"Welcome! You are new to here. Please use /register <password> to register an account!",
+										NetworkText.FromLiteral("Welcome! You are new to here. Please use /register <password> to register an account!"),
 									255, 255, 30, 30);
 								}
 								if (player.Value.HasPassword && !player.Value.IsLogin)
 								{
 									player.Value.ApplyLockBuffs();
 									NetMessage.SendData(MessageID.ChatText, playerID, -1,
-									"Welcome! You have already created an account. Please type /login <password> to login!",
+										NetworkText.FromLiteral("Welcome! You have already created an account. Please type /login <password> to login!"),
 									255, 255, 30, 30);
 								}
 							}

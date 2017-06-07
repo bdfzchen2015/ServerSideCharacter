@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using ServerSideCharacter.ServerCommand;
-using ServerSideCharacter.Region;
 
 namespace ServerSideCharacter.Config
 {
@@ -187,12 +184,12 @@ namespace ServerSideCharacter.Config
 			if (_configData.BannedItems.Any(nitem => nitem.TheSameItem(item)))
 			{
 				_configData.BannedItems.RemoveAll(nitem => nitem.TheSameItem(item));
-				player.SendSuccessInfo("Now the item " + item.name + " is unbanned!");
+				player.SendSuccessInfo("Now the item " + item.Name + " is unbanned!");
 			}
 			else
 			{
 				_configData.BannedItems.Add(Utils.ToNetItem(item));
-				player.SendSuccessInfo("You have successfully banned " + item.name + ".");
+				player.SendSuccessInfo("You have successfully banned " + item.Name + ".");
 			}
 		}
 	}

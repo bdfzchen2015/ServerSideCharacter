@@ -1,7 +1,6 @@
 #define DEBUGMODE
 using Microsoft.Xna.Framework;
 using ServerSideCharacter.Extensions;
-using ServerSideCharacter.GroupManage;
 using ServerSideCharacter.Region;
 using ServerSideCharacter.ServerCommand;
 using ServerSideCharacter.Config;
@@ -9,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Terraria;
@@ -65,11 +63,13 @@ namespace ServerSideCharacter
 		}
 
 
-		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, string text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
+		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
 		{
 			if (msgType == MessageID.ChatText)
 			{
-				if (text[0] == '/')
+				var literal = text.ToString();
+
+				if (literal[0] == '/')
 				{
 					return true;
 				}
@@ -108,14 +108,14 @@ namespace ServerSideCharacter
 			}
 			if (Netplay.Clients[plr].State == 10)
 			{
-				NetMessage.SendData(MessageID.PlayerActive, -1, -1, "", plr, num, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.SyncPlayer, -1, -1, Main.player[plr].name, plr, 0f, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.PlayerControls, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerActive, -1, -1, NetworkText.Empty, plr, num, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.SyncPlayer, -1, -1, NetworkText.FromLiteral(Main.player[plr].name), plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerControls, -1, -1, NetworkText.Empty, plr, 0f, 0f, 0f, 0, 0, 0);
 				MessageSender.SyncPlayerHealth(plr, -1, -1);
-				NetMessage.SendData(MessageID.PlayerPvP, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.PlayerTeam, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerPvP, -1, -1, NetworkText.Empty, plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerTeam, -1, -1, NetworkText.Empty, plr, 0f, 0f, 0f, 0, 0, 0);
 				MessageSender.SyncPlayerMana(plr, -1, -1);
-				NetMessage.SendData(MessageID.PlayerBuffs, -1, -1, "", plr, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerBuffs, -1, -1, NetworkText.Empty, plr, 0f, 0f, 0f, 0, 0, 0);
 
 				string name = Main.player[plr].name;
 				ServerPlayer player = XmlData.Data[name];
@@ -137,25 +137,25 @@ namespace ServerSideCharacter
 
 				for (int i = 0; i < 59; i++)
 				{
-					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].inventory[i].name, plr, i, Main.player[plr].inventory[i].prefix, 0f, 0, 0, 0);
+					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.FromLiteral(Main.player[plr].inventory[i].Name), plr, i, Main.player[plr].inventory[i].prefix, 0f, 0, 0, 0);
 				}
 				for (int j = 0; j < Main.player[plr].armor.Length; j++)
 				{
-					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].armor[j].name, plr, (59 + j), Main.player[plr].armor[j].prefix, 0f, 0, 0, 0);
+					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.FromLiteral(Main.player[plr].armor[j].Name), plr, (59 + j), Main.player[plr].armor[j].prefix, 0f, 0, 0, 0);
 				}
 				for (int k = 0; k < Main.player[plr].dye.Length; k++)
 				{
-					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].dye[k].name, plr, (58 + Main.player[plr].armor.Length + 1 + k), Main.player[plr].dye[k].prefix, 0f, 0, 0, 0);
+					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.FromLiteral(Main.player[plr].dye[k].Name), plr, (58 + Main.player[plr].armor.Length + 1 + k), Main.player[plr].dye[k].prefix, 0f, 0, 0, 0);
 				}
 				for (int l = 0; l < Main.player[plr].miscEquips.Length; l++)
 				{
-					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + 1 + l, Main.player[plr].miscEquips[l].prefix, 0f, 0, 0, 0);
+					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.Empty, plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + 1 + l, Main.player[plr].miscEquips[l].prefix, 0f, 0, 0, 0);
 				}
 				for (int m = 0; m < Main.player[plr].miscDyes.Length; m++)
 				{
-					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, "", plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
+					NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.Empty, plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length + Main.player[plr].miscEquips.Length + 1 + m, Main.player[plr].miscDyes[m].prefix, 0f, 0, 0, 0);
 				}
-				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, Main.player[plr].trashItem.name,
+				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, NetworkText.FromLiteral(Main.player[plr].trashItem.Name),
 					plr, 58 + Main.player[plr].armor.Length + Main.player[plr].dye.Length +
 					Main.player[plr].miscEquips.Length + 7, Main.player[plr].trashItem.prefix);
 				MessageSender.SyncPlayerBanks(plr, -1, -1);
@@ -163,7 +163,7 @@ namespace ServerSideCharacter
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = true;
-					NetMessage.SendData(MessageID.ChatText, -1, plr, Main.player[plr].name + " joined the Game. Welcome!", 255, 255f, 240f, 20f, 0, 0, 0);
+					NetMessage.SendData(MessageID.ChatText, -1, plr, NetworkText.FromLiteral(Main.player[plr].name + " joined the Game. Welcome!"), 255, 255f, 240f, 20f, 0, 0, 0);
 					if (Main.dedServ)
 					{
 						Console.WriteLine(Main.player[plr].name + " joined the Game. Welcome!");
@@ -173,11 +173,11 @@ namespace ServerSideCharacter
 			else
 			{
 				num = 0;
-				NetMessage.SendData(MessageID.PlayerActive, -1, plr, "", plr, num, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.PlayerActive, -1, plr, NetworkText.Empty, plr, num, 0f, 0f, 0, 0, 0);
 				if (Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = false;
-					NetMessage.SendData(MessageID.ChatText, -1, plr, Netplay.Clients[plr].Name + " lefted the Game!", 255, 255f, 240f, 20f, 0, 0, 0);
+					NetMessage.SendData(MessageID.ChatText, -1, plr, NetworkText.FromLiteral(Netplay.Clients[plr].Name + " lefted the Game!"), 255, 255f, 240f, 20f, 0, 0, 0);
 					if (Main.dedServ)
 					{
 						Console.WriteLine(Netplay.Clients[plr].Name + " lefted the Game!");
@@ -203,7 +203,7 @@ namespace ServerSideCharacter
 					{
 						num = 1;
 					}
-					NetMessage.SendData(MessageID.NPCHome, plr, -1, "", i, (float)Main.npc[i].homeTileX, (float)Main.npc[i].homeTileY, (float)num, 0, 0, 0);
+					NetMessage.SendData(MessageID.NPCHome, plr, -1, NetworkText.Empty, i, (float)Main.npc[i].homeTileX, (float)Main.npc[i].homeTileY, (float)num, 0, 0, 0);
 				}
 			}
 			if (flag)
@@ -224,14 +224,14 @@ namespace ServerSideCharacter
 				{
 					if (Netplay.Clients[i].State == 10)
 					{
-						NetMessage.SendData(MessageID.AnglerQuest, i, -1, Main.player[i].name, Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
+						NetMessage.SendData(MessageID.AnglerQuest, i, -1, NetworkText.FromLiteral(Main.player[i].name), Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
 					}
 				}
 				return;
 			}
 			if (Netplay.Clients[remoteClient].State == 10)
 			{
-				NetMessage.SendData(MessageID.AnglerQuest, remoteClient, -1, Main.player[remoteClient].name, Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.AnglerQuest, remoteClient, -1, NetworkText.FromLiteral(Main.player[remoteClient].name), Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
 			}
 		}
 
@@ -265,9 +265,6 @@ namespace ServerSideCharacter
 			if (Main.dedServ)
 			{
 				SetupDefaults();
-				//������tml�����������ʧ����QaQ
-				//�ȴ��������޸� /(��o��)/~~
-				//PluginLoader.LoadPlugins();
 
 				if (!System.IO.File.Exists("SSC/authcode"))
 				{
@@ -436,7 +433,7 @@ namespace ServerSideCharacter
 					ServerPlayer player = XmlData.Data[p.name];
 					if (player.HasPassword)
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1, "You cannot register twice!",
+						NetMessage.SendData(MessageID.ChatText, plr, -1, NetworkText.FromLiteral("You cannot register twice!"),
 							255, 255, 0, 0);
 						return;
 
@@ -448,7 +445,7 @@ namespace ServerSideCharacter
 							player.HasPassword = true;
 							player.Password = MD5Crypto.ComputeMD5(password);
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								string.Format("You have successfully set your password as {0}. Remember it!", password),
+								NetworkText.FromLiteral(string.Format("You have successfully set your password as {0}. Remember it!", password)),
 								255, 50, 255, 50);
 						}
 					}
@@ -462,7 +459,7 @@ namespace ServerSideCharacter
 
 					if (!player.HasPassword)
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1, "You should first register an account use /register <password> !",
+						NetMessage.SendData(MessageID.ChatText, plr, -1, NetworkText.FromLiteral("You should first register an account use /register <password> !"),
 							255, 255, 0, 0);
 					}
 					else
@@ -472,16 +469,16 @@ namespace ServerSideCharacter
 						{
 							player.IsLogin = true;
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								string.Format("You have successfully logged in as {0}", player.Name),
+								NetworkText.FromLiteral(string.Format("You have successfully logged in as {0}", player.Name)),
 								255, 50, 255, 50);
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"Please wait for a few seconds and then you can move",
+								NetworkText.FromLiteral("Please wait for a few seconds and then you can move"),
 								255, 255, 255, 0);
 						}
 						else
 						{
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"Wrong password! Please try again!",
+								NetworkText.FromLiteral("Wrong password! Please try again!"),
 								255, 255, 20, 0);
 						}
 					}
@@ -503,7 +500,7 @@ namespace ServerSideCharacter
 					else
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"You don't have the permission to this command.",
+								NetworkText.FromLiteral("You don't have the permission to this command."),
 								255, 255, 20, 0);
 					}
 				}
@@ -527,13 +524,13 @@ namespace ServerSideCharacter
 							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(uuid);
 							targetPlayer.PermissionGroup = GroupManager.Groups[group];
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group),
+								NetworkText.FromLiteral(string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group)),
 								255, 50, 255, 50);
 						}
 						catch
 						{
 							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"Cannot find this player or group name invalid!",
+								NetworkText.FromLiteral("Cannot find this player or group name invalid!"),
 								255, 255, 20, 0);
 							return;
 						}
@@ -541,7 +538,7 @@ namespace ServerSideCharacter
 					else
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"You don't have the permission to this command.",
+								NetworkText.FromLiteral("You don't have the permission to this command."),
 								255, 255, 20, 0);
 					}
 				}
@@ -559,13 +556,13 @@ namespace ServerSideCharacter
 					{
 						target1.ApplyLockBuffs(time);
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								string.Format("You have successfully locked {0} for {1} frames", target1.Name, time),
+							NetworkText.FromLiteral(string.Format("You have successfully locked {0} for {1} frames", target1.Name, time)),
 								255, 50, 255, 50);
 					}
 					else
 					{
 						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								"You don't have the permission to this command.",
+								NetworkText.FromLiteral("You don't have the permission to this command."),
 								255, 255, 20, 0);
 					}
 				}
@@ -583,7 +580,7 @@ namespace ServerSideCharacter
 							if (Main.npc[i].active && (!Main.npc[i].townNPC && Main.npc[i].netID != NPCID.TargetDummy))
 							{
 								Main.npc[i].StrikeNPC(100000000, 0, 0);
-								NetMessage.SendData((int)MessageID.StrikeNPC, -1, -1, "", i, 10000000, 0, 0);
+								NetMessage.SendData((int)MessageID.StrikeNPC, -1, -1, NetworkText.Empty, i, 10000000, 0, 0);
 								kills++;
 							}
 						}
@@ -697,7 +694,7 @@ namespace ServerSideCharacter
 						Item item = new Item();
 						item.netDefaults(type);
 						Item.NewItem(p.position, Vector2.Zero, type, item.maxStack);
-						player.SendInfo(string.Format("Sever has give you {0} {1}", item.maxStack, Main.itemName[type]));
+						player.SendInfo(string.Format("Sever has give you {0} {1}", item.maxStack, Lang.GetItemNameValue(type)));
 					}
 					else
 					{
@@ -963,7 +960,7 @@ namespace ServerSideCharacter
 						}
 					}
 					NetMessage.SendData(MessageID.ChatText, plr, -1,
-							sb.ToString(),
+							NetworkText.FromLiteral(sb.ToString()),
 							255, 255, 255, 0);
 				}
 				catch (Exception ex)
@@ -1016,13 +1013,13 @@ namespace ServerSideCharacter
 					sb.AppendLine("}");
 				}
 				NetMessage.SendData(MessageID.ChatText, plr, -1,
-						sb.ToString(),
+						NetworkText.FromLiteral(sb.ToString()),
 						255, 255, 255, 0);
 			}
 			else
 			{
 				NetMessage.SendData(MessageID.ChatText, plr, -1,
-						"You don't have the permission to this command.",
+						NetworkText.FromLiteral("You don't have the permission to this command."),
 						255, 255, 20, 0);
 			}
 		}
@@ -1040,7 +1037,7 @@ namespace ServerSideCharacter
 				if (Main.hardMode)
 				{
 					Main.hardMode = false;
-					NetMessage.SendData(MessageID.WorldInfo);
+					NetMessage.SendData(MessageID.WorldData);
 					ServerPlayer.SendInfoToAll("Hardmode is now off.");
 				}
 				else
@@ -1060,7 +1057,7 @@ namespace ServerSideCharacter
 			if (player.PermissionGroup.HasPermission("expert"))
 			{
 				Main.expertMode = !Main.expertMode;
-				NetMessage.SendData(MessageID.WorldInfo);
+				NetMessage.SendData(MessageID.WorldData);
 				ServerPlayer.SendInfoToAll("Server " + (Main.expertMode ? "now" : "no longer") + " in Expert Mode");
 			}
 		}
@@ -1224,7 +1221,6 @@ namespace ServerSideCharacter
 
 		public static void SummonNPC(BinaryReader reader, int whoAmI)
 		{
-
 			int plr = reader.ReadByte();
 			int type = reader.ReadInt32();
 			int number = reader.ReadInt32();
@@ -1236,7 +1232,7 @@ namespace ServerSideCharacter
 				if (player.PermissionGroup.HasPermission("sm"))
 				{
 					if (number > 200) number = 200;
-					if (type >= 1 && type < Main.npcName.Length && type != 113)
+					if (type >= 1 && type < Main.maxNPCTypes && type != 113)
 					{
 						for (int i = 0; i < number; i++)
 						{
@@ -1246,10 +1242,10 @@ namespace ServerSideCharacter
 																		 out spawnTileY);
 							int npcid = NPC.NewNPC(spawnTileX * 16, spawnTileY * 16, type, 0);
 							// This is for special slimes
-							Main.npc[npcid].netDefaults(type);
+							Main.npc[npcid].SetDefaults(type);
 						}
 						ServerPlayer.SendInfoToAll(string.Format("{0} summoned {1} {2}(s)",
-						player.Name, number, Main.npcName[type]));
+						player.Name, number, Lang.GetNPCNameValue(type)));
 					}
 					else
 					{

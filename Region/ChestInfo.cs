@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Terraria;
 
 namespace ServerSideCharacter.Region
@@ -19,57 +17,57 @@ namespace ServerSideCharacter.Region
 			RemoveFriend = 32,
 			Info = 64
 		}
-		public List<ChestInfo> ChestInfo = new List<ChestInfo>();
-		public Dictionary<int, Pending> Pendings = new Dictionary<int, Pending>();
-		private Dictionary<int, int> friendPendings = new Dictionary<int, int>();
+		public readonly ChestInfo[] ChestInfo = new ChestInfo[Main.chest.Length];
+		private readonly Dictionary<int, Pending> _pendings = new Dictionary<int, Pending>();
+		private readonly Dictionary<int, int> _friendPendings = new Dictionary<int, int>();
 		public ChestManager Initialize()
 		{
 			for (int i = 0; i < Main.chest.Length; i++)
 			{
-				ChestInfo.Add(new ChestInfo());
+				ChestInfo[i] = new ChestInfo();
 			}
 			return this;
 		}
 		private void SetFriendP(ServerPlayer player, ServerPlayer friend)
 		{
-			if (friendPendings.ContainsKey(player.UUID))
+			if (_friendPendings.ContainsKey(player.UUID))
 				if (friend == null)
-					friendPendings.Remove(player.UUID);
+					_friendPendings.Remove(player.UUID);
 				else
-					friendPendings[player.UUID] = friend.UUID;
+					_friendPendings[player.UUID] = friend.UUID;
 			else if (friend != null)
-				friendPendings.Add(player.UUID, friend.UUID);
+				_friendPendings.Add(player.UUID, friend.UUID);
 		}
 		public ServerPlayer GetFriendP(ServerPlayer player)
 		{
-			int uuid = friendPendings.ContainsKey(player.UUID) == true ? friendPendings[player.UUID] : -1;
+			int uuid = _friendPendings.ContainsKey(player.UUID) ? _friendPendings[player.UUID] : -1;
 			return ServerPlayer.FindPlayer(uuid);
 
 		}
 		public void AddPending(ServerPlayer player, Pending pending, ServerPlayer friend = null)
 		{
 
-			if (Pendings.ContainsKey(player.UUID))
-				Pendings[player.UUID] |= pending;
+			if (_pendings.ContainsKey(player.UUID))
+				_pendings[player.UUID] |= pending;
 			else
-				Pendings.Add(player.UUID, pending);
+				_pendings.Add(player.UUID, pending);
 			if (pending.HasFlag(Pending.AddFriend) || pending.HasFlag(Pending.RemoveFriend))
 				SetFriendP(player, friend);
 		}
 		public void SetPendings(ServerPlayer player, Pending pending, ServerPlayer friend = null)
 		{
-			if (Pendings.ContainsKey(player.UUID))
-				Pendings[player.UUID] = pending;
+			if (_pendings.ContainsKey(player.UUID))
+				_pendings[player.UUID] = pending;
 			else
-				Pendings.Add(player.UUID, pending);
+				_pendings.Add(player.UUID, pending);
 			if (pending.HasFlag(Pending.AddFriend) || pending.HasFlag(Pending.RemoveFriend))
 				SetFriendP(player, friend);
 
 		}
 		public void RemovePending(ServerPlayer player, Pending pending)
 		{
-			if (Pendings.ContainsKey(player.UUID))
-				Pendings[player.UUID] &= ~pending;
+			if (_pendings.ContainsKey(player.UUID))
+				_pendings[player.UUID] &= ~pending;
 			if (pending.HasFlag(Pending.AddFriend) || pending.HasFlag(Pending.RemoveFriend))
 				SetFriendP(player, null);
 		}
@@ -83,13 +81,13 @@ namespace ServerSideCharacter.Region
 		}
 		public void RemoveAllPendings(ServerPlayer player)
 		{
-			if (Pendings.ContainsKey(player.UUID))
-				Pendings[player.UUID] = new Pending();
+			if (_pendings.ContainsKey(player.UUID))
+				_pendings[player.UUID] = new Pending();
 			SetFriendP(player, null);
 		}
 		public Pending GetPendings(ServerPlayer player)
 		{
-			return Pendings.ContainsKey(player.UUID) == true ? Pendings[player.UUID] : new Pending();
+			return _pendings.ContainsKey(player.UUID) ? _pendings[player.UUID] : new Pending();
 
 		}
 		public void SetOwner(int chestID, int ownerID, bool isPublic)

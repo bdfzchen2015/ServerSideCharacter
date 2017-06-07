@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Terraria.ModLoader;
 using Terraria;
-using Microsoft.Xna.Framework;
 using Terraria.ID;
 
 namespace ServerSideCharacter.ServerCommand

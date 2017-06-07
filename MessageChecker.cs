@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace ServerSideCharacter
 {
@@ -194,7 +195,7 @@ namespace ServerSideCharacter
 				if (ServerSideCharacter.Config.IsItemBanned(sPlayer.PrototypePlayer.inventory[item], sPlayer))
 				{
 					sPlayer.ApplyLockBuffs();
-					sPlayer.SendErrorInfo("You used a banned item: " + player.inventory[item].name);
+					sPlayer.SendErrorInfo("You used a banned item: " + player.inventory[item].Name);
 				}
 			}
 			return false;
@@ -269,7 +270,7 @@ namespace ServerSideCharacter
 				Group group = player.PermissionGroup;
 				string prefix = "[" + group.ChatPrefix + "] ";
 				c = group.ChatColor;
-				NetMessage.SendData(25, -1, -1, prefix + "<" + p.name + "> " + text, playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
+				NetMessage.SendData(25, -1, -1, NetworkText.FromLiteral(prefix + "<" + p.name + "> " + text), playerID, (float)c.R, (float)c.G, (float)c.B, 0, 0, 0);
 				if (Main.dedServ)
 				{
 					Console.WriteLine("{0}<" + Main.player[playerID].name + "> " + text, prefix);
@@ -319,11 +320,11 @@ namespace ServerSideCharacter
 				NetMessage.greetPlayer(playerNumber);
 				NetMessage.buffer[playerNumber].broadcast = true;
 				ServerSideCharacter.SyncConnectedPlayer(playerNumber);
-				NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
-				NetMessage.SendData(MessageID.AnglerQuest, playerNumber, -1, Main.player[playerNumber].name, Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, NetworkText.Empty, playerNumber, 0f, 0f, 0f, 0, 0, 0);
+				NetMessage.SendData(MessageID.AnglerQuest, playerNumber, -1, NetworkText.FromLiteral(Main.player[playerNumber].name), Main.anglerQuest, 0f, 0f, 0f, 0, 0, 0);
 				return true;
 			}
-			NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, "", playerNumber, 0f, 0f, 0f, 0, 0, 0);
+			NetMessage.SendData(MessageID.SpawnPlayer, -1, playerNumber, NetworkText.Empty, playerNumber, 0f, 0f, 0f, 0, 0, 0);
 			return true;
 		}
 	}

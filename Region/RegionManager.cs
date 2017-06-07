@@ -1,14 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using ServerSideCharacter.XMLHelper;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml;
 using Newtonsoft.Json;
-using Terraria;
-using System.Collections;
 
 namespace ServerSideCharacter.Region
 {
