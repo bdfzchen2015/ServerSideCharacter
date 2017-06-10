@@ -10,6 +10,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 
 namespace ServerSideCharacter
 {
@@ -43,16 +44,12 @@ namespace ServerSideCharacter
 								if (!player.Value.HasPassword)
 								{
 									player.Value.ApplyLockBuffs();
-									NetMessage.SendData(MessageID.ChatText, playerID, -1,
-										NetworkText.FromLiteral("Welcome! You are new to here. Please use /register <password> to register an account!"),
-									255, 255, 30, 30);
+									NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You are new to here. Please use /register <password> to register an account!"), new Color(255, 255, 30, 30), playerID);
 								}
 								if (player.Value.HasPassword && !player.Value.IsLogin)
 								{
 									player.Value.ApplyLockBuffs();
-									NetMessage.SendData(MessageID.ChatText, playerID, -1,
-										NetworkText.FromLiteral("Welcome! You have already created an account. Please type /login <password> to login!"),
-									255, 255, 30, 30);
+									NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You have already created an account. Please type /login <password> to login!"), new Color(255, 255, 30, 30), playerID);
 								}
 							}
 						}

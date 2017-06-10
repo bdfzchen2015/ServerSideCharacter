@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace ServerSideCharacter.Buffs
@@ -9,6 +10,9 @@ namespace ServerSideCharacter.Buffs
 		{
 			DisplayName.SetDefault("Locked");
 			Description.SetDefault("You are locked by the server");
+
+			DisplayName.AddTranslation(GameCulture.Portuguese, "Bloqueado");
+			Description.AddTranslation(GameCulture.Portuguese, "Você está bloqueado pelo servidor");
 
 			Main.debuff[Type] = true;
 			Main.buffNoSave[Type] = true;
