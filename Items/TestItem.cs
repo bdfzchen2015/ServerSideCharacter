@@ -1,4 +1,6 @@
 using System;
+using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace ServerSideCharacter.Items
@@ -22,6 +24,7 @@ namespace ServerSideCharacter.Items
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Unloaded Item");
+			DisplayName.AddTranslation(GameCulture.Portuguese, "Item Descarregado");
 		}
 
 		public void SetUp(string fullName)
@@ -29,6 +32,7 @@ namespace ServerSideCharacter.Items
 			string modName = fullName.Substring(0, fullName.IndexOf('.'));
 			string itemName = fullName.Substring(fullName.LastIndexOf('.') + 1);
 			Tooltip.SetDefault("Mod: " + modName + Environment.NewLine + "Name: " + itemName);
+			Tooltip.AddTranslation(GameCulture.Portuguese, $"Mod: {modName}{Environment.NewLine}Nome: {itemName}");
 			FullName = fullName;
 		}
 	}

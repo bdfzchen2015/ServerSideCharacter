@@ -134,21 +134,15 @@ namespace ServerSideCharacter
 
 		public void SendSuccessInfo(string msg)
 		{
-			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-							NetworkText.FromLiteral(msg),
-							255, 50, 255, 50);
+			NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(msg), new Color(255, 50, 255, 50), PrototypePlayer.whoAmI);
 		}
 		public void SendInfo(string msg)
 		{
-			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-				NetworkText.FromLiteral(msg),
-							255, 255, 255, 0);
+			NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(msg), new Color(255, 255, 255, 0), PrototypePlayer.whoAmI);
 		}
 		public void SendErrorInfo(string msg)
 		{
-			NetMessage.SendData(MessageID.ChatText, PrototypePlayer.whoAmI, -1,
-				NetworkText.FromLiteral(msg),
-							255, 255, 20, 0);
+			NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(msg), new Color(255, 255, 20, 0), PrototypePlayer.whoAmI);
 		}
 
 		//      public static string GenHashCode(string name)
@@ -182,9 +176,7 @@ namespace ServerSideCharacter
 
 		public static void SendInfoToAll(string msg)
 		{
-			NetMessage.SendData(MessageID.ChatText, -1, -1,
-				NetworkText.FromLiteral(msg),
-							255, 255, 255);
+			NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(msg), new Color(255, 255, 255));
 		}
 
 		public static ServerPlayer FindPlayer(int uuid)

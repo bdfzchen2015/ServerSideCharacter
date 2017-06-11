@@ -163,7 +163,7 @@ namespace ServerSideCharacter
 				if (!Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = true;
-					NetMessage.SendData(MessageID.ChatText, -1, plr, NetworkText.FromLiteral(Main.player[plr].name + " joined the Game. Welcome!"), 255, 255f, 240f, 20f, 0, 0, 0);
+					NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(Main.player[plr].name + " joined the Game. Welcome!"), new Color(255, 255, 240, 20), plr);
 					if (Main.dedServ)
 					{
 						Console.WriteLine(Main.player[plr].name + " joined the Game. Welcome!");
@@ -177,7 +177,7 @@ namespace ServerSideCharacter
 				if (Netplay.Clients[plr].IsAnnouncementCompleted)
 				{
 					Netplay.Clients[plr].IsAnnouncementCompleted = false;
-					NetMessage.SendData(MessageID.ChatText, -1, plr, NetworkText.FromLiteral(Netplay.Clients[plr].Name + " lefted the Game!"), 255, 255f, 240f, 20f, 0, 0, 0);
+					NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(Netplay.Clients[plr].Name + " lefted the Game!"), new Color(255, 255, 240, 20), plr);
 					if (Main.dedServ)
 					{
 						Console.WriteLine(Netplay.Clients[plr].Name + " lefted the Game!");
@@ -433,8 +433,7 @@ namespace ServerSideCharacter
 					ServerPlayer player = XmlData.Data[p.name];
 					if (player.HasPassword)
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1, NetworkText.FromLiteral("You cannot register twice!"),
-							255, 255, 0, 0);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You cannot register twice!"), new Color(255, 255, 0, 0), plr);
 						return;
 
 					}
@@ -444,9 +443,8 @@ namespace ServerSideCharacter
 						{
 							player.HasPassword = true;
 							player.Password = MD5Crypto.ComputeMD5(password);
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral(string.Format("You have successfully set your password as {0}. Remember it!", password)),
-								255, 50, 255, 50);
+
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(string.Format("You have successfully set your password as {0}. Remember it!", password)), new Color(255, 50, 255, 50), plr);
 						}
 					}
 				}
@@ -459,8 +457,7 @@ namespace ServerSideCharacter
 
 					if (!player.HasPassword)
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1, NetworkText.FromLiteral("You should first register an account use /register <password> !"),
-							255, 255, 0, 0);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You should first register an account use /register <password> !"), new Color(255, 255, 0, 0), plr);
 					}
 					else
 					{
@@ -468,18 +465,12 @@ namespace ServerSideCharacter
 						if (password.Equals(player.Password))
 						{
 							player.IsLogin = true;
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral(string.Format("You have successfully logged in as {0}", player.Name)),
-								255, 50, 255, 50);
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("Please wait for a few seconds and then you can move"),
-								255, 255, 255, 0);
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(string.Format("You have successfully logged in as {0}", player.Name)), new Color(255, 50, 255, 50), plr);
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Please wait for a few seconds and then you can move"), new Color(255, 255, 255, 0), plr);
 						}
 						else
 						{
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("Wrong password! Please try again!"),
-								255, 255, 20, 0);
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Wrong password! Please try again!"), new Color(255, 255, 20, 0), plr);
 						}
 					}
 				}
@@ -499,9 +490,7 @@ namespace ServerSideCharacter
 					}
 					else
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("You don't have the permission to this command."),
-								255, 255, 20, 0);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You don't have the permission to this command."), new Color(255, 255, 20, 0), plr);
 					}
 				}
 				else if (msgType == SSCMessageType.ListCommand)
@@ -523,23 +512,17 @@ namespace ServerSideCharacter
 						{
 							ServerPlayer targetPlayer = ServerPlayer.FindPlayer(uuid);
 							targetPlayer.PermissionGroup = GroupManager.Groups[group];
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral(string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group)),
-								255, 50, 255, 50);
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(string.Format("Successfully set {0} to group '{1}'", targetPlayer.Name, group)), new Color(255, 50, 255, 50), plr);
 						}
 						catch
 						{
-							NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("Cannot find this player or group name invalid!"),
-								255, 255, 20, 0);
+							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Cannot find this player or group name invalid!"), new Color(255, 255, 20, 0), plr);
 							return;
 						}
 					}
 					else
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("You don't have the permission to this command."),
-								255, 255, 20, 0);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You don't have the permission to this command."), new Color(255, 255, 20, 0), plr);
 					}
 				}
 				else if (msgType == SSCMessageType.LockPlayer)
@@ -555,15 +538,11 @@ namespace ServerSideCharacter
 					if (player.PermissionGroup.HasPermission("lock"))
 					{
 						target1.ApplyLockBuffs(time);
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-							NetworkText.FromLiteral(string.Format("You have successfully locked {0} for {1} frames", target1.Name, time)),
-								255, 50, 255, 50);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(string.Format("You have successfully locked {0} for {1} frames", target1.Name, time)), new Color(255, 50, 255, 50), plr);
 					}
 					else
 					{
-						NetMessage.SendData(MessageID.ChatText, plr, -1,
-								NetworkText.FromLiteral("You don't have the permission to this command."),
-								255, 255, 20, 0);
+						NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You don't have the permission to this command."), new Color(255, 255, 20, 0), plr);
 					}
 				}
 				else if (msgType == SSCMessageType.ButcherCommand)
@@ -959,9 +938,7 @@ namespace ServerSideCharacter
 							i++;
 						}
 					}
-					NetMessage.SendData(MessageID.ChatText, plr, -1,
-							NetworkText.FromLiteral(sb.ToString()),
-							255, 255, 255, 0);
+					NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(sb.ToString()), new Color(255, 255, 255, 0), plr);
 				}
 				catch (Exception ex)
 				{
@@ -1012,15 +989,11 @@ namespace ServerSideCharacter
 					}
 					sb.AppendLine("}");
 				}
-				NetMessage.SendData(MessageID.ChatText, plr, -1,
-						NetworkText.FromLiteral(sb.ToString()),
-						255, 255, 255, 0);
+				NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(sb.ToString()), new Color(255, 255, 255, 0), plr);
 			}
 			else
 			{
-				NetMessage.SendData(MessageID.ChatText, plr, -1,
-						NetworkText.FromLiteral("You don't have the permission to this command."),
-						255, 255, 20, 0);
+				NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("You don't have the permission to this command."), new Color(255, 255, 20, 0), plr);
 			}
 		}
 
