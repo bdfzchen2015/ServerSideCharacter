@@ -28,6 +28,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
+			args = Utils.ParseArgs(args);
 			if (args[0] == "set")
 			{
 				int uuid = int.Parse(args[1]);

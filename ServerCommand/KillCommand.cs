@@ -1,6 +1,7 @@
 ﻿using System;
 using Terraria.ModLoader;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace ServerSideCharacter.ServerCommand
 {
@@ -28,7 +29,19 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
-			MessageSender.SendKillCommand(Main.myPlayer, Convert.ToInt32(args[0]));
+			args = Utils.ParseArgs(args);
+			int who = Utils.TryGetPlayerID(args[0]);
+			if (who == -1)
+			{
+				Main.NewText("Player not found", Color.Red);
+				return;
+			}
+			if (who == Main.myPlayer)
+			{
+				Main.NewText("You cannot kill yourself", Color.Red);
+				return;
+			}
+			MessageSender.SendKillCommand(Main.myPlayer, who);
 		}
 	}
 }

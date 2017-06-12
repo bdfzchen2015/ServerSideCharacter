@@ -31,6 +31,7 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
+			args = Utils.ParseArgs(args);
 			string type = args[0];
 			string tryToFind = args[1];
 			if (type == "-i")

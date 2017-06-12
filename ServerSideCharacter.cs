@@ -1156,6 +1156,7 @@ namespace ServerSideCharacter
 				Directory.CreateDirectory("SSC");
 			}
 			Config = new ServerConfigManager();
+			GroupManager = new Config.Group.GroupConfigManager();
 			ChestManager = Utils.LoadChestInfo();
 			if (!System.IO.File.Exists("SSC/datas.xml"))
 			{
@@ -1168,7 +1169,6 @@ namespace ServerSideCharacter
 				MainWriter = writer;
 				Console.WriteLine("Saved data: " + save);
 			}
-			GroupManager = new Config.Group.GroupConfigManager();
 		}
 
 
