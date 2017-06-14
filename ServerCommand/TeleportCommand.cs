@@ -28,16 +28,12 @@ namespace ServerSideCharacter.ServerCommand
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
-			int who;
-			if (!int.TryParse(args[0], out who))
+			args = Utils.ParseArgs(args);
+			int who = Utils.TryGetPlayerID(args[0]);
+			if (who == -1)
 			{
-				Player player = Utils.TryGetPlayer(args[0]);
-				if (player == null || !player.active)
-				{
-					Main.NewText("Player not found", Color.Red);
-					return;
-				}
-				who = player.whoAmI;
+				Main.NewText("Player not found", Color.Red);
+				return;
 			}
 			MessageSender.SendTeleportCommand(Main.myPlayer, who);
 		}

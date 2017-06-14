@@ -28,6 +28,7 @@ namespace ServerSideCharacter.ServerCommand
 		}
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
+			args = Utils.ParseArgs(args);
 			ChestManager.Pending pending = (ChestManager.Pending)Enum.Parse(typeof(ChestManager.Pending), args[0], true);
 			int plr = Main.myPlayer;
 			string friend = args.Length > 1 ? args[1] : null;
