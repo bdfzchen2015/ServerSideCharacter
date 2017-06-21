@@ -17,6 +17,8 @@ namespace ServerSideCharacter
 
 		public bool IsLogin { get; set; }
 
+		public bool TPProtect { get; set; }
+
 		public string Name { get; set; }
 
 		public string Password { get; set; }
@@ -142,7 +144,7 @@ namespace ServerSideCharacter
 		}
 		public void SendErrorInfo(string msg)
 		{
-			NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(msg), new Color(255, 255, 20, 0), PrototypePlayer.whoAmI);
+			NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(msg), new Color(255, 20, 20, 0), PrototypePlayer.whoAmI);
 		}
 
 		//      public static string GenHashCode(string name)
@@ -166,6 +168,7 @@ namespace ServerSideCharacter
 			player.HasPassword = false;
 			player.PermissionGroup = ServerSideCharacter.GroupManager.Groups["default"];
 			player.IsLogin = false;
+			player.TPProtect = true;
 			player.Password = "";
 			player.LifeMax = 100;
 			player.StatLife = 100;

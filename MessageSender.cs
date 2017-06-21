@@ -302,6 +302,15 @@ namespace ServerSideCharacter
 			p.Write((byte)type);
 			p.Send();
 		}
+
+		public static void SendTPProtect(int plr)
+		{
+			ModPacket p = ServerSideCharacter.Instance.GetPacket();
+			p.Write((int)SSCMessageType.TPProtect);
+			p.Write((byte)Main.myPlayer);
+			p.Send();
+		}
+
 		public static void SendChestCommand(ChestManager.Pending pending, int plr, string friendName = null)
 		{
 			ModPacket pack = ServerSideCharacter.Instance.GetPacket();

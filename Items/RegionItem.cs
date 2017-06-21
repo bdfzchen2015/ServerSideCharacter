@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using Terraria.Localization;
 
 namespace ServerSideCharacter.Items
 {
@@ -23,6 +24,9 @@ namespace ServerSideCharacter.Items
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Region Item");
+
+			DisplayName.AddTranslation(GameCulture.Chinese, "»¶µÿŒÔ∆∑");
+
 		}
 
 		public override bool AltFunctionUse(Player player)
@@ -31,7 +35,7 @@ namespace ServerSideCharacter.Items
 		}
 		public override bool UseItem(Player player)
 		{
-
+			
 			if (player.altFunctionUse != 2 && Main.mouseLeftRelease)
 			{
 				Vector2 tilePos = new Vector2(Player.tileTargetX, Player.tileTargetY);

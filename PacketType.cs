@@ -34,7 +34,8 @@
 		SetGodMode,
 		ServerSideCharacter,
 		GenResources,
-		ChestCommand
+		ChestCommand,
+		TPProtect
 	}
 
 	public enum GenerationType

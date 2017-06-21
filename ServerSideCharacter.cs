@@ -60,6 +60,7 @@ namespace ServerSideCharacter
 				AutoloadSounds = true,
 				AutoloadGores = true
 			};
+			
 		}
 
 
@@ -582,10 +583,17 @@ namespace ServerSideCharacter
 					{
 						if (targetPlayer.PrototypePlayer != null && targetPlayer.PrototypePlayer.active)
 						{
-							p.Teleport(Main.player[target].position);
-							MessageSender.SendTeleport(plr, Main.player[target].position);
-							player.SendInfo("You have teleproted to " + targetPlayer.Name);
-							targetPlayer.SendInfo(player.Name + " has teleproted to you!");
+							if (targetPlayer.TPProtect)
+							{
+								player.SendErrorInfo("玩家不允许被别人传送");
+							}
+							else
+							{
+								p.Teleport(Main.player[target].position);
+								MessageSender.SendTeleport(plr, Main.player[target].position);
+								player.SendInfo("You have teleproted to " + targetPlayer.Name);
+								targetPlayer.SendInfo(player.Name + " has teleproted to you!");
+							}
 						}
 						else
 						{
@@ -795,6 +803,10 @@ namespace ServerSideCharacter
 					player.SendSuccessInfo("Open a chest do apply the changes");
 
 				}
+				else if (msgType == SSCMessageType.TPProtect)
+				{
+					TPProtect(reader, whoAmI);
+				}
 				else
 				{
 					Console.WriteLine("Unexpected message type!");
@@ -804,6 +816,14 @@ namespace ServerSideCharacter
 			{
 				CommandBoardcast.ConsoleError(ex);
 			}
+		}
+
+		private void TPProtect(BinaryReader reader, int whoAmI)
+		{
+			int plr = reader.ReadByte();
+			ServerPlayer player = Main.player[plr].GetServerPlayer();
+			player.TPProtect = !player.TPProtect;
+			player.SendSuccessInfo("传送保护现已" + (player.TPProtect ? "启用" : "禁用"));
 		}
 
 		private void GenResources(BinaryReader reader, int whoAmI)

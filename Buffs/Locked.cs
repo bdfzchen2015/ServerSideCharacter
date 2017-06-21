@@ -14,6 +14,9 @@ namespace ServerSideCharacter.Buffs
 			DisplayName.AddTranslation(GameCulture.Portuguese, "Bloqueado");
 			Description.AddTranslation(GameCulture.Portuguese, "Você está bloqueado pelo servidor");
 
+			DisplayName.AddTranslation(GameCulture.Chinese, "锁");
+			Description.AddTranslation(GameCulture.Chinese, "你被服务器锁住了");
+
 			Main.debuff[Type] = true;
 			Main.buffNoSave[Type] = true;
 		}
@@ -21,6 +24,10 @@ namespace ServerSideCharacter.Buffs
 		{
 			var modPlayer = player.GetModPlayer<MPlayer>(mod);
 			modPlayer.Locked = true;
+		}
+		public override void ModifyBuffTip(ref string tip, ref int rare)
+		{
+			base.ModifyBuffTip(ref tip, ref rare);
 		}
 	}
 }
