@@ -23,9 +23,10 @@ namespace ServerSideCharacter
 		{
 			try
 			{
-				if (_method.ContainsKey(messageType))
+				MessagePatchDelegate mpd;
+				if (_method.TryGetValue(messageType, out mpd))
 				{
-					return _method[messageType](ref reader, playerNumber);
+					return mpd(ref reader, playerNumber);
 				}
 			}
 			catch (Exception ex)
@@ -42,10 +43,30 @@ namespace ServerSideCharacter
 			{
 				{ MessageID.SpawnPlayer, PlayerSpawn },
 				{ MessageID.ChatText, ChatText },
+				{ MessageID.NetModules, HandleNetModules },
 				{ MessageID.TileChange, TileChange },
 				{ MessageID.PlayerControls, PlayerControls },
 				{ MessageID.RequestChestOpen, RequestChestOpen }
 			};
+		}
+
+		private bool HandleNetModules(ref BinaryReader reader, int playernumber)
+		{
+			var moduleId = reader.ReadUInt16();
+			//LoadNetModule is now used for sending chat text.
+			//Read the module ID to determine if this is in fact the text module
+			if (Main.netMode == 2)
+			{
+				if (moduleId == Terraria.Net.NetManager.Instance.GetId<Terraria.GameContent.NetModules.NetTextModule>())
+				{
+					//Then deserialize the message from the reader
+					var msg = Terraria.Chat.ChatMessage.Deserialize(reader);
+
+					return msg.Text.StartsWith("/", StringComparison.Ordinal);
+				}
+			}
+
+			return false;
 		}
 
 		private bool RequestChestOpen(ref BinaryReader reader, int playerNumber)

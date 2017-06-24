@@ -65,19 +65,10 @@ namespace ServerSideCharacter
 
 		}
 
-
 		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
 		{
 			switch (msgType)
 			{
-				case MessageID.ChatText: // todo: validate this outdated message id
-					var literal = text.ToString();
-
-					if (literal[0] == '/')
-					{
-						return true;
-					}
-					break;
 				case MessageID.WorldData:
 					if (Main.netMode != 2) // we will not process this message in client-side
 					{
@@ -248,6 +239,9 @@ namespace ServerSideCharacter
 					}
 
 					return true;
+
+				default:
+					break;
 			}
 
 			return false;
@@ -308,7 +302,6 @@ namespace ServerSideCharacter
 				if (toWho == -1)
 				{
 					player.IsLogin = false;
-					//����������debuff
 					player.ApplyLockBuffs();
 				}
 
