@@ -204,13 +204,13 @@ namespace ServerSideCharacter
 
 					binaryWriter.Close();
 
-					try
+					if (remoteClient == -1)
 					{
-						if (remoteClient == -1)
+						for (var index = 0; index < 256; index++)
 						{
-							for (var index = 0; index < 256; index++)
+							if (index != ignoreClient && (NetMessage.buffer[index].broadcast || Netplay.Clients[index].State >= 3 && msgType == 10) && Netplay.Clients[index].IsConnected())
 							{
-								if (index != ignoreClient && (NetMessage.buffer[index].broadcast || Netplay.Clients[index].State >= 3 && msgType == 10) && Netplay.Clients[index].IsConnected())
+								try
 								{
 									NetMessage.buffer[index].spamCount++;
 									Main.txMsg++;
@@ -220,17 +220,24 @@ namespace ServerSideCharacter
 									Netplay.Clients[index].Socket.AsyncSend(data, 0, data.Length,
 										Netplay.Clients[index].ServerWriteCallBack);
 								}
+								catch
+								{
+									// ignored
+								}
 							}
 						}
-						else
+					}
+					else
+					{
+						try
 						{
 							Netplay.Clients[remoteClient].Socket.AsyncSend(data, 0, data.Length,
 								Netplay.Clients[remoteClient].ServerWriteCallBack);
 						}
-					}
-					catch
-					{
-						// ignored
+						catch
+						{
+							// ignored
+						}
 					}
 
 					return true;
