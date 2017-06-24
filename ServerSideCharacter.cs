@@ -193,6 +193,13 @@ namespace ServerSideCharacter
 					bb8[7] = DD2Event.DownedInvasionT3;
 					binaryWriter.Write(bb8);
 					binaryWriter.Write((sbyte)Main.invasionType);
+					if (!ModNet.AllowVanillaClients)
+					{
+						// We have to call `WorldIO.SendModData(binaryWriter)` using reflection
+						var type = typeof(Main).Assembly.GetType("Terraria.ModLoader.IO.WorldIO");
+						var method = type.GetMethod("SendModData", new[] {typeof(BinaryWriter)});
+						method.Invoke(null, new object[] {binaryWriter});
+					}
 					binaryWriter.Write(SocialAPI.Network != null ? SocialAPI.Network.GetLobbyId() : 0UL);
 					binaryWriter.Write(Sandstorm.IntendedSeverity);
 
