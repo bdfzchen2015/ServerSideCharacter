@@ -78,6 +78,7 @@ namespace ServerSideCharacter
 			return false;
 		}
 
+
 		public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
 		{
 			return MessageChecker.CheckMessage(ref messageType, ref reader, playerNumber);
@@ -440,7 +441,7 @@ namespace ServerSideCharacter
 					}
 					else
 					{
-						lock (XmlData.Data)
+						lock (player)
 						{
 							player.HasPassword = true;
 							player.Password = MD5Crypto.ComputeMD5(password);
@@ -465,7 +466,10 @@ namespace ServerSideCharacter
 						password = MD5Crypto.ComputeMD5(password);
 						if (password.Equals(player.Password))
 						{
-							player.IsLogin = true;
+							lock (player)
+							{
+								player.IsLogin = true;
+							}
 							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(string.Format("You have successfully logged in as {0}", player.Name)), new Color(255, 50, 255, 50), plr);
 							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Please wait for a few seconds and then you can move"), new Color(255, 255, 255, 0), plr);
 						}

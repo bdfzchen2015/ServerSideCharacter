@@ -36,20 +36,23 @@ namespace ServerSideCharacter
 					}
 					if (Main.time % 180 < 1)
 					{
-						foreach (var player in ServerSideCharacter.XmlData.Data)
+						lock(ServerSideCharacter.XmlData)
 						{
-							if (player.Value.PrototypePlayer != null)
+							foreach (var player in ServerSideCharacter.XmlData.Data)
 							{
-								int playerID = player.Value.PrototypePlayer.whoAmI;
-								if (!player.Value.HasPassword)
+								if (player.Value.PrototypePlayer != null)
 								{
-									player.Value.ApplyLockBuffs();
-									NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You are new to here. Please use /register <password> to register an account!"), new Color(255, 255, 30, 30), playerID);
-								}
-								if (player.Value.HasPassword && !player.Value.IsLogin)
-								{
-									player.Value.ApplyLockBuffs();
-									NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You have already created an account. Please type /login <password> to login!"), new Color(255, 255, 30, 30), playerID);
+									int playerID = player.Value.PrototypePlayer.whoAmI;
+									if (!player.Value.HasPassword)
+									{
+										player.Value.ApplyLockBuffs();
+										NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You are new to here. Please use /register <password> to register an account!"), new Color(255, 255, 30, 30), playerID);
+									}
+									if (player.Value.HasPassword && !player.Value.IsLogin)
+									{
+										player.Value.ApplyLockBuffs();
+										NetMessage.SendChatMessageToClient(NetworkText.FromLiteral("Welcome! You have already created an account. Please type /login <password> to login!"), new Color(255, 255, 30, 30), playerID);
+									}
 								}
 							}
 						}
