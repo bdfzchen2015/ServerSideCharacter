@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Terraria;
+using Terraria.Chat;
 using Terraria.ID;
 using Terraria.Localization;
 
@@ -60,7 +61,7 @@ namespace ServerSideCharacter
 				if (moduleId == Terraria.Net.NetManager.Instance.GetId<Terraria.GameContent.NetModules.NetTextModule>())
 				{
 					//Then deserialize the message from the reader
-					var msg = Terraria.Chat.ChatMessage.Deserialize(reader);
+					var msg = ChatMessage.Deserialize(reader);
 
 					return msg.Text.StartsWith("/", StringComparison.Ordinal);
 				}
